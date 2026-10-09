@@ -1,0 +1,50 @@
+import { ShoppingBag } from "lucide-react";
+import type { Bundle } from "@/data/bundles";
+import { getBundleOriginalPrice } from "@/data/bundles";
+import { products } from "@/data/products";
+import { formatPKR } from "@/config/store";
+import { useCart } from "@/store/cart";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featured?: boolean }) {
+  const addBundle = useCart((state) => state.addBundle);
+  const included = bundle.productSlugs
+    .map((slug) => products.find((product) => product.slug === slug))
+    .filter((product): product is (typeof products)[number] => Boolean(product));
+  const original = getBundleOriginalPrice(bundle);
+  return (
+    <article className="border-t border-primary/25 pt-6">
+      <div className="relative flex aspect-[5/4] items-end justify-center overflow-hidden rounded-md bg-background">
+        {included.map((product, index) => (
+          <img
+            key={product.slug}
+            src={product.image}
+            alt={`${product.name} included in ${bundle.name}`}
+            loading="lazy"
+            className={`absolute bottom-0 h-[82%] w-[46%] rounded-t-md object-cover shadow-lg ${index === 0 ? "-translate-x-[42%] -rotate-3" : index === 2 ? "translate-x-[42%] rotate-3" : "z-10"}`}
+          />
+        ))}
+        <div className="absolute left-3 top-3 z-20 flex flex-wrap gap-2">
+          <Badge variant="saving">
+            Save {formatPKR(original - bundle.price)} ({bundle.savePercent}%)
+          </Badge>
+          {featured && <Badge>Best Value</Badge>}
+        </div>
+      </div>
+      <h3 className="mt-6 text-3xl font-light">{bundle.name}</h3>
+      <ul className="mt-4 space-y-1 text-base text-muted-foreground">
+        {included.map((product) => (
+          <li key={product.slug}>{product.name}</li>
+        ))}
+      </ul>
+      <div className="my-5 flex items-center gap-4">
+        <span className="text-sm line-through text-muted-foreground">{formatPKR(original)}</span>
+        <strong className="text-xl font-medium">{formatPKR(bundle.price)}</strong>
+      </div>
+      <Button className="w-full" onClick={() => addBundle(bundle.slug)}>
+        <ShoppingBag /> Add bundle to cart
+      </Button>
+    </article>
+  );
+}
