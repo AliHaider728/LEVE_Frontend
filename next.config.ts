@@ -1,10 +1,11 @@
 import path from "node:path";
 import type { NextConfig } from "next";
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
-const nextConfig: NextConfig = {
+const nextConfig = (phase: string): NextConfig => ({
   output: "standalone",
-  // Optional isolation for verification while a development preview is running.
-  distDir: process.env.NEXT_DIST_DIR || ".next",
+  // Keep development assets separate so production builds cannot break a running preview.
+  distDir: process.env.NEXT_DIST_DIR || (phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next"),
   outputFileTracingRoot: path.join(__dirname),
   reactStrictMode: true,
   compress: true,
@@ -17,6 +18,6 @@ const nextConfig: NextConfig = {
       // Add your future CDN domain here, e.g. { protocol: "https", hostname: "cdn.leva.pk" }
     ],
   },
-};
+});
 
 export default nextConfig;
