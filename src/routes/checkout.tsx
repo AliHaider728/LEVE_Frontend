@@ -406,7 +406,7 @@ function Checkout() {
           </Fieldset>
         </div>
 
-        <aside className="h-fit lg:sticky lg:top-32">
+        <aside className="h-fit lg:sticky lg:top-[calc(var(--header-h)+1rem)]">
           <div className="hidden border border-primary/20 p-6 lg:block">
             <h2 className="mb-5 text-xl font-light">Order summary</h2>
             {summary}

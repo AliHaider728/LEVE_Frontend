@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@/lib/router-compat";
 import {
   AnimatePresence,
@@ -80,6 +80,8 @@ function applyFilters(list: Product[], s: Search) {
 }
 
 function Shop() {
+  const filter = useRef<HTMLDivElement>(null);
+  useEffect(() => { const element = filter.current; if (!element) return; const measure = () => document.documentElement.style.setProperty('--shop-filter-h', element.getBoundingClientRect().height + 'px'); const observer = new ResizeObserver(measure); observer.observe(element); measure(); return () => { observer.disconnect(); document.documentElement.style.removeProperty('--shop-filter-h'); }; }, []);
   const { products, bundles } = useStoreData();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/shop/" });
@@ -157,10 +159,10 @@ function Shop() {
   );
 
   return (
-    <main className="pb-16 md:pb-0">
+    <main className="shop-page pb-16 md:pb-0">
       <Intro />
 
-      <div className="sticky top-16 z-30 border-y border-primary/15 bg-white md:top-[var(--header-h)]">
+      <div ref={filter} data-shop-filter className="shop-filter-bar sticky top-[var(--header-h)] z-30 border-b border-primary/15 bg-white shadow-sm">
         <div className="hidden items-center gap-4 overflow-x-auto px-[6vw] py-2 md:flex [scrollbar-width:none]">
           {controls()}
         </div>
@@ -434,7 +436,7 @@ function Intro() {
 
 /** Static cards remain visible without animation or IntersectionObserver. */
 function ShopGrid({ results }: { results: Product[] }) {
-  return <div data-shop-grid className="grid auto-rows-fr grid-cols-2 items-stretch gap-3 px-4 py-12 md:grid-cols-3 md:gap-6 md:px-[6vw] lg:grid-cols-4">
+  return <div data-shop-grid className="grid auto-rows-fr grid-cols-2 items-stretch gap-3 px-4 pt-6 pb-12 md:grid-cols-3 md:gap-6 md:px-[6vw] lg:grid-cols-4">
     {results.map(product => <div key={product.slug} className="min-w-0"><ProductCard product={product} /></div>)}
     <BuildBundleCard />
   </div>;

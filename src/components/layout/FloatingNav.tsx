@@ -1,6 +1,6 @@
 import { useStoreData } from "@/store/catalog";
 import { formatPKR } from "@/config/store";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useRouterState } from "@/lib/router-compat";
 import { Contact, Home, Layers3, Search, ShoppingBag, Store } from "lucide-react";
 import logo from "@/assets/LEVA.png.asset.json";
@@ -26,6 +26,8 @@ const tabs = [
 
 export function FloatingNav() {
   const { settings: storeConfig } = useStoreData();
+  const header = useRef<HTMLElement>(null);
+  useEffect(() => { const element = header.current; if (!element) return; const measure = () => document.documentElement.style.setProperty("--header-h", element.getBoundingClientRect().bottom + "px"); const observer = new ResizeObserver(measure); observer.observe(element); window.addEventListener("resize", measure); measure(); return () => { observer.disconnect(); window.removeEventListener("resize", measure); document.documentElement.style.removeProperty("--header-h"); }; }, []);
   const [scrolled, setScrolled] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const setCartOpen = useCart((state) => state.setOpen);
@@ -47,7 +49,7 @@ export function FloatingNav() {
         Free delivery over {formatPKR(storeConfig.freeShippingThreshold)}&nbsp; | &nbsp;Cash on Delivery nationwide&nbsp; |
         &nbsp;WhatsApp {storeConfig.phone}
       </div>
-      <header
+      <header ref={header} data-store-header
         className={`fixed inset-x-0 top-0 z-40 border-b border-primary/10 bg-white text-foreground transition-colors duration-300 md:top-8 ${scrolled || pathname !== "/" ? "shadow-sm" : ""}`}
       >
         <div className="flex h-16 w-full items-center justify-between px-4 md:grid md:h-20 md:grid-cols-[1fr_auto_1fr] md:px-6 lg:px-8">

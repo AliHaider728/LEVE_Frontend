@@ -170,3 +170,9 @@
   .product-card > div:first-child { min-height: 190px; }
   input, select, textarea { min-width: 0; max-width: 100%; }
 }
+
+/* Visible fixed header and opaque sticky shop controls. */
+html { scroll-padding-top: var(--header-h); }
+[id] { scroll-margin-top: calc(var(--header-h) + 1rem); }
+.shop-filter-bar { background: #fff; isolation: isolate; }
+.shop-page [id], .shop-page article { scroll-margin-top: calc(var(--header-h) + var(--shop-filter-h, 96px) + 1rem); }

@@ -1,4 +1,5 @@
 "use client";
+import { ScrollManager } from '@/components/layout/ScrollManager';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import { FloatingNav } from "@/components/layout/FloatingNav";
@@ -28,5 +29,5 @@ function StorefrontShell({ children }: { children: ReactNode }) {
 export function Providers({children}:{children:ReactNode}) {
  const pathname=usePathname();
  const [queryClient]=useState(()=>new QueryClient());
- return <QueryClientProvider client={queryClient}>{pathname.startsWith("/admin")?<>{children}<Toaster position="top-center" /></>:<StorefrontShell>{children}</StorefrontShell>}</QueryClientProvider>;
+ return <QueryClientProvider client={queryClient}><ScrollManager/>{pathname.startsWith("/admin")?<>{children}<Toaster position="top-center" /></>:<StorefrontShell>{children}</StorefrontShell>}</QueryClientProvider>;
 }
