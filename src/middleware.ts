@@ -1,3 +1,4 @@
+import { adminBackendOrigin } from '@/lib/api/admin-origin';
 import { NextRequest, NextResponse } from 'next/server';
 export async function middleware(request: NextRequest) {
     if (request.nextUrl.pathname === '/admin/login')
@@ -5,7 +6,7 @@ export async function middleware(request: NextRequest) {
     const publicOrigin = request.nextUrl.protocol + '//' + (request.headers.get('host') || request.nextUrl.host);
     const login = new URL('/admin/login', publicOrigin);
     login.searchParams.set('next', request.nextUrl.pathname);
-    const origin = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/+$/, '');
+    const origin = adminBackendOrigin();
     const cookieName = process.env.ADMIN_SESSION_COOKIE_NAME || 'leva_admin_token';
     if (!origin || !request.cookies.get(cookieName))
         return NextResponse.redirect(login);

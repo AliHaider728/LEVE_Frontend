@@ -20,3 +20,5 @@ Leave COOKIE_DOMAIN unset. The admin proxy forwards the HttpOnly cookie onto the
 Redeploy the backend, then redeploy the frontend after saving environment variables and including all current admin source files. Health must return 200 before trying login. If it stays 503 with correct database variables, check remote MySQL access/firewall from Vercel. Do not recreate the admin or change its password to resolve a deployment configuration error.
 
 Use admin@leva.pk and the password entered during the hidden admin:setup prompt.
+
+Admin requests always use /api/admin on the frontend host. BACKEND_API_URL can override the server-side connection; NEXT_PUBLIC_API_URL is the second preference. Without either, development uses http://127.0.0.1:5001 and production uses https://leva-backend.vercel.app. A missing browser API URL does not disable admin sign-in.

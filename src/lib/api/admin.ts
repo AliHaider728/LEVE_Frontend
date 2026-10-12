@@ -1,7 +1,5 @@
-import { API_URL, ApiError } from './client';
+import { ApiError } from './client';
 async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-    if (!API_URL)
-        throw new ApiError('The backend connection is not configured.', 0, 'configuration');
     try {
         const response = await fetch('/api/admin/' + path.replace(/^\/api\//, ''), { ...options, credentials: 'include', cache: 'no-store', headers: { Accept: 'application/json', ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers }, signal: AbortSignal.timeout(30000) });
         const body = await response.json();
@@ -89,7 +87,15 @@ export const adminApi = {
     product: async (id: string) => normalizeAdminProduct(await apiRequest<AdminProduct>('/api/products/' + encodeURIComponent(id))),
     saveProduct: (id: string | undefined, body: Partial<AdminProduct>) => apiRequest<AdminProduct>('/api/products' + (id ? '/' + encodeURIComponent(id) : ''), json(id ? 'PUT' : 'POST', body)),
     deleteProduct: (id: string) => apiRequest('/api/products/' + encodeURIComponent(id), { method: 'DELETE' }),
-    orders: () => apiRequest<AdminOrder[]>('/api/orders'),
+    orders: async () => {
+        const first = await apiRequest<OrderPage>('/api/orders?page=1&limit=100');
+        const orders = [...first.orders];
+        for (let page = 2; page <= first.totalPages; page++) {
+            const result = await apiRequest<OrderPage>('/api/orders?page=' + page + '&limit=100');
+            orders.push(...result.orders);
+        }
+        return orders;
+    },
     orderPage: (page: number, search: string, status: string) => apiRequest<OrderPage>('/api/orders?' + new URLSearchParams({ page: String(page), limit: '20', search, status })),
     order: (id: string) => apiRequest<AdminOrder>('/api/orders/' + encodeURIComponent(id)),
     status: (id: string, status: string, note: string) => apiRequest('/api/orders/' + encodeURIComponent(id) + '/status', json('PUT', { status, note })),
@@ -106,8 +112,6 @@ export async function uploadAdminImage(file: File): Promise<{
     thumbnailUrl: string;
     publicId: string;
 }> {
-    if (!API_URL)
-        throw new ApiError('The store connection is not configured yet.', 0, 'configuration');
     if (file.size > 5 * 1024 * 1024)
         throw new Error('Choose an image smaller than 5 MB.');
     const data = new FormData();

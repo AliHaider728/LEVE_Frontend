@@ -1,3 +1,4 @@
+import { adminBackendOrigin } from '@/lib/api/admin-origin';
 import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 const allowed = [/^auth\/(login|logout|me|users)$/, /^products(?:\/[^/]+)?$/, /^orders(?:\/[^/]+(?:\/(status|tracking))?)?$/, /^upload\/image$/, /^features$/];
@@ -16,7 +17,7 @@ async function proxy(request: NextRequest, { params }: {
     const route = path.join('/');
     if (!allowed.some(pattern => pattern.test(route)))
         return NextResponse.json({ error: 'Admin endpoint is not available.' }, { status: 404 });
-    const origin = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/\/+$/, '');
+    const origin = adminBackendOrigin();
     if (!origin)
         return NextResponse.json({ error: 'The backend connection is not configured.' }, { status: 503 });
     const headers = new Headers({ Accept: 'application/json' });
