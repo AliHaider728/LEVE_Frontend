@@ -1,5 +1,5 @@
 /** Placeholder reviews for preview. Replace with real customer reviews. */
-export type Review = { name: string; city: string; rating: number; quote: string; product: string };
+export type Review = { name: string; city: string; rating: number; quote: string; product: string; verified?: boolean };
 
 export const reviews: Review[] = [
   {

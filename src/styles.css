@@ -162,3 +162,11 @@
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 
 @media (min-width: 768px) { :root { --header-h: 7rem; } }
+
+/* Reserve room for mobile navigation and the product purchase bar. */
+@media (max-width: 767px) {
+  main { min-width: 0; }
+  .product-card button { white-space: normal; }
+  .product-card > div:first-child { min-height: 190px; }
+  input, select, textarea { min-width: 0; max-width: 100%; }
+}

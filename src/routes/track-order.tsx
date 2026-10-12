@@ -33,7 +33,7 @@ const schema = z.object({
   order: z
     .string()
     .trim()
-    .regex(/^LEVA-\d{5}$/i, "Order number looks like LEVA-10001."),
+    .regex(/^(LEVA-\d{5}|LEV-[A-Z0-9]+-[A-Z0-9]+)$/i, "Order number looks like LEVA-10001."),
   phone: z
     .string()
     .trim()

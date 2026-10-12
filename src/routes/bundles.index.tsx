@@ -1,10 +1,11 @@
 "use client";
+import { useStoreData } from "@/store/catalog";
 import { useRef } from "react";
 import { createFileRoute, Link } from "@/lib/router-compat";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { ArrowRight, BadgeCheck, Layers3, ShoppingBag, Truck } from "lucide-react";
-import { bundles, getBundleOriginalPrice, type Bundle } from "@/data/bundles";
-import { products } from "@/data/products";
+import { getBundleOriginalPrice, type Bundle } from "@/data/bundles";
+
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
 import { CountUp } from "@/components/shop/CountUp";
@@ -36,12 +37,13 @@ const fly = [
 const fmt = (v: number) => formatPKR(Math.round(v));
 
 function BundleTile({ bundle }: { bundle: Bundle }) {
+  const { products } = useStoreData();
   const addBundle = useCart((s) => s.addBundle);
   const reduced = useReducedMotion();
   const included = bundle.productSlugs
     .map((s) => products.find((p) => p.slug === s))
     .filter((p): p is (typeof products)[number] => !!p);
-  const original = getBundleOriginalPrice(bundle);
+  const original = getBundleOriginalPrice(bundle, products);
   return (
     <article className="flex w-[84vw] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border border-primary/10 bg-white md:w-[440px]">
       <div className="relative aspect-[5/4] overflow-hidden bg-secondary">
@@ -115,6 +117,7 @@ function BuildTile() {
 }
 
 function BundlesPage() {
+  const { bundles } = useStoreData();
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });

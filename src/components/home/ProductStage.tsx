@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@/lib/router-compat";
-import { products } from "@/data/products";
+import type { Product } from "@/data/products";
+import { useStoreData } from "@/store/catalog";
 import { formatPKR } from "@/config/store";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
-type P = (typeof products)[number];
+type P = Product;
 
 function Actions({ slug, small }: { slug: string; small?: boolean }) {
   const addMany = useCart((s) => s.addMany);
@@ -65,6 +66,7 @@ function Img({ p, onLoad, eager }: { p: P; onLoad?: () => void; eager?: boolean 
 }
 
 export function ProductStage() {
+  const { products } = useStoreData();
   const section = useRef<HTMLElement>(null);
   const refreshRef = useRef<() => void>(() => {});
   const [active, setActive] = useState(0);
@@ -168,7 +170,7 @@ export function ProductStage() {
       alive = false;
       cleanup();
     };
-  }, [reduced]);
+  }, [reduced, products]);
 
   const onLoad = () => refreshRef.current();
   const onScroll = (e: React.UIEvent<HTMLDivElement>) => {

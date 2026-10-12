@@ -1,6 +1,8 @@
 import { products } from "@/data/products";
 
 export type Bundle = {
+  id?: string;
+  originalPrice?: number;
   slug: string;
   name: string;
   description: string;
@@ -28,9 +30,10 @@ export const bundles: Bundle[] = [
   },
 ];
 
-export function getBundleOriginalPrice(bundle: Bundle) {
+export function getBundleOriginalPrice(bundle: Bundle, catalog = products) {
+  if (bundle.originalPrice !== undefined) return bundle.originalPrice;
   return bundle.productSlugs.reduce(
-    (total, slug) => total + (products.find((product) => product.slug === slug)?.price ?? 0),
+    (total, slug) => total + (catalog.find((product) => product.slug === slug)?.price ?? 0),
     0,
   );
 }

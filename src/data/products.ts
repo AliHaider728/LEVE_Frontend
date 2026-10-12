@@ -1,4 +1,7 @@
 export type Product = {
+  id?: string;
+  variationId?: string;
+  requiresVariation?: boolean;
   slug: string;
   number: string;
   name: string;

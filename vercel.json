@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://leva-backend.vercel.app"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_API_URL": "https://leva-backend.vercel.app"
+    }
+  }
+}

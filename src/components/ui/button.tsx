@@ -73,7 +73,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <motion.div
         style={{ x: springX, y: springY }}
-        className={cn("inline-flex", props.disabled && "pointer-events-none opacity-40")}
+        className={cn("inline-flex", className?.split(/\s+/).includes("w-full") && "w-full", props.disabled && "pointer-events-none opacity-40")}
       >
         <Comp
           className={cn(buttonVariants({ variant, size, className }))}

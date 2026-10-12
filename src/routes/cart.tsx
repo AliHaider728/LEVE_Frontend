@@ -1,10 +1,11 @@
 "use client";
+import { useStoreData } from "@/store/catalog";
 import { CustomBundleLine } from "@/components/product/CustomBundleLine";
 import { createFileRoute, Link } from "@/lib/router-compat";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { products } from "@/data/products";
-import { bundles, getBundleOriginalPrice } from "@/data/bundles";
-import { formatPKR, getFreeShippingRemaining, storeConfig } from "@/config/store";
+
+import { getBundleOriginalPrice } from "@/data/bundles";
+import { formatPKR, getFreeShippingRemaining } from "@/config/store";
 import { getCartTotals } from "@/lib/cart-totals";
 import { useCart } from "@/store/cart";
 import { Button } from "@/components/ui/button";
@@ -25,16 +26,17 @@ export const Route = createFileRoute("/cart")({
 });
 
 function Cart() {
+  const { products, bundles, settings: storeConfig } = useStoreData();
   const cart = useCart();
   const lines = products.filter((product) => cart.items[product.slug]);
   const bundleLines = bundles.filter((bundle) => cart.bundles[bundle.slug]);
-  const totals = getCartTotals(cart.items, cart.bundles, cart.coupon, cart.custom);
-  const remaining = getFreeShippingRemaining(totals.subtotal);
+  const totals = getCartTotals(cart.items, cart.bundles, cart.coupon, cart.custom, useStoreData.getState());
+  const remaining = getFreeShippingRemaining(totals.payableSubtotal, storeConfig);
   const empty = !lines.length && !bundleLines.length && !totals.customCount;
   return (
     <main className="min-h-[80vh] px-6 pb-24 pt-32 md:px-[10vw] md:pt-40">
       <p className="eyebrow mb-6">LEVA / Your selection</p>
-      <h1 className="text-6xl font-light md:text-8xl">Your cart.</h1>
+      <h1 className="text-4xl font-light sm:text-6xl md:text-8xl">Your cart.</h1>
       {empty ? (
         <div className="mt-16">
           <p className="text-2xl font-light">Your cart is quietly waiting.</p>
@@ -71,7 +73,7 @@ function Cart() {
                 <p className="-mt-5 mb-6 ml-24 text-sm">
                   Bundle discount: -
                   {formatPKR(
-                    (getBundleOriginalPrice(bundle) - bundle.price) *
+                    (getBundleOriginalPrice(bundle, products) - bundle.price) *
                       (cart.bundles[bundle.slug] ?? 0),
                   )}
                 </p>
@@ -87,7 +89,7 @@ function Cart() {
             </p>
             <Progress
               className="mt-3"
-              value={Math.min(100, (totals.subtotal / storeConfig.freeShippingThreshold) * 100)}
+              value={Math.min(100, (totals.payableSubtotal / storeConfig.freeShippingThreshold) * 100)}
             />
             <Summary totals={totals} />
             <Button asChild className="mt-6 w-full">
@@ -118,23 +120,23 @@ function CartLine({
   onRemove: () => void;
 }) {
   return (
-    <div className="grid grid-cols-[80px_1fr_auto] gap-4 border-t border-primary/20 py-6">
+    <div className="grid grid-cols-[64px_minmax(0,1fr)] gap-3 sm:grid-cols-[80px_minmax(0,1fr)_auto] sm:gap-4 border-t border-primary/20 py-6">
       {image ? (
         <img
           src={image}
           alt={name}
           loading="lazy"
-          className="aspect-[4/5] h-24 w-20 rounded-sm object-cover"
+          className="aspect-[4/5] h-20 w-16 sm:h-24 sm:w-20 rounded-sm object-cover"
         />
       ) : (
-        <div className="grid h-24 w-20 place-items-center rounded-sm bg-accent text-xl">
+        <div className="grid h-20 w-16 sm:h-24 sm:w-20 place-items-center rounded-sm bg-accent text-xl">
           ×{quantity}
         </div>
       )}
       <div>
         <p className="text-xl font-light">{name}</p>
         <p className="mt-2 text-sm text-muted-foreground">{formatPKR(price)}</p>
-        <div className="mt-3 flex items-center">
+        <div className="mt-3 flex items-center gap-2">
           <Button
             variant="outline"
             size="icon"
@@ -156,7 +158,7 @@ function CartLine({
           </Button>
         </div>
       </div>
-      <div className="flex flex-col items-end justify-between">
+      <div className="col-start-2 flex items-center justify-between gap-3 sm:col-start-auto sm:flex-col sm:items-end">
         <strong className="font-medium">{formatPKR(price * quantity)}</strong>
         <Button
           variant="ghost"

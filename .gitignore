@@ -17,3 +17,5 @@ next-env.d.ts
 audit-featured.json
 audit-featured.mjs
 audit-featured*.png
+
+.next-*/

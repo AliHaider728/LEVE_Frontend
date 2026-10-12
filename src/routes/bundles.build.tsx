@@ -1,11 +1,12 @@
 "use client";
+import { useStoreData } from "@/store/catalog";
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@/lib/router-compat";
 import { motion, AnimatePresence, animate, useReducedMotion } from "motion/react";
 import { Check, MessageCircle, Minus, Plus, ShoppingBag, Zap, ChevronUp } from "lucide-react";
-import { products } from "@/data/products";
+
 import { bundleTiers, getCustomBundle } from "@/data/bundleRules";
-import { formatPKR, getShipping, storeConfig } from "@/config/store";
+import { formatPKR, getShipping } from "@/config/store";
 import { whatsappLink } from "@/lib/whatsapp";
 import { useCart } from "@/store/cart";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,7 @@ function Money({ value }: { value: number }) {
 }
 
 function BuildBundle() {
+  const { products, settings: storeConfig } = useStoreData();
   const setCustom = useCart((s) => s.setCustom);
   const navigate = useNavigate();
   const [sel, setSel] = useState<Record<string, number>>({});
@@ -56,8 +58,8 @@ function BuildBundle() {
   // hydrate from persisted cart after mount (avoids SSR mismatch)
   useEffect(() => setSel({ ...useCart.getState().custom }), []);
 
-  const cb = getCustomBundle(sel);
-  const shipping = cb.count ? getShipping(cb.price) : 0;
+  const cb = getCustomBundle(sel, products, storeConfig.routineDiscount);
+  const shipping = cb.count ? getShipping(cb.price, storeConfig) : 0;
   const ready = cb.count >= bundleTiers[0].minItems;
   const top = bundleTiers[bundleTiers.length - 1] ?? { minItems: 3, rate: 0.2 };
   const change = (slug: string, d: number) =>

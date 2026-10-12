@@ -23,11 +23,13 @@ export type LocalOrder = {
 };
 
 const STORAGE_KEY = "leva-orders";
+const receipts = new Map<string, LocalOrder>();
 
 export function saveOrder(order: LocalOrder) {
   if (typeof window === "undefined") return;
   const existing = readOrders();
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify([order, ...existing]));
+  receipts.set(order.orderNumber, order);
+  try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify([order, ...existing.filter(item => item.orderNumber !== order.orderNumber)])); } catch { /* The server-confirmed receipt remains available in memory. */ }
 }
 
 export function readOrders(): LocalOrder[] {
@@ -41,7 +43,7 @@ export function readOrders(): LocalOrder[] {
 }
 
 export function getOrder(orderNumber: string) {
-  return readOrders().find((order) => order.orderNumber === orderNumber);
+  return receipts.get(orderNumber) ?? readOrders().find((order) => order.orderNumber === orderNumber);
 }
 
 export function createOrderNumber() {

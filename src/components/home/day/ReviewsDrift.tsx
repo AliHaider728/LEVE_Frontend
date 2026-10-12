@@ -10,7 +10,9 @@ import {
   useReducedMotion,
 } from "motion/react";
 import { BadgeCheck, Star } from "lucide-react";
-import { reviews, getReviewSummary, type Review } from "@/data/reviews";
+import { getReviewSummary, type Review } from "@/data/reviews";
+import { catalogApi } from "@/lib/api/catalog";
+import { useStoreData } from "@/store/catalog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -66,7 +68,7 @@ function Row({ items, dir }: { items: Review[]; dir: 1 | -1 }) {
                 {r.name} · {r.city}
               </span>
               <span className="flex items-center gap-1">
-                <BadgeCheck className="size-4" /> Verified buyer
+                <BadgeCheck className="size-4" /> {r.verified ? "Verified buyer" : "Customer review"}
               </span>
             </figcaption>
           </figure>
@@ -77,11 +79,14 @@ function Row({ items, dir }: { items: Review[]; dir: 1 | -1 }) {
 }
 
 function WriteReview() {
+  const { products } = useStoreData();
+  const [sending, setSending] = useState(false);
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [done, setDone] = useState(false);
   const [err, setErr] = useState("");
-  const submit = (e: FormEvent<HTMLFormElement>) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
+    if (sending) return;
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     if (
@@ -92,7 +97,14 @@ function WriteReview() {
       return;
     }
     setErr("");
-    setDone(true);
+    const product = products.find(p => p.slug === f.get("product"));
+    if (!product?.id) { setErr("We couldn't reach the store to submit your review. Please try again later."); return; }
+    setSending(true);
+    try {
+      await catalogApi.submitReview({ productId: product.id, productName: product.name, reviewerName: String(f.get("name")).trim(), rating, content: String(f.get("text")).trim() });
+      setDone(true);
+    } catch (error) { setErr(error instanceof Error ? error.message : "Your review couldn't be submitted. Please try again."); }
+    finally { setSending(false); }
   };
   return (
     <Dialog
@@ -127,6 +139,7 @@ function WriteReview() {
               Name
               <input name="name" className="min-h-11 border border-primary/30 px-3 text-base" />
             </label>
+            <label className="grid gap-1 text-sm">Product<select name="product" className="min-h-11 border border-primary/30 bg-white px-3 text-base">{products.map(p => <option key={p.slug} value={p.slug}>{p.name}</option>)}</select></label>
             <fieldset>
               <legend className="text-sm">Rating</legend>
               <div className="mt-1 flex gap-1">
@@ -153,8 +166,8 @@ function WriteReview() {
                 {err}
               </p>
             )}
-            <Button type="submit" className="h-12">
-              Submit review
+            <Button type="submit" className="h-12" disabled={sending}>
+              {sending ? "Submitting…" : "Submit review"}
             </Button>
           </form>
         )}
@@ -164,7 +177,8 @@ function WriteReview() {
 }
 
 export function ReviewsDrift() {
-  const s = getReviewSummary();
+  const { reviews, reviewsLive } = useStoreData();
+  const s = getReviewSummary(reviews);
   return (
     <section aria-label="Reviews" className="grid gap-4 bg-primary py-16 md:py-24">
       <div className="mb-6 grid gap-8 px-5 md:grid-cols-[1fr_auto] md:items-end md:px-[8vw]">
@@ -178,7 +192,7 @@ export function ReviewsDrift() {
               <span className="text-4xl font-light">{s.average.toFixed(1)}</span>
               <div>
                 <Stars n={Math.round(s.average)} />
-                <p className="text-xs text-white/80">{s.count} reviews · sample data</p>
+                <p className="text-xs text-white/80">{s.count} reviews{!reviewsLive && " · sample data"}</p>
               </div>
             </div>
           </div>

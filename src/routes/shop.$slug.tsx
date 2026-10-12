@@ -1,7 +1,8 @@
 "use client";
 import { createFileRoute, notFound } from "@/lib/router-compat";
-import { getProduct, products } from "@/data/products";
-import { bundles } from "@/data/bundles";
+import { getProduct } from "@/data/products";
+import { useStoreData } from "@/store/catalog";
+import { CatalogStatus } from "@/components/product/CatalogStatus";
 import { formatPKR } from "@/config/store";
 import { QuantityAddToCart } from "@/components/product/QuantityAddToCart";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -38,14 +39,17 @@ export const Route = createFileRoute("/shop/$slug")({
 });
 
 function ProductPage() {
-  const product = Route.useLoaderData();
+  const fallback = Route.useLoaderData();
+  const { products, bundles } = useStoreData();
+  const product = products.find(p => p.slug === fallback.slug) ?? fallback;
   const suggestions = products.filter((item) => item.slug !== product.slug);
   const matchingBundle =
     bundles.find((bundle) => bundle.productSlugs.includes(product.slug)) ?? bundles[0];
   const saving = Math.round((1 - product.price / product.compareAtPrice) * 100);
   return (
-    <main className="pb-20 pt-24 md:pb-0 md:pt-28">
-      <section className="grid md:grid-cols-2">
+    <main className="pb-36 pt-24 md:pb-0 md:pt-28">
+      <div className="px-5"><CatalogStatus /></div>
+      <section className="grid min-w-0 md:grid-cols-2">
         <div className="grid min-h-[65vh] grid-cols-2 gap-1 bg-primary/10">
           <div className="relative col-span-2 min-h-[55vh] overflow-hidden">
             <img
@@ -76,7 +80,7 @@ function ProductPage() {
             <Badge variant="saving">Save {saving}%</Badge>
           </div>
           <p className="eyebrow mt-8">LEVA / Essential {product.number}</p>
-          <h1 className="mt-4 text-6xl font-light md:text-8xl">{product.name}</h1>
+          <h1 className="mt-4 break-words text-4xl font-light sm:text-6xl lg:text-7xl">{product.name}</h1>
           <p className="mt-5 text-2xl font-light">{product.benefit}</p>
           <p className="mt-8 max-w-md text-base leading-8 text-muted-foreground">
             {product.description}

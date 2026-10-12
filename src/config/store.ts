@@ -21,12 +21,12 @@ export function formatPKR(value: number) {
   return `${storeConfig.currencyLabel} ${new Intl.NumberFormat("en-PK", { maximumFractionDigits: 0 }).format(value)}`;
 }
 
-export function getShipping(subtotal: number) {
-  return subtotal >= storeConfig.freeShippingThreshold || subtotal === 0
+export function getShipping(subtotal: number, settings: { freeShippingThreshold: number; shippingFlatRate: number } = storeConfig) {
+  return subtotal >= settings.freeShippingThreshold || subtotal === 0
     ? 0
-    : storeConfig.shippingFlatRate;
+    : settings.shippingFlatRate;
 }
 
-export function getFreeShippingRemaining(subtotal: number) {
-  return Math.max(0, storeConfig.freeShippingThreshold - subtotal);
+export function getFreeShippingRemaining(subtotal: number, settings: { freeShippingThreshold: number } = storeConfig) {
+  return Math.max(0, settings.freeShippingThreshold - subtotal);
 }

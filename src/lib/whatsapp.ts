@@ -1,5 +1,5 @@
 import { storeConfig } from "@/config/store";
 
-export function whatsappLink(message: string) {
-  return `https://wa.me/${storeConfig.whatsappNumber}?text=${encodeURIComponent(message)}`;
+export function whatsappLink(message: string, number: string = storeConfig.whatsappNumber) {
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }

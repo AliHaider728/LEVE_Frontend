@@ -1,4 +1,5 @@
 "use client";
+import { useStoreData } from "@/store/catalog";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate } from "@/lib/router-compat";
 import {
@@ -10,16 +11,19 @@ import {
   Smartphone,
 } from "lucide-react";
 import { z } from "zod";
-import { products } from "@/data/products";
-import { bundles } from "@/data/bundles";
+
+
 import { cities, cityProvinces, provinces } from "@/data/cities";
-import { formatPKR, getFreeShippingRemaining, storeConfig } from "@/config/store";
+import { formatPKR, getFreeShippingRemaining } from "@/config/store";
 import { getCartTotals } from "@/lib/cart-totals";
-import { createOrderNumber, saveOrder, type PaymentMethod } from "@/lib/orders";
+import { saveOrder, type PaymentMethod } from "@/lib/orders";
 import { whatsappLink } from "@/lib/whatsapp";
 import { useCart } from "@/store/cart";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { API_URL } from "@/lib/api/client";
+import { buildCheckoutPayload, placeOrder } from "@/lib/api/checkout";
+import { CatalogStatus } from "@/components/product/CatalogStatus";
 import { CheckoutTrust } from "@/components/layout/CheckoutTrust";
 
 const schema = z
@@ -85,6 +89,7 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function Checkout() {
+  const { products, bundles, settings: storeConfig, loading: storeLoading } = useStoreData();
   const cart = useCart();
   const navigate = useNavigate();
   const [payment, setPayment] = useState<PaymentMethod>("cod");
@@ -96,6 +101,7 @@ function Checkout() {
   const [province, setProvince] = useState("");
   const [summaryOpen, setSummaryOpen] = useState(false);
   const submitting = useRef(false);
+  const request = useRef<{ fingerprint: string; id: string } | null>(null);
 
   useEffect(() => {
     try {
@@ -108,7 +114,7 @@ function Checkout() {
     }
   }, []);
 
-  const totals = getCartTotals(cart.items, cart.bundles, cart.coupon, cart.custom);
+  const totals = getCartTotals(cart.items, cart.bundles, cart.coupon, cart.custom, useStoreData.getState());
   const lines = [
     ...products
       .filter((p) => cart.items[p.slug])
@@ -135,7 +141,7 @@ function Checkout() {
       ? [{ name: "Custom bundle discount", quantity: 1, total: -totals.customDiscount }]
       : []),
   ];
-  const remaining = getFreeShippingRemaining(totals.subtotal - totals.couponDiscount);
+  const remaining = getFreeShippingRemaining(totals.payableSubtotal, storeConfig);
   const waMessage = `Hi LEVA, I want to order:\n${lines.map((l) => `${l.name} x ${l.quantity}`).join("\n")}\nTotal: ${formatPKR(totals.total)}`;
 
   const onCity = (value: string) => {
@@ -174,36 +180,18 @@ function Checkout() {
           province: d.province,
         }),
       );
-      const orderNumber = createOrderNumber();
-      saveOrder({
-        orderNumber,
-        createdAt: new Date().toISOString(),
-        customer: {
-          fullName: d.fullName,
-          mobile: d.mobile,
-          ...(d.email ? { email: d.email } : {}),
-        },
-        address: {
-          street: d.street,
-          city: d.city,
-          province: d.province,
-          ...(d.notes ? { notes: d.notes } : {}),
-        },
-        paymentMethod: d.payment,
-        ...(d.transactionId ? { transactionId: d.transactionId } : {}),
-        items: lines,
-        subtotal: totals.subtotal,
-        discount: totals.discount,
-        shipping: totals.shipping,
-        total: totals.total,
-        status: d.payment === "cod" ? "Order placed" : "Payment pending verification",
-      });
+      if (!API_URL) throw new Error("Online checkout is not configured yet. Please order on WhatsApp.");
+      if (d.payment !== "cod") throw new Error("Online checkout currently supports Cash on Delivery. Please choose COD or order on WhatsApp.");
+      const fingerprint = JSON.stringify({ details: d, items: cart.items, bundles: cart.bundles, custom: cart.custom, coupon: cart.coupon });
+      if (request.current?.fingerprint !== fingerprint) request.current = { fingerprint, id: crypto.randomUUID() };
+      const payload = buildCheckoutPayload(d, cart, { products, bundles }, request.current.id);
+      const confirmed = await placeOrder(payload, d);
+      const orderNumber = confirmed.orderNumber;
+      saveOrder(confirmed);
       cart.clear();
       await navigate({ to: "/order-confirmation/$orderNumber", params: { orderNumber } });
-    } catch {
-      setFailed(
-        "Sorry, something went wrong. Your details are safe. Please try again or order on WhatsApp.",
-      );
+    } catch (error) {
+      setFailed(error instanceof Error ? error.message : "We couldn’t place your order. Please try again or order on WhatsApp.");
       setLoading(false);
       submitting.current = false;
     }
@@ -249,7 +237,7 @@ function Checkout() {
       </p>
       <Progress
         className="mt-2"
-        value={Math.min(100, (totals.subtotal / storeConfig.freeShippingThreshold) * 100)}
+        value={Math.min(100, (totals.payableSubtotal / storeConfig.freeShippingThreshold) * 100)}
       />
       <div className="mt-5 space-y-2 text-sm">
         <Row label="Subtotal" value={formatPKR(totals.subtotal)} />
@@ -267,6 +255,8 @@ function Checkout() {
     <main className="px-5 pb-28 pt-24 md:px-[6vw] md:pt-40">
       <p className="eyebrow mb-3">Guest checkout · No account needed</p>
       <h1 className="text-3xl font-light md:text-5xl">Checkout</h1>
+      <CatalogStatus />
+      <p className="mt-3 text-sm text-muted-foreground">Delivery and savings are estimates until confirmed by the store.</p>
 
       <div className="mt-6 border border-primary/20 lg:hidden">
         <button
@@ -376,7 +366,7 @@ function Checkout() {
             </label>
           </Fieldset>
           <Fieldset title="Payment">
-            {payments.map(({ id, label, note, icon: Icon }) => (
+            {payments.filter(option => option.id === "cod").map(({ id, label, note, icon: Icon }) => (
               <label
                 key={id}
                 className={`flex min-h-16 cursor-pointer items-center gap-4 border p-4 ${payment === id ? "border-primary bg-secondary" : "border-primary/20"}`}
@@ -426,12 +416,12 @@ function Checkout() {
               {failed}
             </p>
           )}
-          <Button type="submit" className="mt-5 h-12 w-full" disabled={loading} aria-busy={loading}>
+          <Button type="submit" className="mt-5 h-12 w-full" disabled={loading || storeLoading} aria-busy={loading}>
             {loading ? "Placing order…" : `Place order · ${formatPKR(totals.total)}`}
           </Button>
           <CheckoutTrust />
           <Button asChild variant="outline" className="mt-4 h-11 w-full">
-            <a href={whatsappLink(waMessage)} target="_blank" rel="noreferrer">
+            <a href={whatsappLink(waMessage, storeConfig.whatsappNumber)} target="_blank" rel="noreferrer">
               <MessageCircle /> Order on WhatsApp instead
             </a>
           </Button>
@@ -484,6 +474,7 @@ function ManualPayment({
   method: Exclude<PaymentMethod, "cod">;
   error: React.ReactNode;
 }) {
+  const { settings: storeConfig } = useStoreData();
   const lines =
     method === "jazzcash"
       ? [

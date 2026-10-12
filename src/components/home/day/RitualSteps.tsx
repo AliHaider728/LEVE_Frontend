@@ -6,7 +6,7 @@ import {
   useScroll,
   useReducedMotion,
 } from "motion/react";
-import { products } from "@/data/products";
+import { useStoreData } from "@/store/catalog";
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ const copy = {
 };
 
 function Stage({ i }: { i: number }) {
+  const { products } = useStoreData();
   const add = useCart((s) => s.add);
   const p = products.find((x) => x.type === order[i]) ?? products[0]!;
   const c = copy[order[i]!];

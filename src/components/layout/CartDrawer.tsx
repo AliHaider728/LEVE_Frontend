@@ -1,9 +1,10 @@
+import { useStoreData } from "@/store/catalog";
 import { useState } from "react";
 import { MessageCircle, Minus, Plus, Trash2 } from "lucide-react";
 import { Link } from "@/lib/router-compat";
-import { products } from "@/data/products";
-import { bundles, getBundleOriginalPrice } from "@/data/bundles";
-import { formatPKR, getFreeShippingRemaining, storeConfig } from "@/config/store";
+
+import { getBundleOriginalPrice } from "@/data/bundles";
+import { formatPKR, getFreeShippingRemaining } from "@/config/store";
 import { CustomBundleLine } from "@/components/product/CustomBundleLine";
 import { getCartTotals, getCouponRate } from "@/lib/cart-totals";
 import { whatsappLink } from "@/lib/whatsapp";
@@ -20,6 +21,7 @@ import {
 import { CheckoutTrust } from "@/components/layout/CheckoutTrust";
 
 export function CartDrawer() {
+  const { products, bundles, settings: storeConfig } = useStoreData();
   const {
     custom,
     items,
@@ -39,8 +41,8 @@ export function CartDrawer() {
   const [couponMsg, setCouponMsg] = useState("");
   const lines = products.filter((p) => items[p.slug]);
   const bundleLines = bundles.filter((b) => bundleItems[b.slug]);
-  const totals = getCartTotals(items, bundleItems, coupon, custom);
-  const remaining = getFreeShippingRemaining(totals.subtotal - totals.couponDiscount);
+  const totals = getCartTotals(items, bundleItems, coupon, custom, useStoreData.getState());
+  const remaining = getFreeShippingRemaining(totals.payableSubtotal, storeConfig);
   const empty = lines.length === 0 && bundleLines.length === 0 && totals.customCount === 0;
   const applyCoupon = () => {
     if (getCouponRate(code)) {
@@ -68,7 +70,7 @@ export function CartDrawer() {
                 : "You unlocked free delivery"}
             </p>
             <Progress
-              value={Math.min(100, (totals.subtotal / storeConfig.freeShippingThreshold) * 100)}
+              value={Math.min(100, (totals.payableSubtotal / storeConfig.freeShippingThreshold) * 100)}
             />
           </div>
         )}

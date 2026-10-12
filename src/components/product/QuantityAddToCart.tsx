@@ -1,18 +1,20 @@
+import { useStoreData } from "@/store/catalog";
 import { useState } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { MessageCircle, Minus, Plus, ShoppingBag, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
-import { getProduct } from "@/data/products";
+
 import { formatPKR } from "@/config/store";
 import { whatsappLink } from "@/lib/whatsapp";
 
 export function QuantityAddToCart({ slug }: { slug: string }) {
+  const { products } = useStoreData();
   const [quantity, setQuantity] = useState(1);
   const addMany = useCart((s) => s.addMany);
   const buyNow = useCart((s) => s.buyNow);
   const navigate = useNavigate();
-  const product = getProduct(slug);
+  const product = products.find(p => p.slug === slug);
   const buy = () => {
     buyNow(slug, quantity);
     void navigate({ to: "/checkout" });
@@ -50,10 +52,10 @@ export function QuantityAddToCart({ slug }: { slug: string }) {
             <Plus />
           </Button>
         </div>
-        <Button size="lg" className="h-12 px-7" onClick={() => addMany(slug, quantity)}>
+        <Button size="lg" className="h-12 px-5" onClick={() => addMany(slug, quantity)}>
           <ShoppingBag /> Add to cart
         </Button>
-        <Button size="lg" variant="outline" className="h-12 px-7" onClick={buy}>
+        <Button size="lg" variant="outline" className="h-12 px-5" onClick={buy}>
           <Zap /> Buy now
         </Button>
       </div>
@@ -80,7 +82,7 @@ export function QuantityAddToCart({ slug }: { slug: string }) {
         </Button>
       )}
       {product && (
-        <div className="fixed inset-x-0 bottom-16 z-40 flex items-center gap-2 border-t border-primary/20 bg-background/95 px-3 py-2 backdrop-blur md:hidden">
+        <div data-product-purchase className="fixed inset-x-0 bottom-[calc(4rem+2px+env(safe-area-inset-bottom))] z-40 flex items-center gap-2 border-t border-primary/20 bg-background/95 px-3 py-2 backdrop-blur md:hidden">
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs">{product.name}</p>
             <p className="text-sm font-medium">{formatPKR(product.price * quantity)}</p>

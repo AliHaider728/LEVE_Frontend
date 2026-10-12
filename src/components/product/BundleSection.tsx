@@ -1,10 +1,12 @@
+import { useStoreData } from "@/store/catalog";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/lib/router-compat";
-import { bundles } from "@/data/bundles";
+
 import { BundleCard } from "@/components/product/BundleCard";
 import { Button } from "@/components/ui/button";
 
 export function BundleSection({ compact = false }: { compact?: boolean }) {
+  const { bundles } = useStoreData();
   return (
     <section className="bg-secondary px-6 py-24 md:px-[8vw] md:py-36">
       <div className="mb-14 grid gap-6 sm:flex sm:items-end sm:justify-between">

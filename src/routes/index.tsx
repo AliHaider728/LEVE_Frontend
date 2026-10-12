@@ -34,10 +34,10 @@ function Index() {
     <main>
       <Hero />
       <Manifesto />
+      <FeaturedRise />
       <ProductStage />
       <RitualSteps />
       <Ingredients />
-      <FeaturedRise />
       <BundleStack />
       <WhyLeva />
       <ReviewsDrift />

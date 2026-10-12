@@ -13,9 +13,9 @@ export function ProductCard({ product, featured = false }: { product: Product; f
   const buyNow = useCart((state) => state.buyNow);
   const navigate = useNavigate();
   const soldOut = product.badge === "Sold Out" || product.stock === 0;
-  const discount = Math.round((1 - product.price / product.compareAtPrice) * 100);
+  const discount = product.compareAtPrice > product.price ? Math.round((1 - product.price / product.compareAtPrice) * 100) : 0;
   return (
-    <article className={featured ? "group flex h-full min-w-0 flex-col" : "group min-w-0"}>
+    <article className="product-card group flex h-full min-w-0 flex-col">
       <div className="relative aspect-[4/5] overflow-hidden rounded-md bg-secondary">
         <Link
           to="/shop/$slug"
@@ -39,7 +39,7 @@ export function ProductCard({ product, featured = false }: { product: Product; f
         </Link>
         <Badge
           variant={soldOut ? "sold" : product.badge === "Limited Stock" ? "stock" : "default"}
-          className="absolute left-3 top-3 z-20"
+          className="absolute left-2 top-2 z-20 max-w-[calc(100%-3.5rem)] text-[10px] sm:left-3 sm:top-3 sm:text-xs"
         >
           {product.badge === "Limited Stock" ? `Only ${product.stock} left` : product.badge}
         </Badge>
@@ -48,13 +48,13 @@ export function ProductCard({ product, featured = false }: { product: Product; f
           size="icon"
           magnetic={false}
           aria-label={`Save ${product.name} to wishlist`}
-          className="absolute right-3 top-3 z-20 min-h-11 min-w-11 rounded-full"
+          className="absolute right-1 top-1 z-20 size-9 rounded-full sm:right-3 sm:top-3"
         >
           <Heart />
         </Button>
-        <div className="absolute inset-x-3 bottom-3 z-20 translate-y-0 transition-transform md:translate-y-20 md:group-hover:translate-y-0">
+        <div className="absolute inset-x-2 bottom-2 z-20">
           {quantity > 0 ? (
-            <div className="flex h-12 items-center justify-between bg-background px-2">
+            <div className="flex min-h-11 items-center justify-between gap-1 bg-background px-1">
               <Button
                 variant="ghost"
                 size="icon"
@@ -64,7 +64,7 @@ export function ProductCard({ product, featured = false }: { product: Product; f
               >
                 <Minus />
               </Button>
-              <span className="text-sm font-medium">{quantity} in cart</span>
+              <span className="text-xs font-medium">{quantity}</span>
               <Button
                 variant="ghost"
                 size="icon"
@@ -76,7 +76,7 @@ export function ProductCard({ product, featured = false }: { product: Product; f
               </Button>
             </div>
           ) : (
-            <Button className="h-12 w-full" disabled={soldOut} onClick={() => add(product.slug)}>
+            <Button magnetic={false} className="min-h-11 w-full px-2 text-xs sm:text-sm" disabled={soldOut} onClick={() => add(product.slug)}>
               <ShoppingBag />
               {soldOut ? "Sold out" : "Add to cart"}
             </Button>
@@ -86,11 +86,11 @@ export function ProductCard({ product, featured = false }: { product: Product; f
       <Link
         to="/shop/$slug"
         params={{ slug: product.slug }}
-        className={`${featured ? "mt-3 flex-1" : "mt-5"} block focus-visible:outline-2 focus-visible:outline-offset-4`}
+        className={`${featured ? "mt-3 flex-1" : "mt-5 flex-1"} block focus-visible:outline-2 focus-visible:outline-offset-4`}
       >
-        <h3 className={featured ? "text-xl font-light" : "text-2xl font-light"}>{product.name}</h3>
-        <p className={`${featured ? "mt-1" : "mt-2"} line-clamp-1 text-base text-muted-foreground`}>{product.benefit}</p>
-        <div className={`${featured ? "mt-2" : "mt-3"} flex items-center gap-1 text-sm`}>
+        <h3 className="text-lg font-light leading-snug sm:text-xl">{product.name}</h3>
+        <p className={`${featured ? "mt-1" : "mt-2"} text-sm leading-6 text-muted-foreground`}>{product.benefit}</p>
+        <div className={`${featured ? "mt-2" : "mt-3"} flex flex-wrap items-center gap-1 text-sm`}>
           <Star className="size-4 fill-accent text-accent" />
           <span>{product.rating}</span>
           <span className="text-muted-foreground">({product.reviewCount})</span>
@@ -100,10 +100,10 @@ export function ProductCard({ product, featured = false }: { product: Product; f
           <span className="text-sm text-muted-foreground line-through">
             {formatPKR(product.compareAtPrice)}
           </span>
-          <Badge variant="saving">-{discount}%</Badge>
+          {discount > 0 && <Badge variant="saving">-{discount}%</Badge>}
         </div>
       </Link>
-      <div className={featured ? "mt-auto pt-3" : "mt-4"}>
+      <div className="mt-auto pt-4">
         <Button
           variant="outline"
           magnetic={false}

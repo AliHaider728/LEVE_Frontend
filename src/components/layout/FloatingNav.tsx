@@ -1,4 +1,5 @@
-import { storeConfig } from "@/config/store";
+import { useStoreData } from "@/store/catalog";
+import { formatPKR } from "@/config/store";
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@/lib/router-compat";
 import { Contact, Home, Layers3, Search, ShoppingBag, Store } from "lucide-react";
@@ -24,6 +25,7 @@ const tabs = [
 ];
 
 export function FloatingNav() {
+  const { settings: storeConfig } = useStoreData();
   const [scrolled, setScrolled] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const setCartOpen = useCart((state) => state.setOpen);
@@ -42,7 +44,7 @@ export function FloatingNav() {
   return (
     <>
       <div className="fixed inset-x-0 top-0 z-50 hidden h-8 items-center justify-center bg-primary px-4 text-center text-xs font-medium text-primary-foreground md:flex">
-        Free delivery over Rs. 3,000&nbsp; | &nbsp;Cash on Delivery nationwide&nbsp; |
+        Free delivery over {formatPKR(storeConfig.freeShippingThreshold)}&nbsp; | &nbsp;Cash on Delivery nationwide&nbsp; |
         &nbsp;WhatsApp {storeConfig.phone}
       </div>
       <header

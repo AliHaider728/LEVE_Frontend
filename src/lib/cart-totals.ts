@@ -1,6 +1,9 @@
 import { bundles, getBundleOriginalPrice } from "@/data/bundles";
 import { products } from "@/data/products";
 import { getCustomBundle } from "@/data/bundleRules";
+import type { StoreSettings } from "@/lib/api/catalog";
+import type { Product } from "@/data/products";
+import type { Bundle } from "@/data/bundles";
 import { getShipping, storeConfig } from "@/config/store";
 
 export function getCouponRate(code: string | undefined) {
@@ -13,27 +16,29 @@ export function getCartTotals(
   bundleItems: Record<string, number>,
   coupon?: string,
   custom: Record<string, number> = {},
+  data: { products: Product[]; bundles: Bundle[]; settings: StoreSettings } = { products, bundles, settings: storeConfig },
 ) {
-  const cb = getCustomBundle(custom);
-  const productSubtotal = products.reduce(
+  const cb = getCustomBundle(custom, data.products, data.settings.routineDiscount);
+  const productSubtotal = data.products.reduce(
     (sum, product) => sum + product.price * (items[product.slug] ?? 0),
     0,
   );
-  const bundleOriginal = bundles.reduce(
-    (sum, bundle) => sum + getBundleOriginalPrice(bundle) * (bundleItems[bundle.slug] ?? 0),
+  const bundleOriginal = data.bundles.reduce(
+    (sum, bundle) => sum + getBundleOriginalPrice(bundle, data.products) * (bundleItems[bundle.slug] ?? 0),
     0,
   );
-  const bundleSubtotal = bundles.reduce(
+  const bundleSubtotal = data.bundles.reduce(
     (sum, bundle) => sum + bundle.price * (bundleItems[bundle.slug] ?? 0),
     0,
   );
-  const subtotal = productSubtotal + bundleSubtotal + cb.price;
+  const subtotal = productSubtotal + bundleOriginal + cb.original;
+  const discountedSubtotal = productSubtotal + bundleSubtotal + cb.price;
   const bundleDiscount = bundleOriginal - bundleSubtotal;
   const customDiscount = cb.discount;
-  const couponDiscount = Math.round(subtotal * getCouponRate(coupon));
+  const couponDiscount = Math.round(discountedSubtotal * getCouponRate(coupon));
   const discount = bundleDiscount + customDiscount + couponDiscount;
-  const afterCoupon = subtotal - couponDiscount;
-  const shipping = getShipping(afterCoupon);
+  const afterCoupon = Math.max(0, discountedSubtotal - couponDiscount);
+  const shipping = getShipping(afterCoupon, data.settings);
   return {
     customDiscount,
     customPrice: cb.price,
@@ -42,6 +47,7 @@ export function getCartTotals(
     bundleOriginal,
     bundleSubtotal,
     subtotal,
+    payableSubtotal: afterCoupon,
     bundleDiscount,
     couponDiscount,
     discount,

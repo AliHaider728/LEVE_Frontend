@@ -1,0 +1,14 @@
+"use client";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import { Input } from '@/components/ui/input';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import { adminApi, orderStatuses, money } from '@/lib/api/admin';
+import { AdminButton, Panel, Heading, Loading, ErrorState, Empty } from '@/components/admin/shared';
+export default function Orders() {
+    const [search, setSearch] = useState(''), [term, setTerm] = useState(''), [status, setStatus] = useState(''), [page, setPage] = useState(1);
+    useEffect(() => { const timer = setTimeout(() => { setTerm(search); setPage(1); }, 350); return () => clearTimeout(timer); }, [search]);
+    const query = useQuery({ queryKey: ['admin-orders', page, term, status], queryFn: () => adminApi.orderPage(page, term, status) });
+    return <><Heading title="Orders"><span className="admin-pill">Cash on delivery</span></Heading><Panel><div className="mb-5 flex flex-wrap gap-3"><Input className="max-w-sm" aria-label="Search orders" placeholder="Search order or customer…" value={search} onChange={e => setSearch(e.target.value)}/><select aria-label="Filter order status" className="max-w-48" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}><option value="">All statuses</option>{orderStatuses.map(status => <option key={status}>{status}</option>)}</select></div>{query.isPending ? <Loading /> : query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()}/> : <>{!query.data.orders.length ? <Empty>No orders match these filters.</Empty> : <Table><TableHeader><TableRow>{['Order', 'Customer', 'Date', 'Status', 'Total', 'Payment'].map(label => <TableHead key={label}>{label}</TableHead>)}</TableRow></TableHeader><TableBody>{query.data.orders.map(order => <TableRow key={order.orderId}><TableCell><Link className="text-[#603344] underline whitespace-nowrap" href={'/admin/orders/' + encodeURIComponent(order.orderId)}>{order.orderId}</Link></TableCell><TableCell>{order.customerName || order.email || 'Guest'}</TableCell><TableCell className="whitespace-nowrap">{new Date(order.createdAt).toLocaleDateString('en-PK')}</TableCell><TableCell><span className="admin-pill">{order.status}</span></TableCell><TableCell className="whitespace-nowrap">{money(order.total)}</TableCell><TableCell>COD</TableCell></TableRow>)}</TableBody></Table>}<div className="mt-5 flex flex-wrap items-center justify-between gap-3"><p className="text-xs text-[#78666d]">{query.data.totalCount} orders · Page {page} of {Math.max(1, query.data.totalPages)}</p><div className="flex gap-2"><AdminButton secondary disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</AdminButton><AdminButton secondary disabled={page >= query.data.totalPages} onClick={() => setPage(page + 1)}>Next</AdminButton></div></div></>}</Panel></>;
+}

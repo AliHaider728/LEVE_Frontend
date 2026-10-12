@@ -10,7 +10,8 @@ import {
   useReducedMotion,
 } from "motion/react";
 import { BadgeCheck, Banknote, LayoutGrid, Rows3, SlidersHorizontal, Truck, X } from "lucide-react";
-import { concerns, productTypes, products, type Product } from "@/data/products";
+import { concerns, productTypes, type Product } from "@/data/products";
+import { formatPKR } from "@/config/store";
 import hero from "@/assets/leva-ritual-hero.png.asset.json";
 import { ProductCard } from "@/components/product/ProductCard";
 import { StoryRow } from "@/components/shop/StoryRow";
@@ -19,8 +20,10 @@ import { SkinQuiz } from "@/components/shop/SkinQuiz";
 import { MiniCart } from "@/components/shop/MiniCart";
 import { QuickView } from "@/components/shop/QuickView";
 import { Button } from "@/components/ui/button";
-import { Link } from "@/lib/router-compat";
-import { ArrowRight, PackagePlus } from "lucide-react";
+
+import { BuildBundleCard } from "@/components/product/BuildBundleCard";
+import { CatalogStatus } from "@/components/product/CatalogStatus";
+import { useStoreData } from "@/store/catalog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 type Search = { type?: string; concern?: string; sort?: string; stock?: boolean; view?: "story" };
@@ -77,6 +80,7 @@ function applyFilters(list: Product[], s: Search) {
 }
 
 function Shop() {
+  const { products, bundles } = useStoreData();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/shop/" });
   const set = (patch: { [K in keyof Search]?: Search[K] | undefined }) =>
@@ -180,7 +184,7 @@ function Shop() {
         <div className="flex flex-wrap items-center gap-2 px-4 pb-2 md:px-[6vw]">
           <p className="text-sm text-muted-foreground" aria-live="polite">
             {showBundlesOnly
-              ? "2 bundles"
+              ? bundles.length + " bundles"
               : `${results.length} product${results.length === 1 ? "" : "s"}`}
           </p>
           {active.map((a) => (
@@ -244,6 +248,7 @@ function Shop() {
         </SheetContent>
       </Sheet>
 
+      <div className="px-4 md:px-[6vw]"><CatalogStatus /></div>
       {!showBundlesOnly &&
         (results.length === 0 ? (
           <div className="px-5 py-24 text-center">
@@ -376,6 +381,7 @@ function ChipGroup({
 }
 
 function Intro() {
+  const { settings } = useStoreData();
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -396,7 +402,7 @@ function Intro() {
         <ul className="mt-6 flex flex-wrap gap-2 text-xs font-medium">
           {[
             { i: Banknote, t: "Cash on Delivery" },
-            { i: Truck, t: "Free delivery over Rs. 3,000" },
+            { i: Truck, t: "Free delivery over " + formatPKR(settings.freeShippingThreshold) },
             { i: BadgeCheck, t: "7-day returns" },
           ].map(({ i: I, t }) => (
             <li
@@ -426,67 +432,10 @@ function Intro() {
   );
 }
 
-const reveal = {
-  hidden: { opacity: 0, y: 40, clipPath: "inset(0% 0% 100% 0%)" },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    clipPath: "inset(0% 0% 0% 0%)",
-    transition: { delay: i * 0.08, duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
-  }),
-};
-
-/** 4-column grid. With fewer than 4 products, the "Build your own bundle" tile fills the row; otherwise it moves to the end. */
+/** Static cards remain visible without animation or IntersectionObserver. */
 function ShopGrid({ results }: { results: Product[] }) {
-  const reduced = useReducedMotion();
-  return (
-    <LayoutGroup>
-      <div className="grid grid-cols-2 gap-4 px-4 py-12 md:grid-cols-3 md:gap-6 md:px-[6vw] lg:grid-cols-4">
-        <AnimatePresence mode="popLayout">
-          {results.map((p, i) => (
-            <motion.div
-              key={p.slug}
-              layout
-              custom={i}
-              variants={reveal}
-              initial={reduced ? false : "hidden"}
-              whileInView="show"
-              viewport={{ once: true, amount: 0.2 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              whileHover={reduced ? {} : { y: -6 }}
-              transition={{ layout: { type: "spring", damping: 26, stiffness: 260 } }}
-            >
-              <ProductCard product={p} />
-            </motion.div>
-          ))}
-          <motion.div
-            key="build-your-own"
-            layout
-            custom={results.length}
-            variants={reveal}
-            initial={reduced ? false : "hidden"}
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-            whileHover={reduced ? {} : { y: -6 }}
-          >
-            <Link
-              to="/bundles/build"
-              className="flex h-full min-h-[22rem] flex-col justify-between rounded-2xl bg-primary p-6 text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-4"
-            >
-              <PackagePlus className="size-8" />
-              <div>
-                <h2 className="text-2xl font-light">Build your own bundle</h2>
-                <p className="mt-2 text-sm text-primary-foreground/90">
-                  Pick 2 items for 10% off, 3+ for 20% off.
-                </p>
-                <span className="mt-5 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-widest">
-                  Start building <ArrowRight className="size-4" />
-                </span>
-              </div>
-            </Link>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </LayoutGroup>
-  );
+  return <div data-shop-grid className="grid auto-rows-fr grid-cols-2 items-stretch gap-3 px-4 py-12 md:grid-cols-3 md:gap-6 md:px-[6vw] lg:grid-cols-4">
+    {results.map(product => <div key={product.slug} className="min-w-0"><ProductCard product={product} /></div>)}
+    <BuildBundleCard />
+  </div>;
 }

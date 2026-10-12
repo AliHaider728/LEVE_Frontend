@@ -1,19 +1,21 @@
+import { useStoreData } from "@/store/catalog";
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { ShoppingBag } from "lucide-react";
-import { bundles, getBundleOriginalPrice, type Bundle } from "@/data/bundles";
-import { products } from "@/data/products";
+import { getBundleOriginalPrice, type Bundle } from "@/data/bundles";
+
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 function SceneCard({ bundle }: { bundle: Bundle }) {
+  const { products } = useStoreData();
   const addBundle = useCart((s) => s.addBundle);
   const included = bundle.productSlugs
     .map((s) => products.find((p) => p.slug === s))
     .filter((p): p is (typeof products)[number] => !!p);
-  const original = getBundleOriginalPrice(bundle);
+  const original = getBundleOriginalPrice(bundle, products);
   return (
     <article className="grid w-[86vw] shrink-0 snap-center gap-6 rounded-3xl bg-background p-5 md:w-[min(900px,70vw)] md:grid-cols-[1.1fr_1fr] md:p-8">
       <div className="relative aspect-[5/4] overflow-hidden rounded-2xl bg-secondary">
@@ -60,6 +62,7 @@ function SceneCard({ bundle }: { bundle: Bundle }) {
 }
 
 export function BundleScene() {
+  const { bundles } = useStoreData();
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });

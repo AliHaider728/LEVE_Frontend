@@ -1,23 +1,32 @@
 "use client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { FloatingNav } from "@/components/layout/FloatingNav";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { WhatsappButton } from "@/components/layout/WhatsappButton";
+import { useStoreData } from "@/store/catalog";
+import { usePathname } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 
-export function Providers({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
+function StorefrontShell({ children }: { children: ReactNode }) {
+  const loadStore = useStoreData(state => state.load);
+  useEffect(() => { void loadStore(); }, [loadStore]);
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <SmoothScroll>
         <FloatingNav />
-        <div className="pb-16 md:pb-0">{children}</div>
+        <div className="pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">{children}</div>
         <Footer />
         <WhatsappButton />
         <Toaster position="top-center" />
       </SmoothScroll>
-    </QueryClientProvider>
+    </>
   );
+}
+
+export function Providers({children}:{children:ReactNode}) {
+ const pathname=usePathname();
+ const [queryClient]=useState(()=>new QueryClient());
+ return <QueryClientProvider client={queryClient}>{pathname.startsWith("/admin")?<>{children}<Toaster position="top-center" /></>:<StorefrontShell>{children}</StorefrontShell>}</QueryClientProvider>;
 }

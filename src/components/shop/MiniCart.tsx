@@ -1,17 +1,19 @@
+import { useStoreData } from "@/store/catalog";
 import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "@/store/cart";
 import { getCartTotals } from "@/lib/cart-totals";
-import { formatPKR, getFreeShippingRemaining, storeConfig } from "@/config/store";
+import { formatPKR, getFreeShippingRemaining } from "@/config/store";
 import { Progress } from "@/components/ui/progress";
 
 export function MiniCart() {
+  const { settings: storeConfig } = useStoreData();
   const { items, bundles, coupon, setOpen, custom } = useCart();
   const count =
     Object.values(items).reduce((a, b) => a + b, 0) +
     Object.values(bundles).reduce((a, b) => a + b, 0) +
     Object.values(custom).reduce((a, b) => a + b, 0);
-  const totals = getCartTotals(items, bundles, coupon, custom);
-  const remaining = getFreeShippingRemaining(totals.subtotal - totals.couponDiscount);
+  const totals = getCartTotals(items, bundles, coupon, custom, useStoreData.getState());
+  const remaining = getFreeShippingRemaining(totals.payableSubtotal, storeConfig);
   return (
     <AnimatePresence>
       {count > 0 && (
@@ -32,7 +34,7 @@ export function MiniCart() {
           </p>
           <Progress
             className="mt-3"
-            value={Math.min(100, (totals.subtotal / storeConfig.freeShippingThreshold) * 100)}
+            value={Math.min(100, (totals.payableSubtotal / storeConfig.freeShippingThreshold) * 100)}
           />
           <p className="mt-2 text-xs text-muted-foreground">
             {remaining > 0

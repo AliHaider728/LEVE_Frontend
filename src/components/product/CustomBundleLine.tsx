@@ -1,6 +1,7 @@
+import { useStoreData } from "@/store/catalog";
 import { Link } from "@/lib/router-compat";
 import { Trash2 } from "lucide-react";
-import { products } from "@/data/products";
+
 import { getCustomBundle } from "@/data/bundleRules";
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
@@ -8,10 +9,11 @@ import { Button } from "@/components/ui/button";
 
 /** Grouped "Your custom bundle" line used by the cart drawer and cart page. */
 export function CustomBundleLine() {
+  const { products, settings: storeConfig } = useStoreData();
   const custom = useCart((s) => s.custom);
   const clearCustom = useCart((s) => s.clearCustom);
   const setOpen = useCart((s) => s.setOpen);
-  const cb = getCustomBundle(custom);
+  const cb = getCustomBundle(custom, products, storeConfig.routineDiscount);
   if (!cb.count) return null;
   const picked = products.filter((p) => custom[p.slug]);
   return (

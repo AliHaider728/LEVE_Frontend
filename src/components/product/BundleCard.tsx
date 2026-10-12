@@ -1,18 +1,20 @@
+import { useStoreData } from "@/store/catalog";
 import { ShoppingBag } from "lucide-react";
 import type { Bundle } from "@/data/bundles";
 import { getBundleOriginalPrice } from "@/data/bundles";
-import { products } from "@/data/products";
+
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featured?: boolean }) {
+  const { products } = useStoreData();
   const addBundle = useCart((state) => state.addBundle);
   const included = bundle.productSlugs
     .map((slug) => products.find((product) => product.slug === slug))
     .filter((product): product is (typeof products)[number] => Boolean(product));
-  const original = getBundleOriginalPrice(bundle);
+  const original = getBundleOriginalPrice(bundle, products);
   return (
     <article className="border-t border-primary/25 pt-6">
       <div className="relative flex aspect-[5/4] items-end justify-center overflow-hidden rounded-md bg-background">

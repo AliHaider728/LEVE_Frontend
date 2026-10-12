@@ -1,10 +1,11 @@
+import { useStoreData } from "@/store/catalog";
 import { FormEvent, useState } from "react";
 import { Facebook, Instagram, Music2, Send } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
-import { storeConfig } from "@/config/store";
 
 export function Footer() {
+  const { settings: storeConfig } = useStoreData();
   const [subscribed, setSubscribed] = useState(false);
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -12,7 +13,7 @@ export function Footer() {
     if (typeof email === "string" && email.trim()) setSubscribed(true);
   };
   return (
-    <footer className="overflow-hidden bg-primary px-5 pb-24 pt-16 text-primary-foreground md:px-8 md:pb-6">
+    <footer className="overflow-hidden bg-primary px-5 pb-[calc(9rem+env(safe-area-inset-bottom))] pt-16 text-primary-foreground md:px-8 md:pb-6">
       <div className="grid gap-12 border-b border-primary-foreground/20 pb-14 md:grid-cols-[1fr_1fr]">
         <div>
           <p className="max-w-md text-3xl font-light">
@@ -127,7 +128,7 @@ export function Footer() {
       <p className="mt-10 text-center text-[20vw] font-light leading-none">LEVA</p>
       <div className="mt-6 flex justify-between text-xs uppercase text-primary-foreground/70">
         <span>© 2026 LEVA</span>
-        <span>Pakistan</span>
+        <div className="flex items-center gap-5"><Link to="/admin/login" className="text-[11px] normal-case opacity-65 hover:opacity-100">Admin</Link><span>Pakistan</span></div>
       </div>
     </footer>
   );
