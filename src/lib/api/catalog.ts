@@ -57,7 +57,9 @@ export function normalizeProducts(payload: unknown): Product[] {
 }
 
 export function normalizeBundles(payload: unknown, products: Product[]): Bundle[] {
-  const rows = list(object(payload).bundles).map(object);
+  const source = object(payload).bundles;
+  if (!Array.isArray(source)) throw new ApiError("Bundle data was unavailable.", 0, "invalid-response");
+  const rows = source.map(object);
   const bundles = rows.filter(row => text(row.id) && row.isActive !== false && row.isActive !== 0).flatMap((row, index) => {
     const entries = list(row.products).map(object);
     const productSlugs = entries.flatMap(entry => {
@@ -69,7 +71,7 @@ export function normalizeBundles(payload: unknown, products: Product[]): Bundle[
     return [{ id: text(row.id), slug: text(row.slug, localBundles[index]?.slug ?? "bundle-" + index), name: text(row.name, "LEVA Bundle"), description: text(row.description), productSlugs,
       price: number(row.currentPrice), originalPrice: number(row.originalTotalPrice), savePercent: number(row.originalTotalPrice) > 0 ? Math.round((1 - number(row.currentPrice) / number(row.originalTotalPrice)) * 100) : 0 }];
   });
-  if (!bundles.length) throw new ApiError("Bundle data was unavailable.", 0, "invalid-response");
+  if (rows.length && !bundles.length) throw new ApiError("Bundle data was unavailable.", 0, "invalid-response");
   return bundles;
 }
 

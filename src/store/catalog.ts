@@ -4,7 +4,7 @@ import { products as localProducts, type Product } from "@/data/products";
 import { bundles as localBundles, type Bundle } from "@/data/bundles";
 import { reviews as localReviews, type Review } from "@/data/reviews";
 import { storeConfig } from "@/config/store";
-import { API_URL } from "@/lib/api/client";
+import { API_URL, ApiError } from "@/lib/api/client";
 import { catalogApi, type StoreSettings } from "@/lib/api/catalog";
 
 type StoreData = {
@@ -22,7 +22,14 @@ export const useStoreData = create<StoreData>((set, get) => ({
     const [catalog, settings] = await Promise.allSettled([catalogApi.listProducts(), catalogApi.settings()]);
     const products = catalog.status === "fulfilled" ? catalog.value : localProducts;
     const [bundles, reviews] = await Promise.allSettled([catalogApi.listBundles(products), catalog.status === "fulfilled" ? catalogApi.reviews(products) : Promise.reject(new Error("Catalog unavailable"))]);
-    const fallback = [catalog, settings, bundles, reviews].some(result => result.status === "rejected") || products.some(product => !product.id);
+    for (const [source, result] of Object.entries({ products: catalog, settings, bundles, reviews })) {
+      if (result.status === "rejected") {
+        const error = result.reason;
+        console.warn("[LEVA store] Live " + source + " request failed", error instanceof ApiError ? { code: error.code, status: error.status } : { code: "unexpected" });
+      }
+    }
+    // Reviews have their own fallback and do not affect product availability.
+    const fallback = [catalog, settings, bundles].some(result => result.status === "rejected") || products.some(product => !product.id);
     set({ products, settings: settings.status === "fulfilled" ? settings.value : storeConfig,
       bundles: bundles.status === "fulfilled" ? bundles.value : localBundles,
       reviews: reviews.status === "fulfilled" ? reviews.value : localReviews,
