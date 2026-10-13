@@ -1,5 +1,5 @@
 /** Public API origin only; no server secrets belong here. */
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "").trim().replace(/\/+$/, "");
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://leva-backend.vercel.app" : "http://127.0.0.1:5001")).trim().replace(/\/+$/, "");
 export class ApiError extends Error {
   constructor(message: string, public readonly status: number, public readonly code: "configuration" | "network" | "http" | "invalid-response") { super(message); this.name = "ApiError"; }
 }
@@ -10,7 +10,7 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
   try {
     const response = await fetch(API_URL + path, {
       ...options, credentials: "include", cache: "no-store",
-      headers: { Accept: "application/json", ...(options.body ? { "Content-Type": "application/json" } : {}), ...options.headers },
+      headers: { Accept: "application/json", "X-Leva-Storefront": "1", ...(options.body ? { "Content-Type": "application/json" } : {}), ...options.headers },
       signal: options.signal ?? controller.signal,
     });
     const body: unknown = await response.json().catch(() => null);
