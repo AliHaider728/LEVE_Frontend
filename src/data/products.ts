@@ -1,6 +1,7 @@
 export type Product = {
   id?: string;
   variationId?: string;
+  selectedAttributes?: Record<string,string>;
   requiresVariation?: boolean;
   slug: string;
   number: string;

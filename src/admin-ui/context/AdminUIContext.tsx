@@ -1,8 +1,9 @@
 "use client";
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { ApiError } from '@/lib/api/client';
 import { adminApi, isAdmin } from '@/lib/api/admin';
-import { uiRequest, productFromAPI, bundleFromAPI, couponFromAPI, categoryFromAPI, settingsFromAPI, allOrders, type ModuleFlags } from '../api';
+import { uiRequest, productFromAPI, bundleFromAPI, couponFromAPI, categoryFromAPI, settingsFromAPI, allOrders, requirementsForPage, moduleForRequest, type ModuleFlags } from '../api';
 import type { AdminPage, Product, Category, Order, Customer, Review, AudioReview, ContactMessage, Bundle, Coupon, GlobalAttribute, StoreSettings, StorefrontNavigationItem, HomepageSectionSetting, RoutineDiscountSettings } from '../types';
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 export interface ToastItem {
@@ -88,6 +89,8 @@ interface AdminUIContextType {
     saveModules: (flags: ModuleFlags) => Promise<void>;
     loading: boolean;
     pending: boolean;
+    moduleLoading: Record<string,boolean>;
+    loadedModules: Record<string,boolean>;
     errors: Record<string, string>;
     reload: () => Promise<void>;
     login: (email: string, password: string) => Promise<void>;
@@ -120,6 +123,13 @@ export const AdminUIProvider: React.FC<{
     const [adminUser, setAdminUser] = useState<AdminUIContextType['adminUser']>(null);
     const [pendingCount, setPendingCount] = useState(0);
     useEffect(() => { const start = () => setPendingCount(n => n + 1), end = () => setPendingCount(n => Math.max(0, n - 1)); window.addEventListener('leva-admin-request-start', start); window.addEventListener('leva-admin-request-end', end); return () => { window.removeEventListener('leva-admin-request-start', start); window.removeEventListener('leva-admin-request-end', end); }; }, []);
+    const [moduleLoading,setModuleLoading]=useState<Record<string,boolean>>({});
+    const [loadedModules,setLoadedModules]=useState<Record<string,boolean>>({});
+    const loaded=useRef(new Set<string>()),flights=useRef(new Map<string,Promise<void>>());
+    const sessionFlight=useRef<Promise<{user:Awaited<ReturnType<typeof adminApi.me>>;flags:ModuleFlags}>|null>(null);
+    const mutationFlights=useRef(new Map<string,Promise<unknown>>());
+    const [mutations,setMutations]=useState(0);
+    const bundleRecords=useRef<Bundle[]>([]);
     const [loading, setLoading] = useState(true), [errors, setErrors] = useState<Record<string, string>>({}), [modules, setModules] = useState<ModuleFlags>({});
     const [products, setProducts] = useState<Product[]>([]), [categories, setCategories] = useState<Category[]>([]), [orders, setOrders] = useState<Order[]>([]), [customers, setCustomers] = useState<Customer[]>([]), [reviews, setReviews] = useState<Review[]>([]), [audioReviews, setAudioReviews] = useState<AudioReview[]>([]), [contactMessages, setContactMessages] = useState<ContactMessage[]>([]), [bundles, setBundles] = useState<Bundle[]>([]), [coupons, setCoupons] = useState<Coupon[]>([]), [globalAttributes, setGlobalAttributes] = useState<GlobalAttribute[]>([]), [settings, setSettings] = useState<StoreSettings>(emptySettings), [navigation, setNavigation] = useState<StorefrontNavigationItem[]>([]), [homepageSections, setHomepageSections] = useState<HomepageSectionSetting[]>([]), [dashboard, setDashboard] = useState<any>(null), [reports, setReports] = useState<any>(null), [bestSellers, setBestSellers] = useState<any[]>([]);
     // Toast
@@ -162,8 +172,7 @@ export const AdminUIProvider: React.FC<{
             setDialogState(null);
         }
     }, [dialogState]);
-    const load = useCallback(async (flags: ModuleFlags) => {
-        const failures: Record<string, string> = {};
+    const load=useCallback(async(flags:ModuleFlags,keys:string[],force=false)=>{
         const tasks: [
             string,
             () => Promise<void>
@@ -175,59 +184,40 @@ export const AdminUIProvider: React.FC<{
             ['reviews', async () => { const data: any = await uiRequest('reviews/admin'); setReviews(Array.isArray(data) ? data : data.reviews || []); }],
             ['audioReviews', async () => setAudioReviews(await uiRequest('audio-reviews/admin'))],
             ['contact', async () => setContactMessages((await uiRequest<any[]>('contact')).map(m => ({ ...m, _id: m.id, status: m.status[0].toUpperCase() + m.status.slice(1).toLowerCase() })))],
-            ['bundles', async () => { const data: any = await uiRequest('bundles?all=true'); setBundles((data.bundles || []).map(bundleFromAPI)); }],
+            ['bundles', async () => { const data: any = await uiRequest('bundles?all=true'); bundleRecords.current=(data.bundles||[]).map(bundleFromAPI);setBundles(bundleRecords.current); }],
             ['coupons', async () => setCoupons((await uiRequest<any[]>('coupons')).map(couponFromAPI))],
             ['attributes', async () => setGlobalAttributes(await uiRequest('global-attributes'))],
             ['settings', async () => { const data: any = await uiRequest('settings'); setSettings(prev => ({ ...settingsFromAPI(data), routineDiscount: prev.routineDiscount })); setNavigation(data.storefrontNavigation || []); setHomepageSections(data.homepageSections || []); }],
             ['routineDiscounts', async () => { const routineDiscount: RoutineDiscountSettings = await uiRequest('settings/routine'); setSettings(prev => ({ ...prev, routineDiscount })); }],
-            ['appearance', async () => { if (!flags.settings) {
-                    const data: any = await uiRequest('settings?appearance=true');
-                    setNavigation(data.storefrontNavigation || []);
-                    setHomepageSections(data.homepageSections || []);
-                } }],
+            ['appearance', async () => {const data:any=await uiRequest('settings?appearance=true');setNavigation(data.storefrontNavigation||[]);setHomepageSections(data.homepageSections||[]);}],
             ['reports', async () => setReports(await uiRequest('admin/reports'))],
             ['bestSellers', async () => setBestSellers(await uiRequest('admin/best-sellers'))]];
-        await Promise.all(tasks.filter(([key]) => key === 'dashboard' || flags[key]).map(async ([key, run]) => { try {
-            await run();
-        }
-        catch (error) {
-            failures[key] = error instanceof Error ? error.message : 'Unable to load this module.';
-        } }));
-        setErrors(failures);
-    }, []);
-    const reload = useCallback(async () => { setLoading(true); try {
-        const user = await adminApi.me();
-        if (!isAdmin(user)) {
-            router.replace('/');
-            return;
-        }
-        setAdminUser(user as AdminUIContextType['adminUser']);
-        const flags = await uiRequest<ModuleFlags>('admin/features');
-        setModules(flags);
-        await load(flags);
-    }
-    catch (error) {
-        setErrors({ session: error instanceof Error ? error.message : 'Unable to load session.' });
-    }
-    finally {
-        setLoading(false);
-    } }, [load, router]);
-    useEffect(() => { void reload(); }, [reload]);
-    const login = async (email: string, password: string) => { const user = await adminApi.login(email, password); if (!isAdmin(user)) {
-        await adminApi.logout();
-        throw new Error('Administrator access is required.');
-    } setAdminUser(user as AdminUIContextType['adminUser']); await reload(); router.replace('/admin'); };
-    const logout = async () => { await adminApi.logout(); setAdminUser(null); setProducts([]); setOrders([]); setCustomers([]); setCategories([]); setReviews([]); setAudioReviews([]); setContactMessages([]); setBundles([]); setCoupons([]); setGlobalAttributes([]); setModules({}); router.replace('/admin/login'); };
-    const mutate = async <T,>(path: string, method: string, body?: unknown): Promise<T> => { try {
-        const result = await uiRequest<T>(path, method, body);
-        await load(modules);
-        showToast('Changes saved.', 'success');
-        return result;
-    }
-    catch (error) {
-        showToast(error instanceof Error ? error.message : 'Could not save changes.', 'error');
-        throw error;
-    } };
+
+      await Promise.all(tasks.filter(([key])=>keys.includes(key)&&(key==='dashboard'||flags[key])).map(async([key,run])=>{
+       if(flights.current.has(key))return flights.current.get(key);
+       if(!force&&loaded.current.has(key))return;
+       setModuleLoading(prev=>({...prev,[key]:true}));
+       const task=run().then(()=>setErrors(prev=>{const next={...prev};delete next[key];return next;})).catch(error=>setErrors(prev=>({...prev,[key]:error instanceof Error?error.message:'Unable to load this module.'}))).finally(()=>{loaded.current.add(key);setLoadedModules(prev=>({...prev,[key]:true}));setModuleLoading(prev=>({...prev,[key]:false}));flights.current.delete(key);});
+       flights.current.set(key,task);await task;
+      }));
+    },[]);
+    const required=useMemo(()=>requirementsForPage(activePage),[activePage]);
+    const bootstrap=useCallback(async(authenticated?:Awaited<ReturnType<typeof adminApi.me>>)=>{
+     setLoading(true);setErrors(prev=>{const next={...prev};delete next.session;return next;});
+     if(!sessionFlight.current)sessionFlight.current=(async()=>{const user=authenticated||await adminApi.me();if(!isAdmin(user))return {user,flags:{}};return {user,flags:await uiRequest<ModuleFlags>('admin/features')};})();
+     try{const {user,flags}=await sessionFlight.current;if(!isAdmin(user)){setAdminUser(null);router.replace('/');return;}setAdminUser(user as AdminUIContextType['adminUser']);setModules(flags);}
+     catch(error){if(error instanceof ApiError&&error.status===401){setAdminUser(null);setErrors({});}else setErrors(prev=>({...prev,session:error instanceof Error?error.message:'Unable to load session.'}));}
+     finally{sessionFlight.current=null;setLoading(false);}
+    },[router]);
+    useEffect(()=>{void bootstrap();},[bootstrap]);
+    useEffect(()=>{if(adminUser&&!loading)void load(modules,[...required,'dashboard']);},[adminUser,loading,modules,required,load]);
+    const reload=async()=>{if(errors.session||!adminUser)await bootstrap();else await load(modules,required,true);};
+    const login=async(email:string,password:string)=>{const user=await adminApi.login(email,password);if(!isAdmin(user)){await adminApi.logout();throw new Error('Administrator access is required.');}await bootstrap(user);router.replace('/admin');};
+    const logout=async()=>{await adminApi.logout();setAdminUser(null);setProducts([]);setOrders([]);setCustomers([]);setCategories([]);setReviews([]);setAudioReviews([]);setContactMessages([]);setBundles([]);setCoupons([]);setGlobalAttributes([]);setModules({});loaded.current.clear();setLoadedModules({});router.replace('/admin/login');};
+    const mutate=async<T,>(path:string,method:string,body?:unknown,explicitModule?:string):Promise<T>=>{
+     const id=method+':'+path;if(mutationFlights.current.has(id))return mutationFlights.current.get(id) as Promise<T>;
+     const operation=(async()=>{setMutations(value=>value+1);try{const result=await uiRequest<T>(path,method,body);const key=explicitModule||moduleForRequest(path);const related=key==='products'?['products','bundles','bestSellers','dashboard']:key==='orders'?['orders','products','customers','reports','dashboard']:key==='categories'?['categories','products']:key?[key]:[];await load(modules,related.filter(item=>item===key||loaded.current.has(item)),true);showToast('Changes saved.','success');return result;}catch(error){showToast(error instanceof Error?error.message:'Could not save changes.','error');throw error;}finally{setMutations(value=>Math.max(0,value-1));mutationFlights.current.delete(id);}})();mutationFlights.current.set(id,operation);return operation;
+    };
     const productPayload = (patch: Partial<Product>, id?: string) => { const current = products.find(p => p.id === id); const value = { ...current, ...patch }; return { ...value, variants: value.attributes || [], variations: value.variations || [] }; };
     const addProduct = async (p: Partial<Product>) => productFromAPI(await mutate('products', 'POST', productPayload(p)));
     const updateProduct = async (id: string, p: Partial<Product>) => { await mutate('products/' + id, 'PUT', productPayload(p, id)); return true; };
@@ -244,7 +234,7 @@ export const AdminUIProvider: React.FC<{
     const updateOrderTracking = async (id: string, trackingNumber: string) => { await mutate('orders/' + encodeURIComponent(id) + '/tracking', 'PUT', { trackingNumber }); return true; };
     const deleteOrder = async (id: string) => { await mutate('orders/' + encodeURIComponent(id), 'DELETE'); return true; };
     const bundlePayload = (p: Partial<Bundle>, id?: string) => { const v = { ...bundles.find(b => b.id === id), ...p }; return { ...v, products: v.products?.map(i => ({ product_id: i.product.id, quantity: i.quantity })) || [] }; };
-    const addBundle = async (p: Partial<Bundle>) => {const created:any=await mutate('bundles','POST',bundlePayload(p));const result:any=await uiRequest('bundles?all=true');const row=result.bundles.find((b:any)=>b.id===created.bundleId);if(!row)throw new Error('Created bundle could not be loaded.');return bundleFromAPI(row);};
+    const addBundle = async (p: Partial<Bundle>) => {const created:any=await mutate('bundles','POST',bundlePayload(p));const row=bundleRecords.current.find(b=>b.id===created.bundleId);if(!row)throw new Error('Created bundle could not be loaded.');return bundleFromAPI(row);};
     const updateBundle = async (id: string, p: Partial<Bundle>) => { await mutate('bundles/' + id, 'PUT', bundlePayload(p, id)); return true; };
     const deleteBundle = async (id: string) => { await mutate('bundles/' + id, 'DELETE'); return true; };
     const couponPayload = (p: Partial<Coupon>, id?: string) => { const v = { ...coupons.find(c => c.id === id), ...p }; return { ...v, discountValue: v.amount, minPurchase: v.minSpend, expiryDate: v.expiryDate || null }; };
@@ -262,7 +252,7 @@ export const AdminUIProvider: React.FC<{
     const deleteContactMessage = async (id: string) => { await mutate('contact/' + id, 'DELETE'); return true; };
     const updateSettings = async (p: Partial<StoreSettings>) => { const merged = { ...settings, ...p }; const base = Object.fromEntries(['storeName', 'email', 'phone', 'address', 'currency', 'standardShippingFee', 'freeShippingThreshold', 'taxRate'].map(key => [key, (merged as any)[key]])); await mutate('settings', 'PUT', { ...base, defaultMetaTitle: merged.metaTitle, defaultMetaDescription: merged.metaDescription }); if(p.socialLinks)await mutate('settings/social','PUT',{socialLinks:p.socialLinks}); return true; };
     const updateRoutineDiscountSettings = async (p: RoutineDiscountSettings) => { await mutate('settings/routine', 'PUT', p); return true; };
-    const updateAppearanceSettings = async (nav: StorefrontNavigationItem[], sections: HomepageSectionSetting[]) => { await mutate('settings', 'PUT', { storefrontNavigation: nav, homepageSections: sections }); return true; };
+    const updateAppearanceSettings = async (nav: StorefrontNavigationItem[], sections: HomepageSectionSetting[]) => { await mutate('settings', 'PUT', { storefrontNavigation: nav, homepageSections: sections },'appearance'); return true; };
     const addGlobalAttribute = async (p: Partial<GlobalAttribute>) => mutate<GlobalAttribute>('global-attributes', 'POST', p);
     const updateGlobalAttribute = async (id: string, p: Partial<GlobalAttribute>) => { const current = globalAttributes.find(a => a.id === id); await uiRequest('global-attributes/' + id, 'PUT', p); if (p.terms) {
         for (const term of p.terms) {
@@ -272,11 +262,11 @@ export const AdminUIProvider: React.FC<{
         for (const old of current?.terms || [])
             if (!p.terms.some(t => t.id === old.id))
                 await uiRequest('global-attributes/' + id + '/terms/' + old.id, 'DELETE');
-    } await load(modules); showToast('Attribute saved.'); return true; };
+    } await load(modules,['attributes'],true); showToast('Attribute saved.'); return true; };
     const deleteGlobalAttribute = async (id: string) => { await mutate('global-attributes/' + id, 'DELETE'); return true; };
-    const saveModules = async (flags: ModuleFlags) => { const next = await uiRequest<ModuleFlags>('admin/features', 'PUT', flags); setModules(next); await load(next); showToast('Feature settings saved.'); };
+    const saveModules = async (flags: ModuleFlags) => { const next = await uiRequest<ModuleFlags>('admin/features', 'PUT', flags); for(const key of Object.keys(flags)){loaded.current.delete(key);setLoadedModules(prev=>({...prev,[key]:false}));}setModules(next);showToast('Feature settings saved.'); };
     const setBestSeller = async (id: string, enabled: boolean) => { await mutate('admin/best-sellers/' + id, 'PUT', { isBestseller: enabled }); };
-    return <AdminUIContext.Provider value={{ activePage, activePageParams, setActivePage, adminUser, products, categories, orders, customers, reviews, audioReviews, contactMessages, bundles, coupons, globalAttributes, settings, navigation, homepageSections, addProduct, updateProduct, deleteProduct, reorderProducts, addCategory, updateCategory, deleteCategory, updateOrderStatus, updateOrderTracking, deleteOrder, addBundle, updateBundle, deleteBundle, addCoupon, updateCoupon, deleteCoupon, addReview, updateReviewStatus, deleteReview, addAudioReview, deleteAudioReview, updateContactStatus, deleteContactMessage, updateSettings, updateRoutineDiscountSettings, updateAppearanceSettings, addGlobalAttribute, updateGlobalAttribute, deleteGlobalAttribute, toasts, showToast, dismissToast, confirm, prompt, dialogState, closeDialog, modules, saveModules, loading, pending: pendingCount > 0, errors, reload, login, logout, dashboard, reports, bestSellers, setBestSeller }}>{children}</AdminUIContext.Provider>;
+    return <AdminUIContext.Provider value={{ activePage, activePageParams, setActivePage, adminUser, products, categories, orders, customers, reviews, audioReviews, contactMessages, bundles, coupons, globalAttributes, settings, navigation, homepageSections, addProduct, updateProduct, deleteProduct, reorderProducts, addCategory, updateCategory, deleteCategory, updateOrderStatus, updateOrderTracking, deleteOrder, addBundle, updateBundle, deleteBundle, addCoupon, updateCoupon, deleteCoupon, addReview, updateReviewStatus, deleteReview, addAudioReview, deleteAudioReview, updateContactStatus, deleteContactMessage, updateSettings, updateRoutineDiscountSettings, updateAppearanceSettings, addGlobalAttribute, updateGlobalAttribute, deleteGlobalAttribute, toasts, showToast, dismissToast, confirm, prompt, dialogState, closeDialog, modules, saveModules, loading, pending: pendingCount > 0 || mutations > 0, moduleLoading, loadedModules, errors, reload, login, logout, dashboard, reports, bestSellers, setBestSeller }}>{children}</AdminUIContext.Provider>;
 };
 export function useAdminUI() { const context = useContext(AdminUIContext); if (!context)
     throw new Error('AdminUIProvider is required.'); return context; }

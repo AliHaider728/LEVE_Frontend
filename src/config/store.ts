@@ -5,7 +5,7 @@ export const storeConfig = {
   freeShippingThreshold: 3000,
   deliveryEstimate: "3 to 5 working days",
   phone: "+92 300 0000000",
-  whatsappNumber: "923000000000",
+  whatsappNumber: "923147080907",
   email: "hello@leva.pk",
   jazzCash: { number: "+92 300 0000000", accountTitle: "LEVA (placeholder)" },
   easypaisa: { number: "+92 300 0000000", accountTitle: "LEVA (placeholder)" },

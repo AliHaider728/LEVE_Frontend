@@ -41,7 +41,7 @@ export function normalizeProducts(payload: unknown): Product[] {
     return {
       ...fallback, id: text(row.id), slug: fallback.slug, number: String(index + 1).padStart(2, "0"), name: text(row.name, fallback.name), type,
       price, compareAtPrice: Math.max(price, number(row.originalPrice, price)), stock,
-      variationId: variant ? text(variant.id) : undefined, requiresVariation: row.productType === "variable" && !variant,
+      variationId: variant ? text(variant.id) : undefined, selectedAttributes: variant ? Object.fromEntries(Object.entries(object(variant.attributes)).map(([name,value])=>[name,String(value)])) : undefined, requiresVariation: row.productType === "variable" && !variant,
       description: text(row.description, fallback.description), benefit: text(row.shortDescription, fallback.benefit),
       image: image(thumbnail, fallback.image), hoverImage: image(images[1] ?? images[0], fallback.hoverImage),
       rating: number(row.rating), reviewCount: number(row.reviewCount), addedAt: text(row.createdAt, fallback.addedAt),
@@ -71,10 +71,9 @@ export function normalizeSettings(payload: unknown): StoreSettings {
   const row = object(payload);
   if (!("standardShippingFee" in row) || !("freeShippingThreshold" in row)) throw new ApiError("Delivery details were unavailable.", 0, "invalid-response");
   const phone = text(row.phone, storeConfig.phone);
-  const digits = phone.replace(/\D/g, "");
   return { ...storeConfig, ...(row.routineDiscount ? { routineDiscount: validateRoutineSettings(row.routineDiscount) } : {}), shippingFlatRate: Math.max(0, number(row.standardShippingFee, storeConfig.shippingFlatRate)),
     freeShippingThreshold: Math.max(0, number(row.freeShippingThreshold, storeConfig.freeShippingThreshold)), phone,
-    email: text(row.email, storeConfig.email), whatsappNumber: digits.startsWith("0") ? "92" + digits.slice(1) : digits || storeConfig.whatsappNumber };
+    email: text(row.email, storeConfig.email), whatsappNumber: storeConfig.whatsappNumber };
 }
 
 export const catalogApi = {

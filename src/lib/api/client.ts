@@ -11,7 +11,7 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
     const response = await fetch(API_URL + path, {
       ...options, credentials: "include", cache: "no-store",
       headers: { Accept: "application/json", "X-Leva-Storefront": "1", ...(options.body ? { "Content-Type": "application/json" } : {}), ...options.headers },
-      signal: options.signal ?? controller.signal,
+      signal: options.signal ? AbortSignal.any([options.signal,controller.signal]) : controller.signal,
     });
     const body: unknown = await response.json().catch(() => null);
     if (!response.ok) {

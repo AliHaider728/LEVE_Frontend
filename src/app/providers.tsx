@@ -1,4 +1,5 @@
 "use client";
+import { WishlistHydration } from '@/components/wishlist/WishlistHydration';
 import { ScrollManager } from '@/components/layout/ScrollManager';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
@@ -15,6 +16,7 @@ function StorefrontShell({ children }: { children: ReactNode }) {
   useEffect(() => { void loadStore(); }, [loadStore]);
   return (
     <>
+      <WishlistHydration/>
       <SmoothScroll>
         <FloatingNav />
         <div className="pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">{children}</div>

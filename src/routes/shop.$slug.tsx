@@ -4,6 +4,7 @@ import { getProduct } from "@/data/products";
 import { useStoreData } from "@/store/catalog";
 import { CatalogStatus } from "@/components/product/CatalogStatus";
 import { formatPKR } from "@/config/store";
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
 import { QuantityAddToCart } from "@/components/product/QuantityAddToCart";
 import { ProductCard } from "@/components/product/ProductCard";
 import { BundleCard } from "@/components/product/BundleCard";
@@ -47,7 +48,7 @@ function ProductPage() {
     bundles.find((bundle) => bundle.productSlugs.includes(product.slug)) ?? bundles[0];
   const saving = Math.round((1 - product.price / product.compareAtPrice) * 100);
   return (
-    <main className="pb-36 pt-24 md:pb-0 md:pt-28">
+    <main className="pb-44 pt-24 md:pb-0 md:pt-28">
       <div className="px-5"><CatalogStatus /></div>
       <section className="grid min-w-0 md:grid-cols-2">
         <div className="grid min-h-[65vh] grid-cols-2 gap-1 bg-primary/10">
@@ -73,11 +74,12 @@ function ProductPage() {
           />
         </div>
         <div className="flex flex-col justify-center px-6 py-14 md:px-[7vw]">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge>
               {product.badge === "Limited Stock" ? `Only ${product.stock} left` : product.badge}
             </Badge>
             <Badge variant="saving">Save {saving}%</Badge>
+            <WishlistButton slug={product.slug} name={product.name} className="ml-auto"/>
           </div>
           <p className="eyebrow mt-8">LEVA / Essential {product.number}</p>
           <h1 className="mt-4 break-words text-4xl font-light sm:text-6xl lg:text-7xl">{product.name}</h1>

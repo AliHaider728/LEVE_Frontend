@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@/lib/router-compat";
 import {
   AnimatePresence,
@@ -80,8 +80,6 @@ function applyFilters(list: Product[], s: Search) {
 }
 
 function Shop() {
-  const filter = useRef<HTMLDivElement>(null);
-  useEffect(() => { const element = filter.current; if (!element) return; const measure = () => document.documentElement.style.setProperty('--shop-filter-h', element.getBoundingClientRect().height + 'px'); const observer = new ResizeObserver(measure); observer.observe(element); measure(); return () => { observer.disconnect(); document.documentElement.style.removeProperty('--shop-filter-h'); }; }, []);
   const { products, bundles } = useStoreData();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/shop/" });
@@ -162,7 +160,7 @@ function Shop() {
     <main className="shop-page pb-16 md:pb-0">
       <Intro />
 
-      <div ref={filter} data-shop-filter className="shop-filter-bar sticky top-[var(--header-h)] z-30 border-b border-primary/15 bg-white shadow-sm">
+      <div data-shop-filter className="shop-filter-bar relative border-b border-primary/15 bg-white">
         <div className="hidden items-center gap-4 overflow-x-auto px-[6vw] py-2 md:flex [scrollbar-width:none]">
           {controls()}
         </div>

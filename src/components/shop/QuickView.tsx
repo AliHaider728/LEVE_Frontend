@@ -3,6 +3,7 @@ import type { Product } from "@/data/products";
 import { formatPKR } from "@/config/store";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { WhatsAppContact } from '@/components/product/WhatsAppContact';
 import { QuantityStepperAdd } from "./QuantityStepperAdd";
 
 export function QuickView({ product, onClose }: { product: Product | null; onClose: () => void }) {
@@ -29,6 +30,7 @@ export function QuickView({ product, onClose }: { product: Product | null; onClo
               <div className="mt-6">
                 <QuantityStepperAdd slug={product.slug} />
               </div>
+              <div className="mt-4"><WhatsAppContact product={product}/></div>
               <Button asChild variant="link" className="mt-3 px-0">
                 <Link to="/shop/$slug" params={{ slug: product.slug }} onClick={onClose}>
                   View details →

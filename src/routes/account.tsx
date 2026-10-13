@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@/lib/router-compat";
 import { z } from "zod";
 import { toast } from "sonner";
-import { products } from "@/data/products";
+import { WishlistContents } from "@/app/wishlist/view";
 import { formatPKR } from "@/config/store";
 import { useAuth } from "@/store/auth";
 import { Button } from "@/components/ui/button";
@@ -61,11 +61,12 @@ function Account() {
     return (
       <main className="mx-auto max-w-md px-5 pb-20 pt-32 text-center md:pt-44">
         <h1 className="text-3xl font-light">Your account</h1>
-        <p className="mt-2 text-[15px] text-muted-foreground">Login to see orders, addresses and your wishlist. No account is needed to order.</p>
+        <p className="mt-2 text-[15px] text-muted-foreground">Login to see orders and addresses. Your saved essentials are available without an account.</p>
         <div className="mt-6 grid grid-cols-2 gap-3">
           <Button asChild className="h-12"><Link to="/login">Login</Link></Button>
           <Button asChild variant="outline" className="h-12"><Link to="/register">Register</Link></Button>
         </div>
+        <Link to="/wishlist" className="mt-5 inline-flex min-h-11 items-center text-sm underline">View your wishlist</Link>
       </main>
     );
 
@@ -140,17 +141,8 @@ function Account() {
         </TabsContent>
 
         <TabsContent value="wishlist" className="mt-5">
-          <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {products.slice(0, 2).map((p) => (
-              <li key={p.slug}>
-                <Link to="/shop/$slug" params={{ slug: p.slug }} className="block">
-                  <img src={p.image} alt={p.name} loading="lazy" className="aspect-[4/5] w-full rounded-2xl bg-secondary object-cover" />
-                  <p className="mt-2 text-sm font-medium">{p.name}</p>
-                  <p className="text-sm text-muted-foreground">{formatPKR(p.price)}</p>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <WishlistContents compact/>
+
         </TabsContent>
 
         <TabsContent value="profile" className="mt-5">

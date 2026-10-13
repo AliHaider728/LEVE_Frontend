@@ -1,0 +1,26 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const Module=require('node:module');
+const ts=require('typescript');
+let checks=0;
+function check(name,fn){return Promise.resolve().then(fn).then(()=>{checks++;console.log('PASS '+name);});}
+function load(relative,stubs={}){const filename=path.join(__dirname,'..',relative);const code=ts.transpileModule(fs.readFileSync(filename,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText;const loaded=new Module(filename,module);loaded.filename=filename;loaded.paths=Module._nodeModulePaths(path.dirname(filename));const original=loaded.require.bind(loaded);loaded.require=id=>id in stubs?stubs[id]:original(id);loaded._compile(code,filename);return loaded.exports;}
+async function main(){
+ const products=[{id:'1',slug:'cream',name:'Brightening Cream',type:'Cream',benefit:'soft skin',concerns:['dryness']},{id:'2',slug:'serum',name:'Radiance Serum',type:'Serum',benefit:'night glow',concerns:['dullness']},{id:'3',slug:'wash',name:'Gentle Face Wash',type:'Cleanser',benefit:'clean skin',concerns:['sensitivity']}];
+ const search=load('src/lib/product-search.ts');
+ await check('case insensitive partial search',()=>{assert.deepEqual(Array.from(search.searchProducts(products,'rAdIa')).map(p=>p.slug),['serum']);});
+ await check('multiword search and unmatched results',()=>{assert.deepEqual(Array.from(search.searchProducts(products,'night serum')).map(p=>p.slug),['serum']);assert.equal(search.searchProducts(products,'zzz').length,0);});
+ await check('server subset never expands to unrelated products',()=>{assert.deepEqual(Array.from(search.serverSearchMatches([{id:'2',slug:'serum'}],products)).map(p=>p.slug),['serum']);assert.equal(search.serverSearchMatches([],products).length,0);assert.throws(()=>search.serverSearchMatches({},products));});
+ const store=load('src/config/store.ts');const wa=load('src/lib/whatsapp.ts',{'@/config/store':store});
+ await check('business number and message encoding',()=>{assert.equal(wa.normalizeWhatsAppNumber('03147080907'),'923147080907');assert.equal(wa.normalizeWhatsAppNumber('03000000000'),null);const message=wa.productWhatsAppMessage({...products[1],selectedAttributes:{Size:'30 ml'}},'https://leva.pk/shop/serum',2);const link=wa.whatsappLink(message);assert.ok(link.startsWith('https://wa.me/923147080907?text='));assert.ok(decodeURIComponent(link.split('?text=')[1]).includes('Radiance Serum x 2.'));assert.ok(message.includes('Size: 30 ml'));});
+ const memory=new Map();global.localStorage={getItem:key=>memory.get(key)||null,setItem:(key,value)=>memory.set(key,value),removeItem:key=>memory.delete(key)};global.window={localStorage:global.localStorage};const wishlist=load('src/store/wishlist.ts');
+ await check('guest wishlist persists only slugs through rehydrate',async()=>{await wishlist.useWishlist.getState().hydrate();wishlist.useWishlist.getState().toggle('serum');wishlist.useWishlist.getState().toggle('serum');wishlist.useWishlist.getState().toggle('serum');assert.deepEqual(Array.from(wishlist.useWishlist.getState().saved),['serum']);const saved=JSON.parse(memory.get('leva-wishlist'));assert.deepEqual(Object.keys(saved.state),['saved']);const restored=load('src/store/wishlist.ts');await restored.useWishlist.getState().hydrate();assert.deepEqual(Array.from(restored.useWishlist.getState().saved),['serum']);restored.useWishlist.getState().remove('serum');assert.equal(restored.useWishlist.getState().saved.length,0);});
+ class ApiError extends Error{constructor(message,status,type){super(message);this.status=status;this.type=type;}}global.window=new EventTarget();const events=[];global.window.addEventListener('leva-admin-request-start',()=>events.push('start'));global.window.addEventListener('leva-admin-request-end',()=>events.push('end'));const admin=load('src/admin-ui/api.ts',{'sonner':{toast:{error:()=>{}}},'@/lib/api/client':{ApiError}});
+ await check('admin deduplicates in-flight reads without blocking edits',async()=>{let resolve,requests=0;global.fetch=()=>{requests++;return new Promise(done=>resolve=done);};const one=admin.uiRequest('products'),two=admin.uiRequest('products');assert.equal(one,two);resolve({ok:true,status:200,json:async()=>[]});await Promise.all([one,two]);assert.equal(requests,1);assert.deepEqual(events,[]);});
+ await check('admin failed write clears busy signal',async()=>{global.fetch=async()=>({ok:false,status:503,json:async()=>({error:'Temporarily unavailable'})});await assert.rejects(admin.uiRequest('products/1','PUT',{}),error=>error.status===503);assert.deepEqual(events,['start','end']);});
+ await check('admin failed read can retry',async()=>{let attempts=0;global.fetch=async()=>{attempts++;if(attempts===1)throw new Error('offline');return {ok:true,status:200,json:async()=>[]};};await assert.rejects(admin.uiRequest('orders'),error=>error.type==='network');assert.equal((await admin.uiRequest('orders')).length,0);assert.equal(attempts,2);});
+ console.log('UI fix checks passed: '+checks);
+}
+main().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { pageModule } from './api';
+import { pageModule, requirementsForPage } from './api';
 import { FeatureManagementPage } from './pages/FeatureManagementPage';
 import { ToastAndDialog } from './components/ToastAndDialog';
 import { useAdminUI } from './context/AdminUIContext';
@@ -31,21 +31,21 @@ import { StoreAppearancePage } from './pages/StoreAppearancePage';
  * from the AdminUIContext and renders the appropriate page.
  */
 const AdminRouter: React.FC = () => {
-    const { activePage, activePageParams, adminUser, loading, errors, modules, reload } = useAdminUI();
+    const { activePage, activePageParams, adminUser, loading, errors, modules, reload, moduleLoading, loadedModules } = useAdminUI();
     const router = useRouter();
     useEffect(() => { if (adminUser && (activePage as string) === 'login')
         router.replace('/admin'); }, [adminUser, activePage, router]);
     if (loading)
         return <div role="status" className="p-8 space-y-4"><div className="h-12 rounded-xl bg-[#FFF4F6]"/><div className="h-64 rounded-xl bg-[#FFF4F6]"/>Loading admin panel…</div>;
-    if (!adminUser)
-        return <><LoginPage /><ToastAndDialog /></>;
-    if (errors.session)
-        return <div role="alert" className="p-8">{errors.session}<button onClick={() => void reload()} className="ml-4 underline">Try again</button></div>;
+    if(errors.session)return <div role="alert" className="p-8"><h1 className="font-bold mb-3">Could not load the admin panel</h1>{errors.session}<button onClick={()=>void reload()} className="ml-4 underline">Try again</button></div>;
+    if(!adminUser)return <><LoginPage/><ToastAndDialog/></>;
     const activeModule = pageModule[activePage];
     if ((activeModule && !modules[activeModule]) || (activePage === 'feature-management' && adminUser.role !== 'super_admin'))
         return <AdminLayout><p role="alert">This admin module is unavailable.</p><ToastAndDialog /></AdminLayout>;
-    if (errors[activeModule || 'dashboard'])
-        return <AdminLayout><div role="alert">{errors[activeModule || 'dashboard']}<button onClick={() => void reload()} className="ml-4 underline">Try again</button></div><ToastAndDialog /></AdminLayout>;
+    const required=requirementsForPage(activePage).filter(key=>key==='dashboard'||modules[key]);
+    const failed=required.find(key=>errors[key]);
+    if(failed)return <AdminLayout><div role="alert">{errors[failed]}<button onClick={()=>void reload()} className="ml-4 underline">Try again</button></div><ToastAndDialog/></AdminLayout>;
+    if(required.some(key=>!loadedModules[key]||moduleLoading[key]&&!loadedModules[key]))return <AdminLayout><div role="status" className="space-y-4 animate-pulse"><div className="h-12 rounded-xl bg-[#FFF4F6]"/><div className="h-64 rounded-xl bg-[#FFF4F6]"/><span className="sr-only">Loading page data…</span></div></AdminLayout>;
     // If user is not authenticated in local state, display Login page
     if (!adminUser) {
         return <LoginPage />;

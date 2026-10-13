@@ -40,7 +40,7 @@ export function UserMenu() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/account" search={{ tab: "wishlist" }}>
+              <Link to="/wishlist">
                 Wishlist
               </Link>
             </DropdownMenuItem>

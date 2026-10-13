@@ -171,8 +171,11 @@
   input, select, textarea { min-width: 0; max-width: 100%; }
 }
 
-/* Visible fixed header and opaque sticky shop controls. */
+/* Fixed navigation; shop controls stay in normal document flow. */
 html { scroll-padding-top: var(--header-h); }
 [id] { scroll-margin-top: calc(var(--header-h) + 1rem); }
 .shop-filter-bar { background: #fff; isolation: isolate; }
-.shop-page [id], .shop-page article { scroll-margin-top: calc(var(--header-h) + var(--shop-filter-h, 96px) + 1rem); }
+.shop-page [id], .shop-page article { scroll-margin-top: calc(var(--header-h) + 1rem); }
+
+.product-card .product-card-purchase { transition: opacity .22s ease, transform .22s ease; }
+@media (hover:hover) and (pointer:fine) { .product-card .product-card-purchase { opacity:0; transform:translateY(6px); pointer-events:none; } .product-card:hover .product-card-purchase,.product-card:focus-within .product-card-purchase { opacity:1; transform:none; pointer-events:auto; } }

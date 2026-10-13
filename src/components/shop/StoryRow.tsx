@@ -1,12 +1,14 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { motion, useInView, useScroll, useTransform, useReducedMotion } from "motion/react";
-import { Eye, Heart, Minus, Plus, ShoppingBag, Star } from "lucide-react";
+import { Eye, Minus, Plus, ShoppingBag, Star } from "lucide-react";
 import type { Product } from "@/data/products";
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
+import { WhatsAppContact } from '@/components/product/WhatsAppContact';
 import { CountUp } from "./CountUp";
 
 export function useProductActions(product: Product) {
@@ -62,6 +64,7 @@ function Actions({ product, onQuickView }: { product: Product; onQuickView: () =
       <Button variant="outline" className="h-12" disabled={a.soldOut} onClick={a.buy}>
         Buy now
       </Button>
+      <WhatsAppContact product={product} compact/>
       <Button variant="link" magnetic={false} onClick={onQuickView}>
         <Eye /> Quick view
       </Button>
@@ -83,7 +86,6 @@ function Media({
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], reduced ? ["0%", "0%"] : ["-6%", "6%"]);
   const inView = useInView(ref, { once: true, amount: 0.2 });
-  const [liked, setLiked] = useState(false);
   const clip = shape === "arch" ? "rounded-t-[999px] rounded-b-2xl" : "rounded-2xl";
   const hidden =
     shape === "curtain"
@@ -127,15 +129,8 @@ function Media({
           </Badge>
           <Badge variant="saving">Save {discount}%</Badge>
         </div>
-        <button
-          type="button"
-          aria-pressed={liked}
-          aria-label={`Save ${product.name} to wishlist`}
-          onClick={() => setLiked((l) => !l)}
-          className="absolute right-4 top-4 grid size-11 place-items-center rounded-full bg-background/90 text-primary"
-        >
-          <Heart className={liked ? "fill-accent text-accent" : ""} />
-        </button>
+        <WishlistButton slug={product.slug} name={product.name} className="absolute right-4 top-4 size-11 bg-background/90 text-primary"/>
+
       </div>
     </div>
   );

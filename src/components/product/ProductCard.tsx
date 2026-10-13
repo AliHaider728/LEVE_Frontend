@@ -1,8 +1,9 @@
-import { Heart, Minus, Plus, ShoppingBag, Star } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Star } from "lucide-react";
 import { Link, useNavigate } from "@/lib/router-compat";
 import type { Product } from "@/data/products";
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -43,16 +44,8 @@ export function ProductCard({ product, featured = false }: { product: Product; f
         >
           {product.badge === "Limited Stock" ? `Only ${product.stock} left` : product.badge}
         </Badge>
-        <Button
-          variant="secondary"
-          size="icon"
-          magnetic={false}
-          aria-label={`Save ${product.name} to wishlist`}
-          className="absolute right-1 top-1 z-20 size-9 rounded-full sm:right-3 sm:top-3"
-        >
-          <Heart />
-        </Button>
-        <div className="absolute inset-x-2 bottom-2 z-20">
+        <WishlistButton slug={product.slug} name={product.name} className="absolute right-1 top-1 z-20 size-9 sm:right-3 sm:top-3"/>
+        <div className="product-card-purchase absolute inset-x-2 bottom-2 z-20">
           {quantity > 0 ? (
             <div className="flex min-h-11 items-center justify-between gap-1 bg-background px-1">
               <Button

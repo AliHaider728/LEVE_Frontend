@@ -1,145 +1,38 @@
-import { useStoreData } from "@/store/catalog";
-import { formatPKR } from "@/config/store";
-import { useEffect, useState, useRef } from "react";
-import { Link, useRouterState } from "@/lib/router-compat";
-import { Contact, Home, Layers3, Search, ShoppingBag, Store } from "lucide-react";
-import logo from "@/assets/LEVA.png.asset.json";
-import { useCart } from "@/store/cart";
-import { Button } from "@/components/ui/button";
-import { CartDrawer } from "@/components/layout/CartDrawer";
-import { UserMenu } from "@/components/layout/UserMenu";
-
-const desktopLinks = [
-  { label: "Home", to: "/" as const },
-  { label: "Shop", to: "/shop" as const },
-  { label: "Bundles", to: "/bundles" as const },
-  { label: "About", to: "/about" as const },
-  { label: "Contact", to: "/contact" as const },
-];
-const tabs = [
-  { label: "Home", to: "/" as const, icon: Home },
-  { label: "Shop", to: "/shop" as const, icon: Store },
-  { label: "Bundles", to: "/bundles" as const, icon: Layers3 },
-  { label: "Cart", to: "/cart" as const, icon: ShoppingBag },
-  { label: "Contact", to: "/contact" as const, icon: Contact },
-];
-
-export function FloatingNav() {
-  const { settings: storeConfig } = useStoreData();
-  const header = useRef<HTMLElement>(null);
-  useEffect(() => { const element = header.current; if (!element) return; const measure = () => document.documentElement.style.setProperty("--header-h", element.getBoundingClientRect().bottom + "px"); const observer = new ResizeObserver(measure); observer.observe(element); window.addEventListener("resize", measure); measure(); return () => { observer.disconnect(); window.removeEventListener("resize", measure); document.documentElement.style.removeProperty("--header-h"); }; }, []);
-  const [scrolled, setScrolled] = useState(false);
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const setCartOpen = useCart((state) => state.setOpen);
-  const count = useCart(
-    (state) =>
-      Object.values(state.items).reduce((sum, n) => sum + n, 0) +
-      Object.values(state.bundles).reduce((sum, n) => sum + n, 0) +
-      Object.values(state.custom).reduce((sum, n) => sum + n, 0),
-  );
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 32);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  return (
-    <>
-      <div className="fixed inset-x-0 top-0 z-50 hidden h-8 items-center justify-center bg-primary px-4 text-center text-xs font-medium text-primary-foreground md:flex">
-        Free delivery over {formatPKR(storeConfig.freeShippingThreshold)}&nbsp; | &nbsp;Cash on Delivery nationwide&nbsp; |
-        &nbsp;WhatsApp {storeConfig.phone}
-      </div>
-      <header ref={header} data-store-header
-        className={`fixed inset-x-0 top-0 z-40 border-b border-primary/10 bg-white text-foreground transition-colors duration-300 md:top-8 ${scrolled || pathname !== "/" ? "shadow-sm" : ""}`}
-      >
-        <div className="flex h-16 w-full items-center justify-between px-4 md:grid md:h-20 md:grid-cols-[1fr_auto_1fr] md:px-6 lg:px-8">
-          <Link
-            to="/"
-            aria-label="LEVA home"
-            className="shrink-0 md:col-start-2 md:row-start-1 md:justify-self-center"
-          >
-            <img src={logo.url} alt="LEVA" className="h-12 w-auto object-contain md:h-[70px] lg:h-[90px]" />
-          </Link>
-          <nav
-            aria-label="Primary navigation"
-            className="hidden items-center gap-3 md:col-start-1 md:row-start-1 md:flex lg:gap-6"
-          >
-            {desktopLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="inline-flex min-h-11 items-center text-sm font-semibold tracking-wide uppercase focus-visible:outline-2 focus-visible:outline-offset-4"
-                activeProps={{ className: "border-b-2 border-current" }}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="hidden items-center gap-1 md:col-start-3 md:row-start-1 md:flex md:justify-self-end">
-            <Button asChild variant="ghost" size="icon" magnetic={false}>
-              <Link to="/shop" aria-label="Search products">
-                <Search />
-              </Link>
-            </Button>
-            <UserMenu />
-            <Button
-              variant="ghost"
-              size="icon"
-              magnetic={false}
-              onClick={() => setCartOpen(true)}
-              className="relative"
-              aria-label={`Open cart with ${count} items`}
-            >
-              <ShoppingBag />
-              {count > 0 && (
-                <span className="absolute right-0 top-0 grid size-5 place-items-center rounded-full bg-accent text-xs font-medium">
-                  {count}
-                </span>
-              )}
-            </Button>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            magnetic={false}
-            onClick={() => setCartOpen(true)}
-            className="relative md:hidden"
-            aria-label={`Open cart with ${count} items`}
-          >
-            <ShoppingBag />
-            {count > 0 && (
-              <span className="absolute right-0 top-0 grid size-5 place-items-center rounded-full bg-accent text-xs font-medium">
-                {count}
-              </span>
-            )}
-          </Button>
-        </div>
-      </header>
-      <nav
-        aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t border-primary/15 bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
-      >
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const active = tab.to === "/" ? pathname === "/" : pathname.startsWith(tab.to);
-          return (
-            <Link
-              key={tab.to}
-              to={tab.to}
-              className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-medium ${active ? "text-accent" : "text-foreground"}`}
-            >
-              <Icon className="size-5" />
-              <span>{tab.label}</span>
-              {tab.label === "Cart" && count > 0 && (
-                <span className="absolute right-[22%] top-1 grid size-5 place-items-center rounded-full bg-accent text-xs text-accent-foreground">
-                  {count}
-                </span>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
-      <CartDrawer />
-    </>
-  );
+import {useStoreData} from '@/store/catalog';
+import {formatPKR} from '@/config/store';
+import {useEffect,useState,useRef} from 'react';
+import {Link,useRouterState} from '@/lib/router-compat';
+import {Contact,Heart,Home,Layers3,Search,ShoppingBag,Store} from 'lucide-react';
+import logo from '@/assets/LEVA.png.asset.json';
+import {useCart} from '@/store/cart';
+import {useWishlist} from '@/store/wishlist';
+import {Button} from '@/components/ui/button';
+import {CartDrawer} from '@/components/layout/CartDrawer';
+import {UserMenu} from '@/components/layout/UserMenu';
+import {ProductSearch} from '@/components/search/ProductSearch';
+const desktopLinks=[{label:'Home',to:'/'},{label:'Shop',to:'/shop'},{label:'Bundles',to:'/bundles'},{label:'About',to:'/about'},{label:'Contact',to:'/contact'}];
+const tabs=[{label:'Home',to:'/',icon:Home},{label:'Shop',to:'/shop',icon:Store},{label:'Bundles',to:'/bundles',icon:Layers3},{label:'Cart',to:'/cart',icon:ShoppingBag},{label:'Contact',to:'/contact',icon:Contact}];
+export function FloatingNav(){
+ const {settings}=useStoreData();const header=useRef<HTMLElement>(null);const [searchOpen,setSearchOpen]=useState(false);const [scrolled,setScrolled]=useState(false);const pathname=useRouterState({select:state=>state.location.pathname});const setCartOpen=useCart(state=>state.setOpen);
+ const count=useCart(state=>Object.values(state.items).reduce((sum,n)=>sum+n,0)+Object.values(state.bundles).reduce((sum,n)=>sum+n,0)+Object.values(state.custom).reduce((sum,n)=>sum+n,0));
+ const wishCount=useWishlist(state=>state.hydrated?state.saved.length:0);
+ useEffect(()=>{const element=header.current;if(!element)return;const measure=()=>document.documentElement.style.setProperty('--header-h',element.getBoundingClientRect().bottom+'px');const observer=new ResizeObserver(measure);observer.observe(element);window.addEventListener('resize',measure);measure();return()=>{observer.disconnect();window.removeEventListener('resize',measure);document.documentElement.style.removeProperty('--header-h');};},[]);
+ useEffect(()=>{const onScroll=()=>setScrolled(window.scrollY>32);onScroll();window.addEventListener('scroll',onScroll,{passive:true});return()=>window.removeEventListener('scroll',onScroll);},[]);
+ return <>
+  <div className="fixed inset-x-0 top-0 z-50 hidden h-8 items-center justify-center bg-primary px-4 text-center text-xs font-medium text-primary-foreground md:flex">Free delivery over {formatPKR(settings.freeShippingThreshold)}&nbsp; | &nbsp;Cash on Delivery nationwide&nbsp; | &nbsp;WhatsApp +{settings.whatsappNumber}</div>
+  <header ref={header} data-store-header className={`fixed inset-x-0 top-0 z-40 border-b border-primary/10 bg-white text-foreground transition-colors duration-300 md:top-8 ${scrolled||pathname!=='/'?'shadow-sm':''}`}>
+   <div className="flex h-16 min-w-0 w-full items-center justify-between gap-2 px-3 md:grid md:h-20 md:grid-cols-[1fr_auto_1fr] md:px-6 lg:px-8">
+    <Link to="/" aria-label="LEVA home" className="min-w-0 shrink-0 md:col-start-2 md:row-start-1 md:justify-self-center"><img src={logo.url} alt="LEVA" className="h-12 w-auto max-w-[110px] object-contain md:h-[70px] md:max-w-none lg:h-[90px]"/></Link>
+    <nav aria-label="Primary navigation" className="hidden items-center gap-2 md:col-start-1 md:row-start-1 md:flex lg:gap-6">{desktopLinks.map(link=><Link key={link.to} to={link.to} className="inline-flex min-h-11 items-center whitespace-nowrap text-[11px] font-semibold tracking-wide uppercase lg:text-sm focus-visible:outline-2 focus-visible:outline-offset-4" activeProps={{className:'border-b-2 border-current'}}>{link.label}</Link>)}</nav>
+    <div className="flex shrink-0 items-center gap-0.5 md:col-start-3 md:row-start-1 md:gap-1 md:justify-self-end">
+     <Button type="button" variant="ghost" size="icon" magnetic={false} aria-label="Search products" aria-haspopup="dialog" aria-expanded={searchOpen} aria-controls="leva-search-dialog" data-search-trigger onClick={()=>setSearchOpen(true)}><Search/></Button>
+     <Button asChild variant="ghost" size="icon" magnetic={false} className="relative"><Link to="/wishlist" aria-label={`Wishlist with ${wishCount} ${wishCount===1?'item':'items'}`}><Heart/>{wishCount>0&&<span aria-hidden className="absolute right-0 top-0 grid size-5 place-items-center rounded-full bg-accent text-xs font-medium">{wishCount}</span>}</Link></Button>
+     <div className="hidden md:block"><UserMenu/></div>
+     <Button variant="ghost" size="icon" magnetic={false} className="relative" onClick={()=>setCartOpen(true)} aria-label={`Open cart with ${count} items`}><ShoppingBag/>{count>0&&<span className="absolute right-0 top-0 grid size-5 place-items-center rounded-full bg-accent text-xs font-medium">{count}</span>}</Button>
+    </div>
+   </div>
+  </header>
+  <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t border-primary/15 bg-white pb-[env(safe-area-inset-bottom)] md:hidden">{tabs.map(tab=>{const Icon=tab.icon;const active=tab.to==='/'?pathname==='/':pathname.startsWith(tab.to);return <Link key={tab.to} to={tab.to} className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-medium ${active?'text-accent':'text-foreground'}`}><Icon className="size-5"/><span>{tab.label}</span>{tab.label==='Cart'&&count>0&&<span className="absolute right-[22%] top-1 grid size-5 place-items-center rounded-full bg-accent text-xs text-accent-foreground">{count}</span>}</Link>;})}</nav>
+  <ProductSearch open={searchOpen} onOpenChange={setSearchOpen}/><CartDrawer/>
+ </>;
 }

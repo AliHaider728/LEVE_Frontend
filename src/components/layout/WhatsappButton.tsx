@@ -1,12 +1,4 @@
-import { MessageCircle } from "lucide-react";
-import { useRouterState } from "@/lib/router-compat";
-import { useStoreData } from "@/store/catalog";
-export function WhatsappButton() {
-  const { settings } = useStoreData();
-  const pathname = useRouterState({ select: state => state.location.pathname });
-  const productPage = pathname.startsWith("/shop/");
-  return <a href={"https://wa.me/" + settings.whatsappNumber} target="_blank" rel="noreferrer" aria-label="Chat with LEVA on WhatsApp"
-    className={"fixed right-4 z-30 size-12 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg focus-visible:outline-2 focus-visible:outline-offset-4 md:bottom-6 md:right-6 md:grid " + (pathname === "/checkout" ? "hidden" : "grid ") + (productPage ? " bottom-[calc(9rem+env(safe-area-inset-bottom))]" : " bottom-[calc(6rem+env(safe-area-inset-bottom))]") }>
-    <MessageCircle />
-  </a>;
-}
+import {useRouterState} from '@/lib/router-compat';
+import {useStoreData} from '@/store/catalog';
+import {whatsappLink} from '@/lib/whatsapp';
+export function WhatsappButton(){const {settings}=useStoreData();const pathname=useRouterState({select:state=>state.location.pathname});const href=whatsappLink('Hi LEVA, I would like to ask about your skincare.',settings.whatsappNumber);if(!href||pathname==='/checkout'||pathname==='/wishlist'||pathname.startsWith('/shop'))return null;return <a href={href} target="_blank" rel="noopener noreferrer" aria-label="Chat with LEVA on WhatsApp" className="fixed right-4 bottom-[calc(6rem+env(safe-area-inset-bottom))] z-30 grid size-12 place-items-center rounded-full bg-[#25D366] shadow-lg focus-visible:outline-2 focus-visible:outline-offset-4 md:bottom-6 md:right-6"><img src="/icons/whatsapp.svg" alt="" aria-hidden="true" className="size-6 brightness-0 invert"/></a>;}
