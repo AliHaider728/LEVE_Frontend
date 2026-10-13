@@ -117,7 +117,7 @@ function ProductPage() {
         <h2 className="mb-12 text-5xl font-light md:text-7xl">You may also like.</h2>
         <div className={`mx-auto grid grid-cols-2 gap-4 sm:gap-6 ${suggestions.length <= 2 ? "max-w-2xl" : suggestions.length === 3 ? "max-w-4xl md:grid-cols-3" : "max-w-6xl md:grid-cols-3 xl:grid-cols-4"}`}>
           {suggestions.map((item) => (
-            <ProductCard key={item.slug} product={item} />
+            <ProductCard key={item.slug} product={item.id ? item : { ...item, rating: 0, reviewCount: 0 }} />
           ))}
         </div>
       </section>
