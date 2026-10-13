@@ -7,7 +7,7 @@ export const reviews: Review[] = [
     city: "Lahore",
     rating: 5,
     quote: "My skin feels so soft now. The cream is my favourite.",
-    product: "Brightening Cream",
+    product: "Skin Brightening Cream",
   },
   {
     name: "Sana M.",
@@ -17,18 +17,11 @@ export const reviews: Review[] = [
     product: "The Complete Ritual",
   },
   {
-    name: "Hira A.",
-    city: "Islamabad",
-    rating: 5,
-    quote: "The serum gives such a nice glow before work.",
-    product: "Radiance Serum",
-  },
-  {
     name: "Mahnoor R.",
     city: "Faisalabad",
     rating: 4,
     quote: "Gentle face wash, no dryness at all.",
-    product: "Gentle Face Wash",
+    product: "Skin Brightening Face Wash",
   },
   {
     name: "Zainab T.",
@@ -38,25 +31,18 @@ export const reviews: Review[] = [
     product: "The Duo",
   },
   {
-    name: "Fatima S.",
-    city: "Peshawar",
-    rating: 4,
-    quote: "Simple, pretty and it actually works.",
-    product: "Radiance Serum",
-  },
-  {
     name: "Iqra N.",
     city: "Rawalpindi",
     rating: 5,
     quote: "My sensitive skin loves the cleanser.",
-    product: "Gentle Face Wash",
+    product: "Skin Brightening Face Wash",
   },
   {
     name: "Amna J.",
     city: "Sialkot",
     rating: 5,
     quote: "WhatsApp ordering was so easy.",
-    product: "Brightening Cream",
+    product: "Skin Brightening Cream",
   },
 ];
 

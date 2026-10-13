@@ -28,30 +28,32 @@ export type Product = {
   addedAt: string;
 };
 
-export type ProductType = "Cleanser" | "Serum" | "Cream";
+export type ProductType = "Cleanser" | "Sunscreen" | "Cream";
 export type Concern = "Dullness" | "Dryness" | "Uneven tone" | "Sensitivity";
 export type SkinType = "Dry" | "Oily" | "Combination" | "Normal" | "Sensitive";
-export const productTypes: ProductType[] = ["Cleanser", "Serum", "Cream"];
+export const productTypes: ProductType[] = ["Cleanser", "Sunscreen", "Cream"];
 export const concerns: Concern[] = ["Dullness", "Dryness", "Uneven tone", "Sensitivity"];
 
-import serum from "@/assets/leva-radiance-serum.png.asset.json";
-import ritual from "@/assets/leva-ritual-hero.png.asset.json";
+const creamImages = ["/images/brightening-cream-main.webp", "/images/brightening-cream-model.webp", "/images/brightening-cream-hand.webp"];
+const sunscreenImages = ["/images/tinted-sunscreen-main.webp", "/images/tinted-sunscreen-model.webp", "/images/tinted-sunscreen-studio.webp"];
+const washImages = ["/images/face-wash-main.webp", "/images/face-wash-model.webp", "/images/face-wash-ritual.webp"];
 
 export const products: Product[] = [
   {
     slug: "product-01",
     number: "01",
-    name: "Brightening Cream",
+    name: "Skin Brightening Cream",
     ritual: "The first veil",
     price: 6800,
-    size: "50 ML",
-    description: "A luminous daily veil created as a clean placeholder for LEVA's first formula.",
-    ingredients: "Formula details ready to be replaced with your final ingredient list.",
-    usage: "Massage onto clean skin in slow upward movements each morning.",
-    benefit: "Softens the look of tired, dry skin.",
-    faq: "Designed as an everyday step for all skin types. Patch test before first use.",
-    image: ritual.url,
-    hoverImage: ritual.url,
+    size: "30 G",
+    description: "LEVA Skin Brightening Cream for a soft, radiant-looking finish.",
+    ingredients: "See the product packaging for the complete ingredient list.",
+    usage: "Use as directed on the product label.",
+    benefit: "Helps brighten the look of dull skin.",
+    faq: "See the product packaging for usage and safety information.",
+    image: creamImages[0],
+    hoverImage: creamImages[0],
+    galleryImages: creamImages,
     badge: "Best Seller",
     type: "Cream",
     concerns: ["Dullness", "Uneven tone", "Dryness"],
@@ -65,20 +67,21 @@ export const products: Product[] = [
   {
     slug: "product-02",
     number: "02",
-    name: "Radiance Serum",
-    ritual: "The quiet reset",
+    name: "Tinted Sunscreen",
+    ritual: "The daily shield",
     price: 7900,
-    size: "30 ML",
+    size: "SPF 50 · PA+++",
     description:
-      "A concentrated night ritual created as a clean placeholder for LEVA's second formula.",
-    ingredients: "Formula details ready to be replaced with your final ingredient list.",
-    usage: "Press a few drops into skin after cleansing, then pause and breathe.",
-    benefit: "Replenishes skin through the quiet hours.",
-    faq: "Use alone or follow with PRODUCT 01. Patch test before first use.",
-    image: serum.url,
-    hoverImage: serum.url,
+      "LEVA Tinted Sunscreen with SPF 50 PA+++ and a lightweight, natural tint.",
+    ingredients: "See the product packaging for the complete ingredient list.",
+    usage: "Apply as directed on the product label.",
+    benefit: "Broad-spectrum UVA/UVB protection with a natural tint.",
+    faq: "Follow the directions on the product label for application and reapplication.",
+    image: sunscreenImages[0],
+    hoverImage: sunscreenImages[0],
+    galleryImages: sunscreenImages,
     badge: "New",
-    type: "Serum",
+    type: "Sunscreen",
     concerns: ["Dullness", "Dryness"],
     skinTypes: ["Dry", "Normal", "Combination", "Oily"],
     addedAt: "2026-09-15",
@@ -90,18 +93,19 @@ export const products: Product[] = [
   {
     slug: "product-03",
     number: "03",
-    name: "Gentle Face Wash",
+    name: "Skin Brightening Face Wash",
     ritual: "The final touch",
     price: 5400,
-    size: "15 ML",
+    size: "145 ML",
     description:
-      "A precise finishing treatment created as a clean placeholder for LEVA's third formula.",
-    ingredients: "Formula details ready to be replaced with your final ingredient list.",
-    usage: "Tap gently where the skin asks for extra care, morning or evening.",
-    benefit: "Targets the places that need extra care.",
-    faq: "Created for precise application morning or evening. Patch test before first use.",
-    image: ritual.url,
-    hoverImage: ritual.url,
+      "LEVA Skin Brightening Face Wash for a refreshing cleansing ritual.",
+    ingredients: "See the product packaging for the complete ingredient list.",
+    usage: "Use as directed on the product label.",
+    benefit: "Cleanses and refreshes skin.",
+    faq: "See the product packaging for usage and safety information.",
+    image: washImages[0],
+    hoverImage: washImages[0],
+    galleryImages: washImages,
     badge: "Limited Stock",
     type: "Cleanser",
     concerns: ["Sensitivity"],

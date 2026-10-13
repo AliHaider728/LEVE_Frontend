@@ -30,12 +30,12 @@ export function ProductCard({ product, featured = false }: { product: Product; f
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <img
+          {product.hoverImage !== product.image && <img
             src={product.hoverImage}
             alt=""
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          />
+          />}
           <span className="absolute inset-0 bg-gradient-to-t from-primary/35 via-transparent to-transparent" />
         </Link>
         <Badge

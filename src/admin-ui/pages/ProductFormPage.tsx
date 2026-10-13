@@ -1,6 +1,6 @@
 "use client";
 import { uploadImage as uploadAdminAsset } from '@/admin-ui/api';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronLeft, Save, Plus, Search, Trash2, ImagePlus } from 'lucide-react';
 import { useAdminUI } from '../context/AdminUIContext';
 import { Product, ProductAttribute, ProductVariation, PricingOffers, ProductDetailBlock } from '../types';
@@ -59,6 +59,8 @@ export const ProductFormPage: React.FC = () => {
     const [soldCount] = useState<string>(existingProduct?.soldCount ? String(existingProduct.soldCount) : '');
     // Images
     const [images, setImages] = useState<string[]>(existingProduct?.images || []);
+    const [imageUrlsDraft, setImageUrlsDraft] = useState((existingProduct?.images || []).join('\n'));
+    useEffect(() => setImageUrlsDraft(images.join('\n')), [images]);
     // Product details & SEO
     const [material, setMaterial] = useState(existingProduct?.specifications?.Material || '');
     const [safetyInfo, setSafetyInfo] = useState(existingProduct?.safetyInfo || '');
@@ -76,6 +78,8 @@ export const ProductFormPage: React.FC = () => {
             const priceNum = parseFloat(salePrice || regularPrice || '0') || 0;
             const origPriceNum = salePrice && regularPrice ? parseFloat(regularPrice) : undefined;
             const catObjs = categories.filter(c => selectedCategoryIds.includes(c.id));
+            const imageUrls = imageUrlsDraft.split(/\r?\n/).map(url => url.trim()).filter(Boolean).slice(0, 8);
+            const imagesChanged = JSON.stringify(imageUrls) !== JSON.stringify(existingProduct?.images || []);
             const payload: Partial<Product> = {
                 productType,
                 name: name.trim(),
@@ -97,7 +101,9 @@ export const ProductFormPage: React.FC = () => {
                 categoryIds: selectedCategoryIds,
                 categoryNames: catObjs.map(c => c.name),
                 categorySlugs: catObjs.map(c => c.slug),
-                images,
+                images: imageUrls,
+                imageThumbnailUrls: imagesChanged ? (imageUrls.length ? [imageUrls[0]] : []) : existingProduct?.imageThumbnailUrls,
+                imagePublicIds: imagesChanged ? [] : existingProduct?.imagePublicIds,
                 attributes,
                 variations,
                 specifications: { ...existingProduct?.specifications, Material: material, sizeGuide },
@@ -444,6 +450,11 @@ export const ProductFormPage: React.FC = () => {
                   <span className="text-xs font-bold text-[#673742]">Upload Main Image</span>
                   <input type="file" accept="image/*" className="hidden" onChange={handleUploadMainImage}/>
                 </label>)}
+            </div>
+
+            <div>
+              <label htmlFor="product-image-urls" className="block text-xs font-bold text-[#382b31]/80 mb-2">Image URLs (one per line; first is main)</label>
+              <textarea id="product-image-urls" value={imageUrlsDraft} onChange={e => setImageUrlsDraft(e.target.value)} onBlur={() => setImages(imageUrlsDraft.split(/\r?\n/).map(url => url.trim()).filter(Boolean).slice(0, 8))} rows={3} className="w-full rounded-xl border border-[#ecdfe4] px-3 py-2 text-xs" placeholder="/images/product-main.webp" />
             </div>
 
             {/* Gallery Images */}

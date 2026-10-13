@@ -54,7 +54,7 @@ export const Route = createFileRoute("/shop/")({
       { property: "og:title", content: "Shop LEVA — The Ritual Index" },
       {
         property: "og:description",
-        content: "Cleanser, serum and cream. Delivered across Pakistan.",
+        content: "Cleanser, sunscreen and cream. Delivered across Pakistan.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -424,7 +424,7 @@ function Intro() {
         <motion.img
           style={{ y, scale: 1.2 }}
           src={hero.url}
-          alt="LEVA cleanser, serum and cream together"
+          alt="LEVA skincare essentials together"
           className="h-full w-full object-cover"
         />
       </motion.div>

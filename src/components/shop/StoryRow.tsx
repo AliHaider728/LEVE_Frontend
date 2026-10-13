@@ -116,12 +116,12 @@ function Media({
             loading={priority ? "eager" : "lazy"}
             className="h-full w-full object-cover"
           />
-          <img
+          {product.hoverImage !== product.image && <img
             src={product.hoverImage}
             alt=""
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          />
+          />}
         </Link>
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           <Badge variant={product.badge === "Limited Stock" ? "stock" : "default"}>

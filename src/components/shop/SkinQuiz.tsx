@@ -17,7 +17,7 @@ function recommend(a: string[]): Product | "bundle" {
     return products.find((p) => p.type === "Cleanser") ?? products[0]!;
   if (concern === "Dryness" && type === "Dry") return "bundle";
   if (concern === "Uneven tone") return products.find((p) => p.type === "Cream") ?? products[0]!;
-  return products.find((p) => p.type === "Serum") ?? products[0]!;
+  return products.find((p) => p.type === "Sunscreen") ?? products[0]!;
 }
 
 export function SkinQuiz({ onHighlight }: { onHighlight: (slug: string | null) => void }) {

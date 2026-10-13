@@ -11,13 +11,13 @@ import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
 import { Button } from "@/components/ui/button";
 
-const order = ["Cleanser", "Serum", "Cream"] as const;
+const order = ["Cleanser", "Cream", "Sunscreen"] as const;
 const copy = {
   Cleanser: {
     step: "Cleanse",
     text: "Start soft. Wash away the night without stripping your skin.",
   },
-  Serum: { step: "Treat", text: "A few drops of glow. Press in and let it sink." },
+  Sunscreen: { step: "Protect", text: "Finish with tinted SPF 50 PA+++ protection." },
   Cream: { step: "Moisturize", text: "Seal it in. Skin stays calm, bright and soft all day." },
 };
 

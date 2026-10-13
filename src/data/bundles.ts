@@ -23,7 +23,7 @@ export const bundles: Bundle[] = [
   {
     slug: "the-essentials",
     name: "The Duo",
-    description: "The first veil and quiet reset, paired for day and night.",
+    description: "The brightening cream and tinted sunscreen, paired for a daytime ritual.",
     productSlugs: ["product-01", "product-02"],
     price: 13230,
     savePercent: 10,
