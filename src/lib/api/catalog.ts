@@ -34,6 +34,12 @@ export function normalizeProducts(payload: unknown): Product[] {
     const type = /cleanser|wash|balm/.test(label) ? "Cleanser" : /serum/.test(label) ? "Serum" : /cream|moisturi/.test(label) ? "Cream" : fallback.type;
     const images = list(row.images);
     const thumbnail = list(row.imageThumbnailUrls)[0] ?? images[0];
+    const productImage = image(thumbnail, fallback.image);
+    // Correct only the known bad cream reference; backend data remains untouched.
+    const mainImage = fallback.slug === "product-01" && /\/leva-cleansing-balm\.png(?:\?|$)/i.test(productImage)
+      ? fallback.image : productImage;
+    const galleryImages = [mainImage, ...images.map(value => image(value, mainImage))]
+      .filter((value, index, all) => (fallback.slug !== "product-01" || !/\/leva-cleansing-balm\.png(?:\?|$)/i.test(value)) && all.indexOf(value) === index);
     const stock = enabled(row.inStock) ? enabled(row.trackInventory) ? Math.max(0, number(row.stockQuantity)) : 9999 : 0;
     const variations = list(row.variations).map(object);
     const variant = variations.find(value => value.id === row.defaultVariationId && enabled(value.enabled));
@@ -43,7 +49,7 @@ export function normalizeProducts(payload: unknown): Product[] {
       price, compareAtPrice: Math.max(price, number(row.originalPrice, price)), stock,
       variationId: variant ? text(variant.id) : undefined, selectedAttributes: variant ? Object.fromEntries(Object.entries(object(variant.attributes)).map(([name,value])=>[name,String(value)])) : undefined, requiresVariation: row.productType === "variable" && !variant,
       description: text(row.description, fallback.description), benefit: text(row.shortDescription, fallback.benefit),
-      image: image(thumbnail, fallback.image), hoverImage: image(images[1] ?? images[0], fallback.hoverImage),
+      image: mainImage, hoverImage: galleryImages[1] ?? mainImage, galleryImages,
       rating: number(row.rating), reviewCount: number(row.reviewCount), addedAt: text(row.createdAt, fallback.addedAt),
       badge: stock === 0 ? "Sold Out" : enabled(row.isBestseller) ? "Best Seller" : enabled(row.isNewArrival) ? "New" : stock < 5 ? "Limited Stock" : fallback.badge,
     };

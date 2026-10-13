@@ -16,6 +16,7 @@ export type Product = {
   faq: string;
   image: string;
   hoverImage: string;
+  galleryImages?: string[];
   badge: "Best Seller" | "New" | "Save 20%" | "Limited Stock" | "Sold Out";
   stock: number;
   rating: number;
@@ -35,7 +36,6 @@ export const concerns: Concern[] = ["Dullness", "Dryness", "Uneven tone", "Sensi
 
 import serum from "@/assets/leva-radiance-serum.png.asset.json";
 import ritual from "@/assets/leva-ritual-hero.png.asset.json";
-import balm from "@/assets/leva-cleansing-balm.png.asset.json";
 
 export const products: Product[] = [
   {
@@ -50,8 +50,8 @@ export const products: Product[] = [
     usage: "Massage onto clean skin in slow upward movements each morning.",
     benefit: "Softens the look of tired, dry skin.",
     faq: "Designed as an everyday step for all skin types. Patch test before first use.",
-    image: balm.url,
-    hoverImage: balm.url,
+    image: ritual.url,
+    hoverImage: ritual.url,
     badge: "Best Seller",
     type: "Cream",
     concerns: ["Dullness", "Uneven tone", "Dryness"],

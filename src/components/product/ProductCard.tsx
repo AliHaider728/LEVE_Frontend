@@ -26,7 +26,7 @@ export function ProductCard({ product, featured = false }: { product: Product; f
         >
           <img
             src={product.image}
-            alt={`${product.name} unbranded skincare editorial`}
+            alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
@@ -84,9 +84,11 @@ export function ProductCard({ product, featured = false }: { product: Product; f
         <h3 className="text-lg font-light leading-snug sm:text-xl">{product.name}</h3>
         <p className={`${featured ? "mt-1" : "mt-2"} text-sm leading-6 text-muted-foreground`}>{product.benefit}</p>
         <div className={`${featured ? "mt-2" : "mt-3"} flex flex-wrap items-center gap-1 text-sm`}>
-          <Star className="size-4 fill-accent text-accent" />
-          <span>{product.rating}</span>
-          <span className="text-muted-foreground">({product.reviewCount})</span>
+          {product.rating > 0 && product.reviewCount > 0 ? <>
+            <Star className="size-4 fill-accent text-accent" />
+            <span>{product.rating}</span>
+            <span className="text-muted-foreground">({product.reviewCount})</span>
+          </> : <span className="text-muted-foreground">No reviews yet</span>}
         </div>
         <div className={`${featured ? "mt-2" : "mt-3"} flex flex-wrap items-center gap-3`}>
           <strong className="font-medium">{formatPKR(product.price)}</strong>
