@@ -18,15 +18,24 @@ export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featu
   return (
     <article className="border-t border-primary/25 pt-6">
       <div className="relative flex aspect-[5/4] items-end justify-center overflow-hidden rounded-md bg-background">
-        {included.map((product, index) => (
+        {bundle.image ? (
           <img
-            key={product.slug}
-            src={product.image}
-            alt={`${product.name} included in ${bundle.name}`}
+            src={bundle.image}
+            alt={bundle.name + " with its included LEVA products"}
             loading="lazy"
-            className={`absolute bottom-0 h-[82%] w-[46%] rounded-t-md object-cover shadow-lg ${index === 0 ? "-translate-x-[42%] -rotate-3" : index === 2 ? "translate-x-[42%] rotate-3" : "z-10"}`}
+            className="absolute inset-0 h-full w-full object-cover"
           />
-        ))}
+        ) : (
+          included.map((product, index) => (
+            <img
+              key={product.slug}
+              src={product.image}
+              alt={`${product.name} included in ${bundle.name}`}
+              loading="lazy"
+              className={`absolute bottom-0 h-[82%] w-[46%] rounded-t-md object-cover shadow-lg ${index === 0 ? "-translate-x-[42%] -rotate-3" : index === 2 ? "translate-x-[42%] rotate-3" : "z-10"}`}
+            />
+          ))
+        )}
         <div className="absolute left-3 top-3 z-20 flex flex-wrap gap-2">
           <Badge variant="saving">
             Save {formatPKR(original - bundle.price)} ({bundle.savePercent}%)
@@ -35,6 +44,7 @@ export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featu
         </div>
       </div>
       <h3 className="mt-6 text-3xl font-light">{bundle.name}</h3>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
       <ul className="mt-4 space-y-1 text-base text-muted-foreground">
         {included.map((product) => (
           <li key={product.slug}>{product.name}</li>

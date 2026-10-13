@@ -19,23 +19,32 @@ function SceneCard({ bundle }: { bundle: Bundle }) {
   return (
     <article className="grid w-[86vw] shrink-0 snap-center gap-6 rounded-3xl bg-background p-5 md:w-[min(900px,70vw)] md:grid-cols-[1.1fr_1fr] md:p-8">
       <div className="relative aspect-[5/4] overflow-hidden rounded-2xl bg-secondary">
-        {included.map((p, i) => (
-          <motion.img
-            key={p.slug}
-            src={p.image}
-            alt={`${p.name} in ${bundle.name}`}
+        {bundle.image ? (
+          <img
+            src={bundle.image}
+            alt={bundle.name + " with its included LEVA products"}
             loading="lazy"
-            initial={{ x: (i - (included.length - 1) / 2) * 140, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.9, delay: i * 0.1 }}
-            className="absolute bottom-0 h-[78%] w-[44%] rounded-t-xl object-cover"
-            style={{
-              left: `${8 + i * (included.length === 3 ? 24 : 40)}%`,
-              zIndex: i === 1 ? 2 : 1,
-            }}
+            className="absolute inset-0 h-full w-full object-cover"
           />
-        ))}
+        ) : (
+          included.map((p, i) => (
+            <motion.img
+              key={p.slug}
+              src={p.image}
+              alt={`${p.name} in ${bundle.name}`}
+              loading="lazy"
+              initial={{ x: (i - (included.length - 1) / 2) * 140, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.9, delay: i * 0.1 }}
+              className="absolute bottom-0 h-[78%] w-[44%] rounded-t-xl object-cover"
+              style={{
+                left: `${8 + i * (included.length === 3 ? 24 : 40)}%`,
+                zIndex: i === 1 ? 2 : 1,
+              }}
+            />
+          ))
+        )}
         <div className="absolute left-3 top-3 z-10 flex gap-2">
           <Badge variant="saving">Save {formatPKR(original - bundle.price)}</Badge>
           {bundle.productSlugs.length === 3 && <Badge>Best Value</Badge>}
@@ -44,6 +53,7 @@ function SceneCard({ bundle }: { bundle: Bundle }) {
       <div className="flex flex-col justify-center">
         <p className="eyebrow">{included.length} products</p>
         <h3 className="mt-2 text-2xl font-light md:text-3xl">{bundle.name}</h3>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
         <ul className="mt-3 space-y-1 text-[15px] text-muted-foreground">
           {included.map((p) => (
             <li key={p.slug}>· {p.name}</li>

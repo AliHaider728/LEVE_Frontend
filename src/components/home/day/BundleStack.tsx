@@ -54,23 +54,32 @@ function Card({
         className="grid w-full max-w-5xl origin-top gap-6 overflow-hidden rounded-3xl bg-background p-5 shadow-[0_20px_60px_-30px_var(--color-primary)] md:grid-cols-2 md:p-8"
       >
         <div className="relative aspect-[5/4] overflow-hidden rounded-2xl bg-secondary">
-          {included.map((p, i) => (
-            <motion.img
-              key={p.slug}
-              src={p.image}
-              alt={`${p.name} in ${bundle.name}`}
+          {bundle.image ? (
+            <img
+              src={bundle.image}
+              alt={bundle.name + " with its included LEVA products"}
               loading="lazy"
-              initial={reduced ? false : { ...dirs[i % 3], opacity: 0 }}
-              whileInView={{ x: 0, y: 0, opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.8, delay: i * 0.12 }}
-              className="absolute bottom-0 h-[78%] w-[44%] rounded-t-xl object-cover"
-              style={{
-                left: `${6 + i * (included.length === 3 ? 25 : 44)}%`,
-                zIndex: i === 1 ? 2 : 1,
-              }}
+              className="absolute inset-0 h-full w-full object-cover"
             />
-          ))}
+          ) : (
+            included.map((p, i) => (
+              <motion.img
+                key={p.slug}
+                src={p.image}
+                alt={`${p.name} in ${bundle.name}`}
+                loading="lazy"
+                initial={reduced ? false : { ...dirs[i % 3], opacity: 0 }}
+                whileInView={{ x: 0, y: 0, opacity: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.8, delay: i * 0.12 }}
+                className="absolute bottom-0 h-[78%] w-[44%] rounded-t-xl object-cover"
+                style={{
+                  left: `${6 + i * (included.length === 3 ? 25 : 44)}%`,
+                  zIndex: i === 1 ? 2 : 1,
+                }}
+              />
+            ))
+          )}
           <motion.div
             initial={reduced ? false : { scale: 0 }}
             whileInView={{ scale: 1 }}
@@ -87,6 +96,7 @@ function Card({
         <div className="flex flex-col justify-center">
           <p className="eyebrow">Bundle {index + 1}</p>
           <h3 className="mt-2 text-2xl font-light text-foreground md:text-3xl">{bundle.name}</h3>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
           <ul className="mt-3 space-y-1 text-[15px] text-muted-foreground">
             {included.map((p) => (
               <li key={p.slug}>· {p.name}</li>

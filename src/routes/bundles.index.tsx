@@ -47,23 +47,32 @@ function BundleTile({ bundle }: { bundle: Bundle }) {
   return (
     <article className="flex w-[84vw] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border border-primary/10 bg-white md:w-[440px]">
       <div className="relative aspect-[5/4] overflow-hidden bg-secondary">
-        {included.map((p, i) => (
-          <motion.img
-            key={p.slug}
-            src={p.image}
-            alt={p.name}
+        {bundle.image ? (
+          <img
+            src={bundle.image}
+            alt={bundle.name + " with its included LEVA products"}
             loading="lazy"
-            initial={reduced ? false : { ...fly[i % 3], opacity: 0 }}
-            whileInView={{ x: 0, y: 0, rotate: 0, opacity: 1 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.8, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute bottom-0 h-[80%] w-[46%] rounded-t-xl object-cover shadow-md"
-            style={{
-              left: `${(included.length === 3 ? 4 : 6) + i * (included.length === 3 ? 25 : 42)}%`,
-              zIndex: i === 1 ? 2 : 1,
-            }}
+            className="absolute inset-0 h-full w-full object-cover"
           />
-        ))}
+        ) : (
+          included.map((p, i) => (
+            <motion.img
+              key={p.slug}
+              src={p.image}
+              alt={p.name}
+              loading="lazy"
+              initial={reduced ? false : { ...fly[i % 3], opacity: 0 }}
+              whileInView={{ x: 0, y: 0, rotate: 0, opacity: 1 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.8, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute bottom-0 h-[80%] w-[46%] rounded-t-xl object-cover shadow-md"
+              style={{
+                left: `${(included.length === 3 ? 4 : 6) + i * (included.length === 3 ? 25 : 42)}%`,
+                zIndex: i === 1 ? 2 : 1,
+              }}
+            />
+          ))
+        )}
         <motion.div
           initial={reduced ? false : { scale: 0 }}
           whileInView={{ scale: 1 }}
@@ -77,6 +86,7 @@ function BundleTile({ bundle }: { bundle: Bundle }) {
       </div>
       <div className="flex flex-1 flex-col p-6">
         <h2 className="text-2xl font-light text-foreground">{bundle.name}</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
         <ul className="mt-2 text-sm text-muted-foreground">
           {included.map((p) => (
             <li key={p.slug}>· {p.name}</li>

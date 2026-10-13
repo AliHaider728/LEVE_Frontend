@@ -6,6 +6,7 @@ export type Bundle = {
   slug: string;
   name: string;
   description: string;
+  image?: string;
   productSlugs: string[];
   price: number;
   savePercent: number;
@@ -15,7 +16,8 @@ export const bundles: Bundle[] = [
   {
     slug: "complete-ritual",
     name: "The Complete Ritual",
-    description: "All three LEVA essentials, brought together for a considered daily ritual.",
+    description: "A complete three-step LEVA ritual: cleanse with Skin Brightening Face Wash, care with Skin Brightening Cream, then finish with Tinted Sunscreen SPF 50 PA+++.",
+    image: "/images/leva-complete-ritual-bundle.webp",
     productSlugs: ["product-01", "product-02", "product-03"],
     price: 16080,
     savePercent: 20,
