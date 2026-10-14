@@ -57,6 +57,7 @@ export function normalizeBundles(payload: unknown, products: Product[]): Bundle[
   const source = object(payload).bundles;
   if (!Array.isArray(source)) throw new ApiError("Bundle data was unavailable.", 0, "invalid-response");
   const rows = source.map(object);
+  if (!rows.length) throw new ApiError("No live bundles are available yet.", 0, "invalid-response");
   const bundles = rows.filter(row => text(row.id) && row.isActive !== false && row.isActive !== 0).flatMap((row, index) => {
     const entries = list(row.products).map(object);
     const productSlugs = entries.flatMap(entry => {

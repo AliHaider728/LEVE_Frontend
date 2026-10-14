@@ -1,17 +1,22 @@
 "use client";
 import { uploadImage as uploadAdminAsset } from '@/admin-ui/api';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Trash2, CheckCircle, XCircle, Star, ShieldCheck, Clock, Plus, X } from 'lucide-react';
 import { useAdminUI } from '../context/AdminUIContext';
 import { getSafeImageSrc } from '../utils/images';
 export const ReviewsPage: React.FC = () => {
-    const { reviews, products, addReview, updateReviewStatus, deleteReview, confirm } = useAdminUI();
+    const { reviews, products, addReview, updateReviewStatus, deleteReview, confirm, showToast } = useAdminUI();
     const [statusFilter, setStatusFilter] = useState('');
     const [ratingFilter, setRatingFilter] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     // Add Review Modal State
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [productId, setProductId] = useState(products[0]?.id || '');
+    const [productId, setProductId] = useState('');
+    useEffect(() => {
+        if (products.length && !products.some(product => product.id === productId)) {
+            setProductId(products[0].id);
+        }
+    }, [products, productId]);
     const [reviewerName, setReviewerName] = useState('');
     const [rating, setRating] = useState(5);
     const [title, setTitle] = useState('');
@@ -41,6 +46,10 @@ export const ReviewsPage: React.FC = () => {
             if (!reviewerName.trim() || !content.trim())
                 return;
             const prod = products.find(p => p.id === productId);
+            if (!prod) {
+                showToast('Choose a product before adding the review.', 'error');
+                return;
+            }
             await addReview({
                 productId,
                 productName: prod?.name || 'Skincare Item',
@@ -226,7 +235,8 @@ export const ReviewsPage: React.FC = () => {
             <form onSubmit={handleAddReviewSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-[#382b31]/80 mb-1">Product *</label>
-                <select value={productId} onChange={e => setProductId(e.target.value)} className="w-full text-xs rounded-xl border border-[#ecdfe4] px-3 py-2 bg-white">
+                <select required value={productId} onChange={e => setProductId(e.target.value)} className="w-full text-xs rounded-xl border border-[#ecdfe4] px-3 py-2 bg-white">
+                  {!products.length && <option value="">No products available</option>}
                   {products.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
                 </select>
               </div>
@@ -282,7 +292,7 @@ export const ReviewsPage: React.FC = () => {
                 <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-4 py-2 text-xs font-bold text-[#382b31]/60 hover:bg-slate-100 rounded-xl">
                   Cancel
                 </button>
-                <button type="submit" className="px-5 py-2 text-xs font-bold text-white bg-[#673742] hover:bg-[#673742] rounded-xl shadow-sm">
+                <button type="submit" disabled={!products.length} className="px-5 py-2 text-xs font-bold text-white bg-[#673742] hover:bg-[#673742] rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                   Add Review
                 </button>
               </div>

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { pageModule, requirementsForPage } from './api';
 import { FeatureManagementPage } from './pages/FeatureManagementPage';
 import { ToastAndDialog } from './components/ToastAndDialog';
+import { AdminContentSkeleton, AdminEntrySkeleton } from './components/AdminLoadingSkeleton';
 import { useAdminUI } from './context/AdminUIContext';
 import { AdminLayout } from './layouts/AdminLayout';
 // Import all Admin UI Pages
@@ -36,7 +37,7 @@ const AdminRouter: React.FC = () => {
     useEffect(() => { if (adminUser && (activePage as string) === 'login')
         router.replace('/admin'); }, [adminUser, activePage, router]);
     if (loading)
-        return <div role="status" className="p-8 space-y-4"><div className="h-12 rounded-xl bg-[#FFF4F6]"/><div className="h-64 rounded-xl bg-[#FFF4F6]"/>Loading admin panel…</div>;
+        return <AdminEntrySkeleton/>;
     if(errors.session)return <div role="alert" className="p-8"><h1 className="font-bold mb-3">Could not load the admin panel</h1>{errors.session}<button onClick={()=>void reload()} className="ml-4 underline">Try again</button></div>;
     if(!adminUser)return <><LoginPage/><ToastAndDialog/></>;
     const activeModule = pageModule[activePage];
@@ -45,7 +46,7 @@ const AdminRouter: React.FC = () => {
     const required=requirementsForPage(activePage).filter(key=>key==='dashboard'||modules[key]);
     const failed=required.find(key=>errors[key]);
     if(failed)return <AdminLayout><div role="alert">{errors[failed]}<button onClick={()=>void reload()} className="ml-4 underline">Try again</button></div><ToastAndDialog/></AdminLayout>;
-    if(required.some(key=>!loadedModules[key]||moduleLoading[key]&&!loadedModules[key]))return <AdminLayout><div role="status" className="space-y-4 animate-pulse"><div className="h-12 rounded-xl bg-[#FFF4F6]"/><div className="h-64 rounded-xl bg-[#FFF4F6]"/><span className="sr-only">Loading page data…</span></div></AdminLayout>;
+    if(required.some(key=>!loadedModules[key]||moduleLoading[key]&&!loadedModules[key]))return <AdminLayout><AdminContentSkeleton/></AdminLayout>;
     // If user is not authenticated in local state, display Login page
     if (!adminUser) {
         return <LoginPage />;
