@@ -209,7 +209,7 @@ export const AdminUIProvider: React.FC<{
      catch(error){if(error instanceof ApiError&&error.status===401){setAdminUser(null);setErrors({});}else setErrors(prev=>({...prev,session:error instanceof Error?error.message:'Unable to load session.'}));}
      finally{sessionFlight.current=null;setLoading(false);}
     },[router]);
-    useEffect(()=>{void bootstrap();},[bootstrap]);
+    useEffect(()=>{if(pathname==='/admin/login'){setAdminUser(null);setLoading(false);return;}void bootstrap();},[bootstrap,pathname]);
     useEffect(()=>{if(adminUser&&!loading)void load(modules,[...required,'dashboard']);},[adminUser,loading,modules,required,load]);
     const reload=async()=>{if(errors.session||!adminUser)await bootstrap();else await load(modules,required,true);};
     const login=async(email:string,password:string)=>{const user=await adminApi.login(email,password);if(!isAdmin(user)){await adminApi.logout();throw new Error('Administrator access is required.');}await bootstrap(user);router.replace('/admin');};

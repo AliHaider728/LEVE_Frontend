@@ -1,5 +1,5 @@
-/** Public API origin only; no server secrets belong here. */
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://leva-backend.vercel.app" : "http://127.0.0.1:5001")).trim().replace(/\/+$/, "");
+/** Public API origin only; local development uses the same-origin proxy. */
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "/api/store").trim().replace(/\/+$/, "");
 export class ApiError extends Error {
   constructor(message: string, public readonly status: number, public readonly code: "configuration" | "network" | "http" | "invalid-response") { super(message); this.name = "ApiError"; }
 }
