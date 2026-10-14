@@ -1,36 +1,30 @@
 import { useRef } from "react";
 import { motion, useScroll, useSpring, useTransform, useReducedMotion } from "motion/react";
-import { editorialImages } from "@/lib/assets";
-import { CountUp } from "@/components/shop/CountUp";
 
 const items = [
   {
-    name: "Niacinamide",
-    value: 5,
-    unit: "%",
-    benefit: "Helps even out tone and refine the look of pores.",
-    img: editorialImages.closeup,
+    step: "01",
+    name: "Skin Brightening Face Wash",
+    ingredient: "Hyaluronic Acid",
+    benefit: "Helps retain moisture for soft, fresh, and hydrated-looking skin.",
+    howToUse: "Apply to a damp face, massage gently for 15–20 seconds, then rinse thoroughly.",
+    img: "/images/leva-face-wash-formula.jpg",
   },
   {
-    name: "Hyaluronic Acid",
-    value: 2,
-    unit: "x",
-    benefit: "Holds water in the skin for a plump, dewy feel.",
-    img: editorialImages.hero,
+    step: "02",
+    name: "Skin Brightening Cream",
+    ingredient: "Alpha Arbutin",
+    benefit: "Helps reduce the appearance of dark spots and promotes a brighter, more even-looking skin tone.",
+    howToUse: "Apply a small amount to clean skin once or twice daily.",
+    img: "/images/leva-brightening-cream-formula.jpg",
   },
   {
-    name: "Vitamin C",
-    value: 10,
-    unit: "%",
-    benefit: "Brings back glow to tired, dull skin.",
-    img: editorialImages.closeup,
-  },
-  {
-    name: "Ceramides",
-    value: 3,
-    unit: " types",
-    benefit: "Support the skin barrier so it stays calm.",
-    img: editorialImages.portrait,
+    step: "SPF 50",
+    name: "Tinted Sunscreen",
+    ingredient: "UVA & UVB Protection",
+    benefit: "Helps protect against sunburn, tanning, and premature skin aging.",
+    howToUse: "Apply 15 minutes before sun exposure. Reapply every 2 hours outdoors.",
+    img: "/images/leva-tinted-sunscreen-formula.jpg",
   },
 ];
 
@@ -40,20 +34,22 @@ function Panel({ it }: { it: (typeof items)[number] }) {
       <div className="aspect-[4/3] overflow-hidden md:aspect-auto">
         <img
           src={it.img}
-          alt={`${it.name} texture`}
+          alt={`LEVA ${it.name}`}
           loading="lazy"
           className="h-full w-full scale-110 object-cover"
         />
       </div>
       <div className="flex flex-col justify-center p-6 md:p-10">
-        <p className="text-5xl font-light text-accent md:text-6xl">
-          <CountUp value={it.value} />
-          {it.unit}
+        <p className="text-sm font-semibold tracking-widest text-accent uppercase">
+          {it.step}
         </p>
-        <h3 className="mt-3 text-2xl font-light text-foreground">{it.name}</h3>
+        <h3 className="mt-2 text-2xl font-light text-foreground">{it.name}</h3>
+        <p className="mt-4 text-xs font-semibold tracking-wider text-foreground/70 uppercase">
+          {it.ingredient}
+        </p>
         <p className="mt-2 text-[15px] leading-7 text-muted-foreground">{it.benefit}</p>
-        <p className="mt-4 text-xs text-muted-foreground">
-          Placeholder value. Final formula details coming soon.
+        <p className="mt-4 text-xs leading-5 text-muted-foreground">
+          <span className="font-semibold text-foreground/70">How to Use:</span> {it.howToUse}
         </p>
       </div>
     </article>
@@ -86,7 +82,7 @@ export function Ingredients() {
             className={`flex gap-8 pl-[8vw] ${reduced ? "flex-wrap pr-[8vw]" : ""}`}
           >
             {items.map((it) => (
-              <Panel key={it.name} it={it} />
+              <Panel key={it.step} it={it} />
             ))}
           </motion.div>
         </div>
@@ -95,7 +91,7 @@ export function Ingredients() {
         {head}
         <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none]">
           {items.map((it) => (
-            <Panel key={it.name} it={it} />
+            <Panel key={it.step} it={it} />
           ))}
         </div>
       </div>

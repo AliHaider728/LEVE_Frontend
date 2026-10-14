@@ -34,7 +34,7 @@ export function Hero() {
         <p className="mb-6 mt-6 max-w-xs text-base font-light leading-relaxed md:max-w-sm">
           A softer kind of strength, worn on the skin.
         </p>
-        <Button asChild className="bg-primary text-primary-foreground hover:bg-accent">
+        <Button asChild className="bg-primary text-white hover:bg-primary/90 hover:text-white">
           <Link to="/shop">
             Shop now <ArrowRight className="transition-transform group-hover:translate-x-1" />
           </Link>

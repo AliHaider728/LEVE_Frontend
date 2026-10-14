@@ -19,3 +19,5 @@ audit-featured.mjs
 audit-featured*.png
 
 .next-*/
+.vscode/
+verification/
