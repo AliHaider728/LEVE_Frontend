@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getApprovedProductReviews, submitProductReview, type PublicProductReview } from "@/lib/api/product-reviews";
+import { catalogApi } from "@/lib/api/catalog";
 
 function Stars({ rating }: { rating: number }) {
   return <span className="inline-flex gap-0.5 text-accent" aria-label={rating + " out of 5 stars"}>
@@ -19,7 +20,8 @@ function dateLabel(value: string) {
   return Number.isNaN(date.valueOf()) ? "" : new Intl.DateTimeFormat("en-PK", { year: "numeric", month: "short", day: "numeric" }).format(date);
 }
 
-export function ProductReviews({ productId, productName, catalogReady }: { productId?: string; productName: string; catalogReady: boolean }) {
+export function ProductReviews({ productId, productSlug, productName, catalogReady }: { productId?: string; productSlug: string; productName: string; catalogReady: boolean }) {
+  const [reviewProductId, setReviewProductId] = useState(productId || "");
   const [reviews, setReviews] = useState<PublicProductReview[]>([]);
   const [loading, setLoading] = useState(Boolean(productId) || !catalogReady);
   const [error, setError] = useState("");
@@ -31,12 +33,22 @@ export function ProductReviews({ productId, productName, catalogReady }: { produ
   const [rating, setRating] = useState(0);
   const submitting = useRef(false);
 
+  useEffect(() => { setReviewProductId(productId || ""); }, [productId]);
+
+  const resolveProductId = async () => {
+    if (reviewProductId) return reviewProductId;
+    const current = (await catalogApi.listProducts()).find(product => product.slug === productSlug);
+    if (!current?.id) throw new Error("The store is unavailable right now. Please try again shortly.");
+    setReviewProductId(current.id);
+    return current.id;
+  };
+
   useEffect(() => {
-    if (!productId) { setLoading(!catalogReady); setReviews([]); return; }
+    if (!reviewProductId) { setLoading(!catalogReady); setReviews([]); return; }
     let active = true;
     setLoading(true);
     setError("");
-    getApprovedProductReviews(productId).then(items => {
+    getApprovedProductReviews(reviewProductId).then(items => {
       if (active) setReviews(items);
     }).catch(() => {
       if (active) setError("Reviews could not load right now. Please try again.");
@@ -44,13 +56,13 @@ export function ProductReviews({ productId, productName, catalogReady }: { produ
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [productId, catalogReady, refresh]);
+  }, [reviewProductId, catalogReady, refresh]);
 
   const average = reviews.length ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0;
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (submitting.current || !productId) return;
+    if (submitting.current) return;
     const form = event.currentTarget;
     const values = new FormData(form);
     const reviewerName = String(values.get("name") ?? "").trim();
@@ -65,7 +77,8 @@ export function ProductReviews({ productId, productName, catalogReady }: { produ
     setSending(true);
     setFormError("");
     try {
-      await submitProductReview({ productId, productName, reviewerName, rating, title, content });
+      const liveProductId = await resolveProductId();
+      await submitProductReview({ productId: liveProductId, productName, reviewerName, rating, title, content });
       form.reset();
       setRating(0);
       setSubmitted(true);
@@ -91,11 +104,11 @@ export function ProductReviews({ productId, productName, catalogReady }: { produ
             <span className="text-muted-foreground">{reviews.length} {reviews.length === 1 ? "review" : "reviews"}</span>
           </div>}
         </div>
-        <Button type="button" variant="outline" magnetic={false} disabled={!productId} onClick={() => { setSubmitted(false); setFormError(""); setOpen(true); }}>Write a review</Button>
+        <Button type="button" variant="outline" magnetic={false} onClick={() => { setSubmitted(false); setFormError(""); setOpen(true); }}>Write a review</Button>
       </div>
       {loading ? <div role="status" className="mt-8 grid gap-4 md:grid-cols-2"><span className="h-36 animate-pulse rounded-md bg-secondary" /><span className="h-36 animate-pulse rounded-md bg-secondary" /><span className="sr-only">Loading reviews…</span></div>
-        : error ? <div role="alert" className="mt-8 rounded-md border border-primary/15 bg-white p-6"><p>{error}</p><Button variant="outline" magnetic={false} className="mt-4" onClick={() => setRefresh(value => value + 1)}>Try again</Button></div>
-        : !productId ? <p className="mt-8 rounded-md border border-primary/15 bg-white p-6 text-sm">Reviews are unavailable while the store is offline.</p>
+        : error ? <div role="alert" className="mt-8 rounded-md border border-primary/15 bg-white p-6"><p>{error}</p><Button variant="outline" magnetic={false} className="mt-4" onClick={async () => { try { setError(""); await resolveProductId(); setRefresh(value => value + 1); } catch { setError("Reviews could not load right now. Please try again."); } }}>Try again</Button></div>
+        : !reviewProductId ? <div className="mt-8 rounded-md border border-primary/15 bg-white p-6 text-sm"><p>We could not load live reviews right now.</p><Button variant="outline" magnetic={false} className="mt-4" onClick={async () => { try { await resolveProductId(); } catch { setError("Reviews could not load right now. Please try again."); } }}>Try again</Button></div>
         : reviews.length === 0 ? <div className="mt-8 rounded-md border border-primary/15 bg-white p-8 text-center"><p className="text-lg font-light">No approved reviews yet.</p><p className="mt-2 text-sm text-muted-foreground">Be the first to share your experience with {productName}.</p></div>
         : <div className="mt-8 grid gap-4 md:grid-cols-2">
           {reviews.map(review => <article key={review.id} className="rounded-md border border-primary/15 bg-white p-5 md:p-6">
@@ -105,7 +118,7 @@ export function ProductReviews({ productId, productName, catalogReady }: { produ
             <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-primary/10 pt-4 text-xs text-muted-foreground"><span>{review.reviewerName}</span>{review.verifiedPurchase && <span className="inline-flex items-center gap-1 text-primary"><BadgeCheck className="size-4" />Verified purchase</span>}</div>
           </article>)}
         </div>}
-      {productId && <button type="button" onClick={() => setRefresh(value => value + 1)} className="mt-6 min-h-11 text-sm text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2" disabled={loading}>Refresh reviews</button>}
+      {reviewProductId && <button type="button" onClick={() => setRefresh(value => value + 1)} className="mt-6 min-h-11 text-sm text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2" disabled={loading}>Refresh reviews</button>}
     </div>
     <Dialog open={open} onOpenChange={value => { setOpen(value); if (!value) { setFormError(""); setSubmitted(false); setRating(0); } }}>
       <DialogContent data-lenis-prevent className="max-h-[calc(100dvh-2rem)] overflow-y-auto bg-white sm:max-w-lg">

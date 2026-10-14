@@ -2,7 +2,6 @@
 import { createFileRoute, notFound } from "@/lib/router-compat";
 import { getProduct } from "@/data/products";
 import { useStoreData } from "@/store/catalog";
-import { CatalogStatus } from "@/components/product/CatalogStatus";
 import { formatPKR } from "@/config/store";
 import { WishlistButton } from '@/components/wishlist/WishlistButton';
 import { QuantityAddToCart } from "@/components/product/QuantityAddToCart";
@@ -51,7 +50,6 @@ function ProductPage() {
   const saving = Math.round((1 - product.price / product.compareAtPrice) * 100);
   return (
     <main className="pb-44 pt-24 md:pb-0 md:pt-28">
-      <div className="px-5"><CatalogStatus /></div>
       <section className="grid min-w-0 md:grid-cols-2">
         <ProductGallery key={product.slug} product={product} />
         <div className="flex min-w-0 flex-col justify-start px-5 py-8 sm:px-8 md:px-[5vw] md:py-9">
@@ -99,7 +97,7 @@ function ProductPage() {
           </Accordion>
         </div>
       </section>
-      <ProductReviews key={product.slug} productId={product.id} productName={product.name} catalogReady={ready} />
+      <ProductReviews key={product.slug} productId={product.id} productSlug={product.slug} productName={product.name} catalogReady={ready} />
       <section className="px-6 py-16 md:px-[8vw]">
         <TrustRow />
       </section>

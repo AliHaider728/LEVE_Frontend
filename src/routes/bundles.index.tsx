@@ -85,7 +85,7 @@ function BundleTile({ bundle }: { bundle: Bundle }) {
         </motion.div>
       </div>
       <div className="flex flex-1 flex-col p-6">
-        <h2 className="text-2xl font-light text-foreground">{bundle.name}</h2>
+        <h2 className="text-2xl font-light text-foreground"><Link to={`/bundles/${bundle.slug}`} className="hover:underline">{bundle.name}</Link></h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
         <ul className="mt-2 text-sm text-muted-foreground">
           {included.map((p) => (
@@ -99,7 +99,8 @@ function BundleTile({ bundle }: { bundle: Bundle }) {
           <span className="text-sm text-muted-foreground line-through">{formatPKR(original)}</span>
         </p>
         <p className="text-sm text-primary">You save {formatPKR(original - bundle.price)}</p>
-        <Button className="mt-6 h-12" onClick={() => addBundle(bundle.slug)}>
+        <Link to={`/bundles/${bundle.slug}`} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline underline-offset-4">View bundle details <ArrowRight className="size-4" /></Link>
+        <Button className="mt-2 h-12" disabled={!bundle.id} onClick={() => addBundle(bundle.slug)}>
           <ShoppingBag /> Add bundle to cart
         </Button>
       </div>

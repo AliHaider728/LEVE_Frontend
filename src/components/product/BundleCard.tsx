@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useStoreData } from "@/store/catalog";
 import { ShoppingBag } from "lucide-react";
 import type { Bundle } from "@/data/bundles";
@@ -43,7 +44,7 @@ export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featu
           {featured && <Badge>Best Value</Badge>}
         </div>
       </div>
-      <h3 className="mt-6 text-3xl font-light">{bundle.name}</h3>
+      <h3 className="mt-6 text-3xl font-light"><Link href={`/bundles/${bundle.slug}`} className="hover:underline">{bundle.name}</Link></h3>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
       <ul className="mt-4 space-y-1 text-base text-muted-foreground">
         {included.map((product) => (
@@ -54,7 +55,8 @@ export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featu
         <span className="text-sm line-through text-muted-foreground">{formatPKR(original)}</span>
         <strong className="text-xl font-medium">{formatPKR(bundle.price)}</strong>
       </div>
-      <Button className="w-full" onClick={() => addBundle(bundle.slug)}>
+      <Link href={`/bundles/${bundle.slug}`} className="mb-3 inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">View bundle details</Link>
+      <Button className="w-full" disabled={!bundle.id} onClick={() => addBundle(bundle.slug)}>
         <ShoppingBag /> Add bundle to cart
       </Button>
     </article>

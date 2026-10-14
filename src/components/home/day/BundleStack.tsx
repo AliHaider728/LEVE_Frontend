@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useStoreData } from "@/store/catalog";
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from "motion/react";
@@ -95,7 +96,7 @@ function Card({
         </div>
         <div className="flex flex-col justify-center">
           <p className="eyebrow">Bundle {index + 1}</p>
-          <h3 className="mt-2 text-2xl font-light text-foreground md:text-3xl">{bundle.name}</h3>
+          <h3 className="mt-2 text-2xl font-light text-foreground md:text-3xl"><Link href={`/bundles/${bundle.slug}`} className="hover:underline">{bundle.name}</Link></h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
           <ul className="mt-3 space-y-1 text-[15px] text-muted-foreground">
             {included.map((p) => (
@@ -108,7 +109,8 @@ function Card({
               {formatPKR(original)}
             </span>
           </p>
-          <Button className="mt-5 h-12" onClick={() => addBundle(bundle.slug)}>
+          <Link href={`/bundles/${bundle.slug}`} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline underline-offset-4">View bundle details</Link>
+          <Button className="mt-2 h-12" disabled={!bundle.id} onClick={() => addBundle(bundle.slug)}>
             <ShoppingBag /> Add bundle
           </Button>
         </div>
