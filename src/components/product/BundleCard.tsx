@@ -56,7 +56,7 @@ export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featu
         <strong className="text-xl font-medium">{formatPKR(bundle.price)}</strong>
       </div>
       <Link href={`/bundles/${bundle.slug}`} className="mb-3 inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">View bundle details</Link>
-      <Button className="w-full" disabled={!bundle.id} onClick={() => addBundle(bundle.slug)}>
+      <Button className="w-full" onClick={() => addBundle(bundle.slug)}>
         <ShoppingBag /> Add bundle to cart
       </Button>
     </article>

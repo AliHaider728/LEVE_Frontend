@@ -110,7 +110,7 @@ function Card({
             </span>
           </p>
           <Link href={`/bundles/${bundle.slug}`} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline underline-offset-4">View bundle details</Link>
-          <Button className="mt-2 h-12" disabled={!bundle.id} onClick={() => addBundle(bundle.slug)}>
+          <Button className="mt-2 h-12" onClick={() => addBundle(bundle.slug)}>
             <ShoppingBag /> Add bundle
           </Button>
         </div>

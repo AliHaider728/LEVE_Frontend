@@ -25,7 +25,6 @@ export default function View() {
     "product-02": "Apply before sun exposure and reapply as directed on the product label.",
   };
   const original = getBundleOriginalPrice(bundle, products);
-  const available = Boolean(bundle.id);
   return <main className="pb-24 pt-24 md:pt-[calc(var(--header-h)+2rem)]">
     <div className="mx-auto max-w-7xl px-5 md:px-[5vw]">
       <Link href="/bundles" className="inline-flex min-h-11 items-center gap-2 text-sm text-primary hover:underline"><ArrowLeft className="size-4"/>All bundles</Link>
@@ -39,8 +38,8 @@ export default function View() {
           <p className="mt-5 max-w-xl text-base leading-8 text-muted-foreground">{bundle.description}</p>
           <div className="mt-6 flex flex-wrap items-center gap-3"><Badge variant="saving">Save {bundle.savePercent}%</Badge><span className="text-sm text-muted-foreground">{included.length} LEVA essentials</span></div>
           <div className="mt-7 flex flex-wrap items-baseline gap-3"><strong className="text-3xl font-medium">{formatPKR(bundle.price)}</strong><span className="text-lg text-muted-foreground line-through">{formatPKR(original)}</span><span className="text-sm text-primary">Save {formatPKR(Math.max(0,original-bundle.price))}</span></div>
-          <Button className="mt-7 h-12 w-full sm:w-auto" disabled={!available} onClick={() => addBundle(bundle.slug)}><ShoppingBag className="size-4"/>{available ? "Add bundle to cart" : "Temporarily unavailable"}</Button>
-          {!available && <p className="mt-3 text-sm text-muted-foreground">Live bundle checkout is unavailable right now. Please try again shortly.</p>}
+          <Button className="mt-7 h-12 w-full sm:w-auto" onClick={() => addBundle(bundle.slug)}><ShoppingBag className="size-4"/>Add bundle to cart</Button>
+          {!bundle.id && <p className="mt-3 text-sm text-muted-foreground">This preview can be added to your cart. Live checkout needs the bundle saved to the store; use WhatsApp to request it while the store connection is unavailable.</p>}
           <p className="mt-6 text-sm text-muted-foreground">Cash on Delivery · Nationwide shipping · Free delivery over Rs. 3,000</p>
         </div>
       </div>

@@ -7,7 +7,7 @@ import { AdminPage } from '../types';
 export const AdminLayout: React.FC<{
     children: React.ReactNode;
 }> = ({ children }) => {
-    const { activePage, setActivePage, adminUser, logout, showToast, modules, pending, dashboard } = useAdminUI();
+    const { activePage, setActivePage, adminUser, logout, showToast, modules, dashboard } = useAdminUI();
     const [collapsed, setCollapsed] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     useEffect(() => {
@@ -157,7 +157,7 @@ export const AdminLayout: React.FC<{
 
         {/* Page Content Scroll Area */}
         <main key={activePage} className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
-          <fieldset disabled={pending} className="min-w-0 border-0 p-0">{pending && <p role="status" className="mb-3 text-xs text-[#673742]">Updating records…</p>}{children}</fieldset>
+          {children}
         </main>
       </div>
     </div>);

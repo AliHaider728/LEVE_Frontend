@@ -101,8 +101,10 @@ export const BundlesListPage: React.FC = () => {
             </div>);
         })}
 
-        {filtered.length === 0 && (<div className="col-span-full bg-white p-12 rounded-3xl border border-dashed border-[#ecdfe4] text-center text-sm text-[#382b31]/40">
-            No product bundles found.
+        {filtered.length === 0 && (<div className="col-span-full rounded-2xl border border-dashed border-[#ecdfe4] bg-white px-6 py-12 text-center">
+            <p className="text-sm font-semibold text-[#382b31]">{search ? 'No bundles match this search.' : 'No bundles are saved to the connected store yet.'}</p>
+            <p className="mx-auto mt-2 max-w-lg text-xs leading-5 text-[#382b31]/55">Storefront preview bundles are local examples. Save a bundle here to publish it and enable live checkout.</p>
+            {!search && <button type="button" onClick={() => setActivePage('bundle-new')} className="mt-5 rounded-xl bg-[#673742] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#542c35]">Create your first bundle</button>}
           </div>)}
       </div>
     </div>);
