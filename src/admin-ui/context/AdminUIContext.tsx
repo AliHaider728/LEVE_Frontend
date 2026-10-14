@@ -127,6 +127,7 @@ export const AdminUIProvider: React.FC<{
     const [loadedModules,setLoadedModules]=useState<Record<string,boolean>>({});
     const loaded=useRef(new Set<string>()),flights=useRef(new Map<string,Promise<void>>());
     const sessionFlight=useRef<Promise<{user:Awaited<ReturnType<typeof adminApi.me>>;flags:ModuleFlags}>|null>(null);
+    const bootstrapped=useRef(false);
     const mutationFlights=useRef(new Map<string,Promise<unknown>>());
     const [mutations,setMutations]=useState(0);
     const bundleRecords=useRef<Bundle[]>([]);
@@ -203,13 +204,14 @@ export const AdminUIProvider: React.FC<{
     },[]);
     const required=useMemo(()=>requirementsForPage(activePage),[activePage]);
     const bootstrap=useCallback(async(authenticated?:Awaited<ReturnType<typeof adminApi.me>>)=>{
+     bootstrapped.current=true;
      setLoading(true);setErrors(prev=>{const next={...prev};delete next.session;return next;});
      if(!sessionFlight.current)sessionFlight.current=(async()=>{const user=authenticated||await adminApi.me();if(!isAdmin(user))return {user,flags:{}};return {user,flags:await uiRequest<ModuleFlags>('admin/features')};})();
      try{const {user,flags}=await sessionFlight.current;if(!isAdmin(user)){setAdminUser(null);router.replace('/');return;}setAdminUser(user as AdminUIContextType['adminUser']);setModules(flags);}
      catch(error){if(error instanceof ApiError&&error.status===401){setAdminUser(null);setErrors({});}else setErrors(prev=>({...prev,session:error instanceof Error?error.message:'Unable to load session.'}));}
      finally{sessionFlight.current=null;setLoading(false);}
     },[router]);
-    useEffect(()=>{if(pathname==='/admin/login'){setAdminUser(null);setLoading(false);return;}void bootstrap();},[bootstrap,pathname]);
+    useEffect(()=>{if(pathname==='/admin/login'){bootstrapped.current=false;setAdminUser(null);setLoading(false);return;}if(!bootstrapped.current)void bootstrap();},[bootstrap,pathname]);
     useEffect(()=>{if(adminUser&&!loading)void load(modules,[...required,'dashboard']);},[adminUser,loading,modules,required,load]);
     const reload=async()=>{if(errors.session||!adminUser)await bootstrap();else await load(modules,required,true);};
     const login=async(email:string,password:string)=>{const user=await adminApi.login(email,password);if(!isAdmin(user)){await adminApi.logout();throw new Error('Administrator access is required.');}await bootstrap(user);router.replace('/admin');};

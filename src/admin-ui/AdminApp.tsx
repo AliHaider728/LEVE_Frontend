@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { pageModule, requirementsForPage } from './api';
 import { FeatureManagementPage } from './pages/FeatureManagementPage';
@@ -34,6 +34,41 @@ import { StoreAppearancePage } from './pages/StoreAppearancePage';
 const AdminRouter: React.FC = () => {
     const { activePage, activePageParams, adminUser, loading, errors, modules, reload, moduleLoading, loadedModules } = useAdminUI();
     const router = useRouter();
+    const [visitedPages, setVisitedPages] = useState<Record<string, React.ReactNode>>({});
+    const currentPageKey = activePage + (activePageParams?.id ? `:${activePageParams.id}` : '');
+    const cacheCurrentPage = !activePageParams?.id;
+    const currentPage = useMemo(() => {
+        switch (activePage) {
+            case 'feature-management': return <FeatureManagementPage />;
+            case 'dashboard': return <DashboardPage />;
+            case 'products': return <ProductsListPage />;
+            case 'product-new':
+            case 'product-edit': return <ProductFormPage key={activePage + String(activePageParams?.id || '')} />;
+            case 'best-sellers': return <BestSellersPage />;
+            case 'categories': return <CategoriesPage />;
+            case 'attributes': return <GlobalAttributesPage />;
+            case 'orders': return <OrdersPage />;
+            case 'customers': return <CustomersPage />;
+            case 'reviews': return <ReviewsPage />;
+            case 'audio-reviews': return <AudioReviewsPage />;
+            case 'contact-messages': return <ContactMessagesPage />;
+            case 'bundles': return <BundlesListPage />;
+            case 'bundle-new':
+            case 'bundle-edit': return <BundleFormPage key={activePage + String(activePageParams?.id || '')} />;
+            case 'coupons': return <CouponsPage />;
+            case 'reports': return <ReportsPage />;
+            case 'settings': return <StoreSettingsPage />;
+            case 'routine-discounts': return <RoutineDiscountsPage />;
+            case 'store-appearance': return <StoreAppearancePage />;
+            default: return <DashboardPage />;
+        }
+    }, [activePage, activePageParams?.id]);
+    const required = requirementsForPage(activePage).filter(key => key === 'dashboard' || modules[key]);
+    const pageReady = required.every(key => loadedModules[key] && !errors[key]);
+    useEffect(() => {
+        if (!adminUser || loading || !pageReady || !cacheCurrentPage) return;
+        setVisitedPages(previous => previous[currentPageKey] ? previous : { ...previous, [currentPageKey]: currentPage });
+    }, [adminUser, loading, pageReady, cacheCurrentPage, currentPageKey, currentPage]);
     useEffect(() => { if (adminUser && (activePage as string) === 'login')
         router.replace('/admin'); }, [adminUser, activePage, router]);
     if (loading)
@@ -43,7 +78,6 @@ const AdminRouter: React.FC = () => {
     const activeModule = pageModule[activePage];
     if ((activeModule && !modules[activeModule]) || (activePage === 'feature-management' && adminUser.role !== 'super_admin'))
         return <AdminLayout><p role="alert">This admin module is unavailable.</p><ToastAndDialog /></AdminLayout>;
-    const required=requirementsForPage(activePage).filter(key=>key==='dashboard'||modules[key]);
     const failed=required.find(key=>errors[key]);
     if(failed)return <AdminLayout><div role="alert">{errors[failed]}<button onClick={()=>void reload()} className="ml-4 underline">Try again</button></div><ToastAndDialog/></AdminLayout>;
     if(required.some(key=>!loadedModules[key]||moduleLoading[key]&&!loadedModules[key]))return <AdminLayout><AdminContentSkeleton/></AdminLayout>;
@@ -51,55 +85,12 @@ const AdminRouter: React.FC = () => {
     if (!adminUser) {
         return <LoginPage />;
     }
-    // Active page router
-    const renderCurrentPage = () => {
-        switch (activePage) {
-            case 'feature-management':
-                return <FeatureManagementPage />;
-            case 'dashboard':
-                return <DashboardPage />;
-            case 'products':
-                return <ProductsListPage />;
-            case 'product-new':
-            case 'product-edit':
-                return <ProductFormPage key={activePage+String(activePageParams?.id||'')} />;
-            case 'best-sellers':
-                return <BestSellersPage />;
-            case 'categories':
-                return <CategoriesPage />;
-            case 'attributes':
-                return <GlobalAttributesPage />;
-            case 'orders':
-                return <OrdersPage />;
-            case 'customers':
-                return <CustomersPage />;
-            case 'reviews':
-                return <ReviewsPage />;
-            case 'audio-reviews':
-                return <AudioReviewsPage />;
-            case 'contact-messages':
-                return <ContactMessagesPage />;
-            case 'bundles':
-                return <BundlesListPage />;
-            case 'bundle-new':
-            case 'bundle-edit':
-                return <BundleFormPage key={activePage+String(activePageParams?.id||'')} />;
-            case 'coupons':
-                return <CouponsPage />;
-            case 'reports':
-                return <ReportsPage />;
-            case 'settings':
-                return <StoreSettingsPage />;
-            case 'routine-discounts':
-                return <RoutineDiscountsPage />;
-            case 'store-appearance':
-                return <StoreAppearancePage />;
-            default:
-                return <DashboardPage />;
-        }
-    };
+    const pages = cacheCurrentPage
+        ? { ...visitedPages, [currentPageKey]: visitedPages[currentPageKey] || currentPage }
+        : { ...visitedPages, [currentPageKey]: currentPage };
     return (<AdminLayout>
-      {renderCurrentPage()}<ToastAndDialog />
+      {Object.entries(pages).map(([key, page]) => <div key={key} hidden={key !== currentPageKey} aria-hidden={key !== currentPageKey}>{page}</div>)}
+      <ToastAndDialog />
     </AdminLayout>);
 };
 /**

@@ -156,7 +156,7 @@ export const AdminLayout: React.FC<{
         </header>
 
         {/* Page Content Scroll Area */}
-        <main key={activePage} className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
           {children}
         </main>
       </div>
