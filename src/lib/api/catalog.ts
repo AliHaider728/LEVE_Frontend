@@ -70,8 +70,8 @@ export function normalizeBundles(payload: unknown, products: Product[]): Bundle[
     if (!entries.length || productSlugs.length !== entries.reduce((sum, entry) => sum + Math.max(1, Math.min(100, Math.floor(number(entry.bundle_quantity, 1)))), 0)) return [];
     const isCompleteRitual = productSlugs.length === 3 && localProducts.every(product => productSlugs.includes(product.slug));
     return [{ id: text(row.id), slug: text(row.slug, localBundles[index]?.slug ?? "bundle-" + index), name: text(row.name, "LEVA Bundle"),
-      description: isCompleteRitual ? localBundles[0].description : text(row.description),
-      image: isCompleteRitual ? localBundles[0].image : image(row.image ?? row.customImage, ""), productSlugs,
+      description: text(row.description) || (isCompleteRitual ? localBundles[0].description : ''),
+      image: image(row.image ?? row.customImage, (isCompleteRitual ? localBundles[0].image : '') ?? ''), productSlugs,
       price: number(row.currentPrice), originalPrice: number(row.originalTotalPrice), savePercent: number(row.originalTotalPrice) > 0 ? Math.round((1 - number(row.currentPrice) / number(row.originalTotalPrice)) * 100) : 0 }];
   });
   if (rows.length && !bundles.length) throw new ApiError("Bundle data was unavailable.", 0, "invalid-response");

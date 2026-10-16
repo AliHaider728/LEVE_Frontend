@@ -322,6 +322,7 @@ export interface Bundle {
   discountType?: 'percentage' | 'fixed' | 'custom';
   discountValue?: number;
   customPrice?: number;
+  bundlePrice?: number;
   isActive: boolean;
   isBestseller?: boolean;
   displayOrder: number;

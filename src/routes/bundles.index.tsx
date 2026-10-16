@@ -128,8 +128,8 @@ function BuildTile() {
 }
 
 function BundlesPage() {
-  const { bundles } = useStoreData();
-  const displayBundles = bundles && bundles.length > 0 ? bundles : localBundles;
+  const { bundles, ready, notice } = useStoreData();
+  const displayBundles = bundles && bundles.length > 0 ? bundles : (notice || !ready ? localBundles : []);
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });

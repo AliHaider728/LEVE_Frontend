@@ -5,8 +5,10 @@ import { useAdminUI } from '../context/AdminUIContext';
 import { formatPrice } from '../utils/formatters';
 import { getSafeImageSrc } from '../utils/images';
 export const BundlesListPage: React.FC = () => {
-    const { bundles, deleteBundle, setActivePage, confirm } = useAdminUI();
+    const { bundles, deleteBundle, setActivePage, confirm, moduleLoading, errors, reload } = useAdminUI();
     const [search, setSearch] = useState('');
+    const isLoading = Boolean(moduleLoading?.['bundles'] && bundles.length === 0);
+    const bundleError = errors?.['bundles'];
     const filtered = bundles.filter(b => b.name.toLowerCase().includes(search.toLowerCase()) ||
         (b.description || '').toLowerCase().includes(search.toLowerCase()));
     const handleDelete = async (id: string, name: string) => {
@@ -101,11 +103,34 @@ export const BundlesListPage: React.FC = () => {
             </div>);
         })}
 
-        {filtered.length === 0 && (<div className="col-span-full rounded-2xl border border-dashed border-[#ecdfe4] bg-white px-6 py-12 text-center">
+        {isLoading && (
+          <div className="col-span-full rounded-2xl border border-[#ecdfe4] bg-white px-6 py-12 text-center">
+            <div className="mx-auto size-6 animate-spin rounded-full border-2 border-[#673742] border-t-transparent" />
+            <p className="mt-3 text-xs font-bold text-[#382b31]/70">Loading saved bundles...</p>
+          </div>
+        )}
+
+        {!isLoading && bundleError && (
+          <div className="col-span-full rounded-2xl border border-red-200 bg-red-50 px-6 py-8 text-center">
+            <p className="text-sm font-bold text-red-800">Unable to load bundles</p>
+            <p className="mt-1 text-xs text-red-600">{bundleError}</p>
+            <button
+              type="button"
+              onClick={() => reload()}
+              className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {!isLoading && !bundleError && filtered.length === 0 && (
+          <div className="col-span-full rounded-2xl border border-dashed border-[#ecdfe4] bg-white px-6 py-12 text-center">
             <p className="text-sm font-semibold text-[#382b31]">{search ? 'No bundles match this search.' : 'No bundles are saved to the connected store yet.'}</p>
             <p className="mx-auto mt-2 max-w-lg text-xs leading-5 text-[#382b31]/55">Storefront preview bundles are local examples. Save a bundle here to publish it and enable live checkout.</p>
             {!search && <button type="button" onClick={() => setActivePage('bundle-new')} className="mt-5 rounded-xl bg-[#673742] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#542c35]">Create your first bundle</button>}
-          </div>)}
+          </div>
+        )}
       </div>
     </div>);
 };

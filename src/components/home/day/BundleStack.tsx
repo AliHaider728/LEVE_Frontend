@@ -120,10 +120,11 @@ function Card({
 }
 
 export function BundleStack() {
-  const { bundles } = useStoreData();
-  const displayBundles = bundles && bundles.length > 0 ? bundles : localBundles;
+  const { bundles, ready, notice } = useStoreData();
+  const displayBundles = bundles && bundles.length > 0 ? bundles : (notice || !ready ? localBundles : []);
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  if (displayBundles.length === 0) return null;
   return (
     <section aria-label="Bundles" className="bg-secondary px-5 pt-16 md:px-[8vw] md:pt-24">
       <p className="eyebrow">Bundles</p>

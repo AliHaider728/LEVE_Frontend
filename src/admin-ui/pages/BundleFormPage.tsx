@@ -103,6 +103,7 @@ export const BundleFormPage: React.FC = () => {
                 galleryImages,
                 originalTotalPrice: originalTotal,
                 currentPrice: finalPrice,
+                bundlePrice: finalPrice,
                 discountPercent: discountType === 'percentage' ? discountValue : Math.round(((originalTotal - finalPrice) / originalTotal) * 100),
                 discountType,
                 discountValue,

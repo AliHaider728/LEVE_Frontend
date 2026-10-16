@@ -235,8 +235,8 @@ export const AdminUIProvider: React.FC<{
     const updateOrderStatus = async (id: string, status: Order['status']) => { await mutate('orders/' + encodeURIComponent(id) + '/status', 'PUT', { status }); return true; };
     const updateOrderTracking = async (id: string, trackingNumber: string) => { await mutate('orders/' + encodeURIComponent(id) + '/tracking', 'PUT', { trackingNumber }); return true; };
     const deleteOrder = async (id: string) => { await mutate('orders/' + encodeURIComponent(id), 'DELETE'); return true; };
-    const bundlePayload = (p: Partial<Bundle>, id?: string) => { const v = { ...bundles.find(b => b.id === id), ...p }; return { ...v, products: v.products?.map(i => ({ product_id: i.product.id, quantity: i.quantity })) || [] }; };
-    const addBundle = async (p: Partial<Bundle>) => {const created:any=await mutate('bundles','POST',bundlePayload(p));const row=bundleRecords.current.find(b=>b.id===created.bundleId);if(!row)throw new Error('Created bundle could not be loaded.');return bundleFromAPI(row);};
+    const bundlePayload = (p: Partial<Bundle>, id?: string) => { const v = { ...bundles.find(b => b.id === id), ...p }; return { ...v, products: v.products?.map((i: any) => ({ product_id: i.product_id || i.product?.id || i.id, quantity: i.quantity || 1 })) || [] }; };
+    const addBundle = async (p: Partial<Bundle>) => {const created:any=await mutate('bundles','POST',bundlePayload(p));const row=bundleRecords.current.find(b=>b.id===created.bundleId || (p.slug && b.slug===p.slug));if(!row)throw new Error('Created bundle could not be loaded.');return row;};
     const updateBundle = async (id: string, p: Partial<Bundle>) => { await mutate('bundles/' + id, 'PUT', bundlePayload(p, id)); return true; };
     const deleteBundle = async (id: string) => { await mutate('bundles/' + id, 'DELETE'); return true; };
     const couponPayload = (p: Partial<Coupon>, id?: string) => { const v = { ...coupons.find(c => c.id === id), ...p }; return { ...v, discountValue: v.amount, minPurchase: v.minSpend, expiryDate: v.expiryDate || null }; };
