@@ -33,8 +33,8 @@ function Index() {
     <main>
       <Hero />
       <Manifesto />
-      <FeaturedRise />
       <RitualSteps />
+      <FeaturedRise />
       <Ingredients />
       <BundleStack />
       <WhyLeva />
