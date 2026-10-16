@@ -45,6 +45,8 @@ function Card({
     .map((s) => products.find((p) => p.slug === s))
     .filter((p): p is (typeof products)[number] => !!p);
   const original = getBundleOriginalPrice(bundle, products);
+  const isDuo = bundle.slug === "the-essentials" || bundle.name.toLowerCase().includes("duo") || included.length === 2;
+  const showStaticImage = Boolean(bundle.image && !isDuo);
   return (
     <div
       className="mb-6 flex items-start justify-center md:sticky md:top-[calc(var(--header-h)+2rem)] md:mb-0 md:h-[66svh] md:last:h-auto md:last:pb-16"
@@ -54,8 +56,8 @@ function Card({
         style={{ scale, opacity: dim }}
         className="grid w-full max-w-5xl origin-top gap-6 overflow-hidden rounded-3xl bg-background p-5 shadow-[0_20px_60px_-30px_var(--color-primary)] md:grid-cols-2 md:p-8"
       >
-        <div className="relative aspect-[5/4] overflow-hidden rounded-2xl bg-secondary">
-          {bundle.image ? (
+        <div className="relative aspect-[5/4] overflow-hidden rounded-2xl bg-gradient-to-b from-[#FFF4F6]/50 to-secondary">
+          {showStaticImage ? (
             <img
               src={bundle.image}
               alt={bundle.name + " with its included LEVA products"}
@@ -69,13 +71,37 @@ function Card({
                 src={p.image}
                 alt={`${p.name} in ${bundle.name}`}
                 loading="lazy"
-                initial={reduced ? false : { ...dirs[i % 3], opacity: 0 }}
-                whileInView={{ x: 0, y: 0, opacity: 1 }}
+                initial={
+                  reduced
+                    ? false
+                    : included.length === 2
+                    ? i === 0
+                      ? { x: -90, y: 30, rotate: -6, opacity: 0 }
+                      : { x: 90, y: 30, rotate: 6, opacity: 0 }
+                    : { ...dirs[i % 3], opacity: 0 }
+                }
+                whileInView={{
+                  x: 0,
+                  y: 0,
+                  rotate: included.length === 2 ? (i === 0 ? -2 : 2) : 0,
+                  opacity: 1,
+                }}
                 viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.8, delay: i * 0.12 }}
-                className="absolute bottom-0 h-[78%] w-[44%] rounded-t-xl object-cover"
+                transition={{
+                  duration: 0.85,
+                  delay: i * 0.15,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className={`absolute bottom-0 rounded-t-2xl object-cover shadow-[0_12px_30px_rgba(0,0,0,0.12)] ${
+                  included.length === 2 ? "h-[84%] w-[44%]" : "h-[78%] w-[44%]"
+                }`}
                 style={{
-                  left: `${6 + i * (included.length === 3 ? 25 : 44)}%`,
+                  left:
+                    included.length === 2
+                      ? i === 0
+                        ? "12%"
+                        : "46%"
+                      : `${6 + i * (included.length === 3 ? 25 : 44)}%`,
                   zIndex: i === 1 ? 2 : 1,
                 }}
               />

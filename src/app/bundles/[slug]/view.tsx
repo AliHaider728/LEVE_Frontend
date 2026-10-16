@@ -29,8 +29,28 @@ export default function View() {
     <div className="mx-auto max-w-7xl px-5 md:px-[5vw]">
       <Link href="/bundles" className="inline-flex min-h-11 items-center gap-2 text-sm text-primary hover:underline"><ArrowLeft className="size-4"/>All bundles</Link>
       <div className="mt-4 grid gap-8 lg:grid-cols-[1.06fr_.94fr] lg:gap-14">
-        <div className="overflow-hidden rounded-2xl bg-[#FFF4F6]">
-          {bundle.image ? <img src={bundle.image} alt={`${bundle.name} with LEVA products`} className="aspect-square w-full object-cover"/> : <div className="grid aspect-square grid-cols-3 items-center gap-1 p-5">{included.map(product => <img key={product.slug} src={product.image} alt={product.name} className="h-4/5 w-full rounded-xl object-cover"/>)}</div>}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#FFF4F6] to-[#FCEEF1] aspect-square flex items-end justify-center">
+          {bundle.image && bundle.slug !== 'the-essentials' && !bundle.name.toLowerCase().includes('duo') ? (
+            <img src={bundle.image} alt={`${bundle.name} with LEVA products`} className="aspect-square w-full object-cover"/>
+          ) : (
+            <div className="relative h-full w-full overflow-hidden">
+              {included.map((product, i) => (
+                <img
+                  key={product.slug}
+                  src={product.image}
+                  alt={product.name}
+                  className="absolute bottom-0 rounded-t-2xl object-cover shadow-[0_16px_36px_rgba(0,0,0,0.15)] transition-transform duration-500 hover:scale-105"
+                  style={{
+                    left: included.length === 2 ? (i === 0 ? "12%" : "46%") : `${(included.length === 3 ? 4 : 6) + i * (included.length === 3 ? 25 : 42)}%`,
+                    width: included.length === 2 ? "44%" : "44%",
+                    height: included.length === 2 ? (i === 0 ? "84%" : "88%") : "80%",
+                    zIndex: i === 1 ? 2 : 1,
+                    transform: included.length === 2 ? (i === 0 ? "rotate(-2deg)" : "rotate(2deg)") : "none"
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex flex-col justify-center">
           <p className="eyebrow">LEVA / Curated ritual</p>

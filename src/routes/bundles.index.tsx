@@ -44,10 +44,12 @@ function BundleTile({ bundle }: { bundle: Bundle }) {
     .map((s) => products.find((p) => p.slug === s))
     .filter((p): p is (typeof products)[number] => !!p);
   const original = getBundleOriginalPrice(bundle, products);
+  const isDuo = bundle.slug === "the-essentials" || bundle.name.toLowerCase().includes("duo") || included.length === 2;
+  const showStaticImage = Boolean(bundle.image && !isDuo);
   return (
     <article className="flex w-[84vw] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border border-primary/10 bg-white md:w-[440px]">
-      <div className="relative aspect-[5/4] overflow-hidden bg-secondary">
-        {bundle.image ? (
+      <div className="relative aspect-[5/4] overflow-hidden bg-gradient-to-b from-[#FFF4F6]/50 to-secondary">
+        {showStaticImage ? (
           <img
             src={bundle.image}
             alt={bundle.name + " with its included LEVA products"}
@@ -61,13 +63,37 @@ function BundleTile({ bundle }: { bundle: Bundle }) {
               src={p.image}
               alt={p.name}
               loading="lazy"
-              initial={reduced ? false : { ...fly[i % 3], opacity: 0 }}
-              whileInView={{ x: 0, y: 0, rotate: 0, opacity: 1 }}
+              initial={
+                reduced
+                  ? false
+                  : included.length === 2
+                  ? i === 0
+                    ? { x: -90, y: 30, rotate: -6, opacity: 0 }
+                    : { x: 90, y: 30, rotate: 6, opacity: 0 }
+                  : { ...fly[i % 3], opacity: 0 }
+              }
+              whileInView={{
+                x: 0,
+                y: 0,
+                rotate: included.length === 2 ? (i === 0 ? -2 : 2) : 0,
+                opacity: 1,
+              }}
               viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.8, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute bottom-0 h-[80%] w-[46%] rounded-t-xl object-cover shadow-md"
+              transition={{
+                duration: 0.85,
+                delay: i * 0.15,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className={`absolute bottom-0 rounded-t-2xl object-cover shadow-[0_12px_30px_rgba(0,0,0,0.12)] ${
+                included.length === 2 ? "h-[84%] w-[44%]" : "h-[80%] w-[46%]"
+              }`}
               style={{
-                left: `${(included.length === 3 ? 4 : 6) + i * (included.length === 3 ? 25 : 42)}%`,
+                left:
+                  included.length === 2
+                    ? i === 0
+                      ? "12%"
+                      : "46%"
+                    : `${(included.length === 3 ? 4 : 6) + i * (included.length === 3 ? 25 : 42)}%`,
                 zIndex: i === 1 ? 2 : 1,
               }}
             />
