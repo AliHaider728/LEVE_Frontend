@@ -16,8 +16,8 @@ export function buildCheckoutPayload(details: CheckoutDetails, cart: { items: Re
     for (const [slug, quantity] of Object.entries(selection)) {
       if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10000) throw new ApiError("Please check the quantities in your cart.", 0, "invalid-response");
       const entry = kind === "bundle" ? catalog.bundles.find(b => b.slug === slug) : catalog.products.find(p => p.slug === slug);
-      if (!entry?.id) throw new ApiError("We couldn't confirm availability for your selection. Please refresh or order on WhatsApp.", 0, "network");
-      if ("requiresVariation" in entry && entry.requiresVariation) throw new ApiError("This product needs an option. Please contact us on WhatsApp to choose it.", 0, "invalid-response");
+      if (!entry?.id) throw new ApiError("We couldn't confirm availability for your selection. Please refresh the page and try again.", 0, "network");
+      if ("requiresVariation" in entry && entry.requiresVariation) throw new ApiError("Please choose a product option before placing your order.", 0, "invalid-response");
       items.push({ productId: entry.id, quantity, ...(kind === "bundle" ? { productType: "bundle" as const } : {}), ...(kind === "routine" ? { isRoutine: true as const } : {}), ...("variationId" in entry && entry.variationId ? { variationId: entry.variationId } : {}) });
     }
   };

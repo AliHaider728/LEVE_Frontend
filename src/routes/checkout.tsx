@@ -180,8 +180,8 @@ function Checkout() {
           province: d.province,
         }),
       );
-      if (!API_URL) throw new Error("Online checkout is not configured yet. Please order on WhatsApp.");
-      if (d.payment !== "cod") throw new Error("Online checkout currently supports Cash on Delivery. Please choose COD or order on WhatsApp.");
+      if (!API_URL) throw new Error("Online checkout is not configured yet. Please try again shortly.");
+      if (d.payment !== "cod") throw new Error("Online checkout currently supports Cash on Delivery. Please choose COD.");
       const fingerprint = JSON.stringify({ details: d, items: cart.items, bundles: cart.bundles, custom: cart.custom, coupon: cart.coupon });
       if (request.current?.fingerprint !== fingerprint) request.current = { fingerprint, id: crypto.randomUUID() };
       const payload = buildCheckoutPayload(d, cart, { products, bundles }, request.current.id);
@@ -191,7 +191,7 @@ function Checkout() {
       cart.clear();
       await navigate({ to: "/order-confirmation/$orderNumber", params: { orderNumber } });
     } catch (error) {
-      setFailed(error instanceof Error ? error.message : "We couldn’t place your order. Please try again or order on WhatsApp.");
+      setFailed(error instanceof Error ? error.message : "We couldn’t place your order. Please try again.");
       setLoading(false);
       submitting.current = false;
     }
