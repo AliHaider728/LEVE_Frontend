@@ -1,5 +1,11 @@
-import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { useRef, useState } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useReducedMotion,
+} from "motion/react";
 import { useStoreData } from "@/store/catalog";
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
@@ -65,16 +71,16 @@ function Stage({ i }: { i: number }) {
   return (
     <div className="grid items-center gap-8 md:grid-cols-12 md:gap-10 lg:gap-14">
       <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-3xl bg-secondary shadow-md md:col-span-5 md:max-w-none">
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false}>
           <motion.img
             key={p.slug}
             src={p.image}
             alt={p.name}
             loading="lazy"
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ clipPath: "circle(0% at 50% 50%)" }}
+            animate={{ clipPath: "circle(75% at 50% 50%)" }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-0 h-full w-full object-cover"
           />
         </AnimatePresence>
@@ -91,10 +97,10 @@ function Stage({ i }: { i: number }) {
         <AnimatePresence mode="wait">
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, y: -25 }}
+            transition={{ duration: 0.4 }}
             className="flex flex-col justify-center"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -195,68 +201,48 @@ function Stage({ i }: { i: number }) {
 }
 
 export function RitualSteps() {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
   const [i, setI] = useState(0);
-
-  const tabs = [
-    { step: "01", label: "Cleanse & Prep" },
-    { step: "02", label: "Brighten & Hydrate" },
-    { step: "03", label: "Shield & Protect" },
-  ];
-
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  useMotionValueEvent(scrollYProgress, "change", (v) => setI(Math.min(2, Math.floor(v * 3))));
   return (
-    <section aria-label="The 3-step ritual" className="bg-background py-16 md:py-24 px-5 md:px-[8vw]">
-      {/* Header and Step Switcher */}
-      <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-primary/10 pb-6">
-        <div>
-          <p className="eyebrow">The 3-step ritual</p>
-          <h2 className="mt-2 text-3xl font-light text-foreground md:text-4xl">
-            Three honest steps. One ritual.
-          </h2>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {tabs.map((tab, idx) => {
-            const active = i === idx;
-            return (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setI(idx)}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-all cursor-pointer ${
-                  active
-                    ? "bg-primary text-white shadow-sm ring-1 ring-primary"
-                    : "border border-primary/15 bg-primary/[0.02] text-foreground/75 hover:bg-primary/[0.06] hover:text-foreground"
-                }`}
-              >
-                <span className={`grid size-5 place-items-center rounded-full text-[10px] font-bold ${
-                  active ? "bg-accent text-accent-foreground" : "bg-primary/10 text-primary"
-                }`}>
-                  {tab.step}
+    <section aria-label="The 3-step ritual" className="bg-background">
+      {/* Desktop pinned */}
+      <div ref={ref} className={`relative hidden md:block ${reduced ? "" : "h-[300vh]"}`}>
+        <div
+          className={`${reduced ? "py-24" : "sticky top-[var(--header-h)] h-[calc(100svh-var(--header-h))]"} flex flex-col justify-center px-[8vw]`}
+        >
+          <p className="eyebrow mb-8">The 3-step ritual</p>
+          {reduced ? (
+            <div className="grid gap-24">
+              {[0, 1, 2].map((n) => (
+                <Stage key={n} i={n} />
+              ))}
+            </div>
+          ) : (
+            <Stage i={i} />
+          )}
+          {!reduced && (
+            <div className="mt-8 flex items-center gap-3" aria-hidden>
+              {[0, 1, 2].map((n) => (
+                <span key={n} className="h-0.5 w-16 overflow-hidden bg-primary/15">
+                  <motion.span
+                    className="block h-full bg-accent"
+                    animate={{ scaleX: n <= i ? 1 : 0 }}
+                    style={{ originX: 0 }}
+                  />
                 </span>
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+              ))}
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Main Interactive Stage */}
-      <Stage i={i} />
-
-      {/* Visual Progress Line */}
-      <div className="mt-10 flex items-center justify-center gap-3">
+      {/* Mobile stacked */}
+      <div className="grid gap-20 px-5 py-20 md:hidden">
+        <p className="eyebrow">The 3-step ritual</p>
         {[0, 1, 2].map((n) => (
-          <button
-            key={n}
-            type="button"
-            onClick={() => setI(n)}
-            aria-label={`Switch to step ${n + 1}`}
-            className="group py-2 cursor-pointer"
-          >
-            <span className={`block h-1.5 rounded-full transition-all duration-300 ${
-              n === i ? "w-16 bg-accent" : "w-10 bg-primary/15 group-hover:bg-primary/30"
-            }`} />
-          </button>
+          <Stage key={n} i={n} />
         ))}
       </div>
     </section>

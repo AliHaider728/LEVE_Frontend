@@ -56,10 +56,18 @@ export function CartDrawer() {
   const waMessage = `Hi LEVA, I want to order:\n${[...lines.map((p) => `${p.name} x ${items[p.slug]}`), ...bundleLines.map((b) => `${b.name} x ${bundleItems[b.slug]}`), ...(totals.customCount ? [`Custom bundle (${totals.customCount} items)`] : [])].join("\n")}\nTotal: ${formatPKR(totals.total)}`;
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent className="flex w-full flex-col gap-0 border-l-primary/20 bg-background p-0 sm:max-w-md">
-        <SheetHeader className="border-b border-primary/20 p-5 text-left">
-          <SheetTitle className="text-2xl font-light">Your cart</SheetTitle>
+    <>
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity"
+          aria-hidden="true"
+        />
+      )}
+      <Sheet open={open} onOpenChange={setOpen} modal={false}>
+        <SheetContent className="flex w-full flex-col gap-0 border-l-primary/20 bg-background p-0 sm:max-w-md z-50">
+          <SheetHeader className="border-b border-primary/20 p-5 text-left">
+            <SheetTitle className="text-2xl font-light">Your cart</SheetTitle>
           <SheetDescription>Cash on Delivery available nationwide.</SheetDescription>
         </SheetHeader>
         {!empty && (
@@ -237,6 +245,7 @@ export function CartDrawer() {
         )}
       </SheetContent>
     </Sheet>
+    </>
   );
 }
 

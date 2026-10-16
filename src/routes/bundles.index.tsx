@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { createFileRoute, Link } from "@/lib/router-compat";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { ArrowRight, BadgeCheck, Layers3, ShoppingBag, Truck } from "lucide-react";
-import { getBundleOriginalPrice, type Bundle } from "@/data/bundles";
+import { getBundleOriginalPrice, bundles as localBundles, type Bundle } from "@/data/bundles";
 
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
@@ -129,6 +129,7 @@ function BuildTile() {
 
 function BundlesPage() {
   const { bundles } = useStoreData();
+  const displayBundles = bundles && bundles.length > 0 ? bundles : localBundles;
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
@@ -140,7 +141,7 @@ function BundlesPage() {
   ] as const;
   const tiles = (
     <>
-      {bundles.map((b) => (
+      {displayBundles.map((b) => (
         <BundleTile key={b.slug} bundle={b} />
       ))}
       <BuildTile />

@@ -3,7 +3,7 @@ import { useStoreData } from "@/store/catalog";
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from "motion/react";
 import { ShoppingBag } from "lucide-react";
-import { getBundleOriginalPrice, type Bundle } from "@/data/bundles";
+import { getBundleOriginalPrice, bundles as localBundles, type Bundle } from "@/data/bundles";
 
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
@@ -121,6 +121,7 @@ function Card({
 
 export function BundleStack() {
   const { bundles } = useStoreData();
+  const displayBundles = bundles && bundles.length > 0 ? bundles : localBundles;
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   return (
@@ -130,12 +131,12 @@ export function BundleStack() {
         Better together.
       </h2>
       <div ref={ref} className="mt-10 pb-8">
-        {bundles.map((b, i) => (
+        {displayBundles.map((b, i) => (
           <Card
             key={b.slug}
             bundle={b}
             index={i}
-            total={bundles.length}
+            total={displayBundles.length}
             progress={scrollYProgress}
           />
         ))}
