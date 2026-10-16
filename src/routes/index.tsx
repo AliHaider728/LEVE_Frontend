@@ -1,7 +1,6 @@
 "use client";
 import { createFileRoute } from "@/lib/router-compat";
 import { Hero } from "@/components/home/Hero";
-import { ProductStage } from "@/components/home/ProductStage";
 import { Manifesto } from "@/components/home/day/Manifesto";
 import { RitualSteps } from "@/components/home/day/RitualSteps";
 import { Ingredients } from "@/components/home/day/Ingredients";
@@ -35,7 +34,6 @@ function Index() {
       <Hero />
       <Manifesto />
       <FeaturedRise />
-      <ProductStage />
       <RitualSteps />
       <Ingredients />
       <BundleStack />
