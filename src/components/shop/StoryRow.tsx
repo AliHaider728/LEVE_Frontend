@@ -85,7 +85,7 @@ function Media({
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], reduced ? ["0%", "0%"] : ["-6%", "6%"]);
-  const inView = useInView(ref, { once: true, amount: 0.2 });
+  const inView = useInView(ref, { once: true, amount: 0.1, margin: "0px 0px -40px 0px" });
   const clip = shape === "arch" ? "rounded-t-[999px] rounded-b-2xl" : "rounded-2xl";
   const hidden =
     shape === "curtain"
@@ -124,8 +124,8 @@ function Media({
           />}
         </Link>
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-          <Badge variant={product.badge === "Limited Stock" ? "stock" : "default"}>
-            {product.badge === "Limited Stock" ? `Only ${product.stock} left` : product.badge}
+          <Badge variant={product.badge === "Limited Stock" && product.stock > 0 && product.stock <= 10 ? "stock" : "default"}>
+            {product.badge === "Limited Stock" && product.stock > 0 && product.stock <= 10 ? `Only ${product.stock} left` : product.badge}
           </Badge>
           <Badge variant="saving">Save {discount}%</Badge>
         </div>
@@ -150,7 +150,7 @@ function Details({
     <motion.div
       initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-15% 0px" }}
+      viewport={{ once: true, amount: 0.1, margin: "0px 0px -40px 0px" }}
       transition={{ duration: 0.8, delay: 0.15 }}
       className="relative min-w-0"
     >

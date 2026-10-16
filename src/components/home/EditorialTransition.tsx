@@ -8,7 +8,7 @@ export function EditorialTransition() {
         className="absolute inset-0"
         initial={{ clipPath: "inset(12% 20%)" }}
         whileInView={{ clipPath: "inset(0% 0%)" }}
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1] }}
       >
         <img

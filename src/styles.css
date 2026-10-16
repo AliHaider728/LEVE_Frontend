@@ -168,7 +168,7 @@
 @media (max-width: 767px) {
   main { min-width: 0; }
   .product-card button { white-space: normal; }
-  .product-card > div:first-child { min-height: 190px; }
+  .product-card > div:first-child { min-height: 150px; }
   input, select, textarea { min-width: 0; max-width: 100%; }
 }
 
@@ -178,5 +178,18 @@ html { scroll-padding-top: var(--header-h); }
 .shop-filter-bar { background: #fff; isolation: isolate; }
 .shop-page [id], .shop-page article { scroll-margin-top: calc(var(--header-h) + 1rem); }
 
-.product-card .product-card-purchase { transition: opacity .22s ease, transform .22s ease; }
-@media (hover:hover) and (pointer:fine) { .product-card .product-card-purchase { opacity:0; transform:translateY(6px); pointer-events:none; } .product-card:hover .product-card-purchase,.product-card:focus-within .product-card-purchase { opacity:1; transform:none; pointer-events:auto; } }
+.product-card .product-card-purchase {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+}
+@media (hover:hover) and (pointer:fine) {
+  .product-card:hover .product-card-purchase,
+  .product-card:focus-within .product-card-purchase {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+

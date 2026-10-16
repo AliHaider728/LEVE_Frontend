@@ -15,7 +15,7 @@ export function BrandStatement() {
             className="mr-[.25em] inline-block"
             initial={{ opacity: 0.15, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-15%" }}
+            viewport={{ once: true, margin: "0px 0px -40px 0px" }}
             transition={{ delay: index * 0.025 }}
           >
             {word}

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@/lib/router-compat";
 import type { Product } from "@/data/products";
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
-import { WishlistButton } from '@/components/wishlist/WishlistButton';
+import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -14,7 +14,13 @@ export function ProductCard({ product, featured = false }: { product: Product; f
   const buyNow = useCart((state) => state.buyNow);
   const navigate = useNavigate();
   const soldOut = product.badge === "Sold Out" || product.stock === 0;
-  const discount = product.compareAtPrice > product.price ? Math.round((1 - product.price / product.compareAtPrice) * 100) : 0;
+  const isLimited = product.badge === "Limited Stock" && product.stock > 0 && product.stock <= 10;
+  const badgeLabel = isLimited ? `Only ${product.stock} left` : product.badge;
+  const discount =
+    product.compareAtPrice > product.price
+      ? Math.round((1 - product.price / product.compareAtPrice) * 100)
+      : 0;
+
   return (
     <article className="product-card group flex h-full min-w-0 flex-col">
       <div className="relative aspect-[4/5] overflow-hidden rounded-md bg-secondary">
@@ -30,75 +36,191 @@ export function ProductCard({ product, featured = false }: { product: Product; f
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          {product.hoverImage !== product.image && <img
-            src={product.hoverImage}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          />}
+          {product.hoverImage !== product.image && (
+            <img
+              src={product.hoverImage}
+              alt=""
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            />
+          )}
           <span className="absolute inset-0 bg-gradient-to-t from-primary/35 via-transparent to-transparent" />
         </Link>
-        <Badge
-          variant={soldOut ? "sold" : product.badge === "Limited Stock" ? "stock" : "default"}
-          className="absolute left-2 top-2 z-20 max-w-[calc(100%-3.5rem)] text-[10px] sm:left-3 sm:top-3 sm:text-xs"
-        >
-          {product.badge === "Limited Stock" ? `Only ${product.stock} left` : product.badge}
-        </Badge>
-        <WishlistButton slug={product.slug} name={product.name} className="absolute right-1 top-1 z-20 size-9 sm:right-3 sm:top-3"/>
-        <div className="product-card-purchase absolute inset-x-2 bottom-2 z-20">
+
+        {/* Top-left Badges overlay (status badge + discount badge cleanly stacked) */}
+        <div className="absolute left-2 top-2 z-20 flex max-w-[calc(100%-3.5rem)] flex-col items-start gap-1 sm:left-3 sm:top-3">
+          {product.badge && (
+            <Badge
+              variant={soldOut ? "sold" : isLimited ? "stock" : "default"}
+              className="text-[10px] sm:text-xs"
+            >
+              {badgeLabel}
+            </Badge>
+          )}
+          {discount > 0 && (
+            <Badge variant="saving" className="text-[10px] sm:text-xs">
+              -{discount}%
+            </Badge>
+          )}
+        </div>
+
+        {/* Wishlist Button on top-right */}
+        <WishlistButton
+          slug={product.slug}
+          name={product.name}
+          className="absolute right-1 top-1 z-20 size-8 sm:right-3 sm:top-3 sm:size-9"
+        />
+
+        {/* Desktop-only hover overlay action */}
+        <div className="product-card-purchase absolute inset-x-2 bottom-2 z-20 hidden md:block">
           {quantity > 0 ? (
-            <div className="flex min-h-11 items-center justify-between gap-1 bg-background px-1">
+            <div className="flex min-h-11 items-center justify-between gap-1 bg-background px-1 shadow-sm">
               <Button
                 variant="ghost"
                 size="icon"
                 magnetic={false}
                 aria-label={`Remove one ${product.name}`}
-                onClick={() => decrement(product.slug)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  decrement(product.slug);
+                }}
               >
                 <Minus />
               </Button>
-              <span className="text-xs font-medium">{quantity}</span>
+              <span className="text-xs font-medium">{quantity} in cart</span>
               <Button
                 variant="ghost"
                 size="icon"
                 magnetic={false}
                 aria-label={`Add one ${product.name}`}
-                onClick={() => add(product.slug)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  add(product.slug);
+                }}
               >
                 <Plus />
               </Button>
             </div>
           ) : (
-            <Button magnetic={false} className="min-h-11 w-full px-2 text-xs sm:text-sm" disabled={soldOut} onClick={() => add(product.slug)}>
+            <Button
+              magnetic={false}
+              className="min-h-11 w-full px-2 text-xs sm:text-sm"
+              disabled={soldOut}
+              onClick={(e) => {
+                e.preventDefault();
+                add(product.slug);
+              }}
+            >
               <ShoppingBag />
               {soldOut ? "Sold out" : "Add to cart"}
             </Button>
           )}
         </div>
       </div>
+
+      {/* Product Details */}
       <Link
         to="/shop/$slug"
         params={{ slug: product.slug }}
-        className={`${featured ? "mt-3 flex-1" : "mt-5 flex-1"} block focus-visible:outline-2 focus-visible:outline-offset-4`}
+        className={`${featured ? "mt-3 flex-1" : "mt-4 flex-1"} block focus-visible:outline-2 focus-visible:outline-offset-4`}
       >
-        <h3 className="text-lg font-light leading-snug sm:text-xl">{product.name}</h3>
-        <p className={`${featured ? "mt-1" : "mt-2"} text-sm leading-6 text-muted-foreground`}>{product.benefit}</p>
-        <div className={`${featured ? "mt-2" : "mt-3"} flex flex-wrap items-center gap-1 text-sm`}>
-          {product.rating > 0 && product.reviewCount > 0 ? <>
-            <Star className="size-4 fill-accent text-accent" />
-            <span>{product.rating}</span>
-            <span className="text-muted-foreground">({product.reviewCount})</span>
-          </> : <span className="text-muted-foreground">No reviews yet</span>}
+        <h3 className="line-clamp-1 text-base font-light leading-snug sm:text-lg md:text-xl">
+          {product.name}
+        </h3>
+        <p
+          className={`${featured ? "mt-0.5" : "mt-1"} line-clamp-1 text-xs leading-relaxed text-muted-foreground sm:text-sm`}
+        >
+          {product.benefit}
+        </p>
+        <div className={`${featured ? "mt-1.5" : "mt-2"} flex flex-wrap items-center gap-1 text-xs`}>
+          {product.rating > 0 && product.reviewCount > 0 ? (
+            <>
+              <Star className="size-3.5 fill-accent text-accent sm:size-4" />
+              <span className="font-medium">{product.rating}</span>
+              <span className="text-muted-foreground">({product.reviewCount})</span>
+            </>
+          ) : (
+            <span className="text-muted-foreground">No reviews yet</span>
+          )}
         </div>
-        <div className={`${featured ? "mt-2" : "mt-3"} flex flex-wrap items-center gap-3`}>
-          <strong className="font-medium">{formatPKR(product.price)}</strong>
-          <span className="text-sm text-muted-foreground line-through">
-            {formatPKR(product.compareAtPrice)}
-          </span>
-          {discount > 0 && <Badge variant="saving">-{discount}%</Badge>}
+        <div className={`${featured ? "mt-1.5" : "mt-2"} flex flex-wrap items-baseline gap-2`}>
+          <strong className="text-sm font-semibold text-foreground sm:text-base">
+            {formatPKR(product.price)}
+          </strong>
+          {product.compareAtPrice > product.price && (
+            <span className="text-xs text-muted-foreground line-through">
+              {formatPKR(product.compareAtPrice)}
+            </span>
+          )}
         </div>
       </Link>
-      <div className="mt-auto pt-4">
+
+      {/* Mobile Actions: Touch-friendly buttons below card details */}
+      <div className="mt-auto pt-3 md:hidden">
+        {quantity > 0 ? (
+          <div className="flex h-10 items-center justify-between gap-1 rounded-sm border border-input bg-background px-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              magnetic={false}
+              aria-label={`Remove one ${product.name}`}
+              className="size-8"
+              onClick={(e) => {
+                e.preventDefault();
+                decrement(product.slug);
+              }}
+            >
+              <Minus className="size-3.5" />
+            </Button>
+            <span className="text-xs font-medium">{quantity} in cart</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              magnetic={false}
+              aria-label={`Add one ${product.name}`}
+              className="size-8"
+              onClick={(e) => {
+                e.preventDefault();
+                add(product.slug);
+              }}
+            >
+              <Plus className="size-3.5" />
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-1.5">
+            <Button
+              variant="secondary"
+              magnetic={false}
+              disabled={soldOut}
+              className="h-10 px-1 text-xs font-medium"
+              onClick={(e) => {
+                e.preventDefault();
+                add(product.slug);
+              }}
+            >
+              <ShoppingBag className="mr-1 size-3.5 shrink-0" />
+              <span className="truncate">{soldOut ? "Sold" : "Add"}</span>
+            </Button>
+            <Button
+              variant="outline"
+              magnetic={false}
+              disabled={soldOut}
+              className="h-10 px-1 text-xs font-medium"
+              onClick={(e) => {
+                e.preventDefault();
+                buyNow(product.slug);
+                void navigate({ to: "/checkout" });
+              }}
+            >
+              <span className="truncate">Buy now</span>
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Action: Buy now button at bottom (Add to cart appears on hover above) */}
+      <div className="mt-auto hidden pt-4 md:block">
         <Button
           variant="outline"
           magnetic={false}

@@ -54,9 +54,11 @@ function ProductPage() {
         <ProductGallery key={product.slug} product={product} />
         <div className="flex min-w-0 flex-col justify-start px-5 py-8 sm:px-8 md:px-[5vw] md:py-9">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge>
-              {product.badge === "Limited Stock" ? `Only ${product.stock} left` : product.badge}
-            </Badge>
+            {product.badge && (
+              <Badge variant={product.stock === 0 ? "sold" : (product.badge === "Limited Stock" && product.stock > 0 && product.stock <= 10) ? "stock" : "default"}>
+                {(product.badge === "Limited Stock" && product.stock > 0 && product.stock <= 10) ? `Only ${product.stock} left` : product.badge}
+              </Badge>
+            )}
             <Badge variant="saving">Save {saving}%</Badge>
             <WishlistButton slug={product.slug} name={product.name} className="ml-auto"/>
           </div>

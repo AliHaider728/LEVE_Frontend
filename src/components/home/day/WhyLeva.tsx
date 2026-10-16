@@ -36,8 +36,8 @@ export function WhyLeva() {
             key={title}
             initial={reduced ? false : { opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ delay: i * 0.15, duration: 0.6 }}
+            viewport={{ once: true, amount: 0.15, margin: "0px 0px -40px 0px" }}
+            transition={{ delay: i * 0.1, duration: 0.5 }}
           >
             <Icon className="size-7 text-accent" />
             <p className="mt-4 text-3xl font-light text-foreground">

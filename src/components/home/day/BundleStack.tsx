@@ -86,7 +86,7 @@ function Card({
                   rotate: included.length === 2 ? (i === 0 ? -2 : 2) : 0,
                   opacity: 1,
                 }}
-                viewport={{ once: true, amount: 0.3 }}
+                viewport={{ once: true, amount: 0.15, margin: "0px 0px -30px 0px" }}
                 transition={{
                   duration: 0.85,
                   delay: i * 0.15,
