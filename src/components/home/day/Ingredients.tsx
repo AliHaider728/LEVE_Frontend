@@ -4,7 +4,7 @@ import { motion, useScroll, useSpring, useTransform, useReducedMotion } from "mo
 const items = [
   {
     step: "01",
-    name: "Skin Brightening Face Wash",
+    name: "LEVA Face Wash",
     ingredient: "Hyaluronic Acid",
     benefit: "Helps retain moisture for soft, fresh, and hydrated-looking skin.",
     howToUse: "Apply to a damp face, massage gently for 15–20 seconds, then rinse thoroughly.",
@@ -12,7 +12,7 @@ const items = [
   },
   {
     step: "02",
-    name: "Skin Brightening Cream",
+    name: "LEVA Cream",
     ingredient: "Alpha Arbutin",
     benefit: "Helps reduce the appearance of dark spots and promotes a brighter, more even-looking skin tone.",
     howToUse: "Apply a small amount to clean skin once or twice daily.",
@@ -20,7 +20,7 @@ const items = [
   },
   {
     step: "SPF 50",
-    name: "Tinted Sunscreen",
+    name: "LEVA Tinted Sunblock",
     ingredient: "UVA & UVB Protection",
     benefit: "Helps protect against sunburn, tanning, and premature skin aging.",
     howToUse: "Apply 15 minutes before sun exposure. Reapply every 2 hours outdoors.",

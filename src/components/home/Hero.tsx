@@ -18,7 +18,7 @@ export function Hero() {
         <motion.img
           style={reducedMotion ? {} : { y: imageY }}
           src="/images/leva-pink-studio-hero.webp"
-          alt="LEVA brightening cream, tinted sunscreen and face wash in a pink studio"
+          alt="LEVA cream, tinted sunblock and face wash in a pink studio"
           className="absolute bottom-0 h-[56%] w-full object-cover object-[76%_center] [mask-image:linear-gradient(to_bottom,transparent,black_16%)] md:bottom-auto md:h-[115%] md:object-[60%_center] md:[mask-image:none]"
           fetchPriority="high"
         />

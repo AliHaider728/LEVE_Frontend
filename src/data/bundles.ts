@@ -16,18 +16,18 @@ export const bundles: Bundle[] = [
   {
     slug: "complete-ritual",
     name: "The Complete Ritual",
-    description: "A complete three-step LEVA ritual: cleanse with Skin Brightening Face Wash, care with Skin Brightening Cream, then finish with Tinted Sunscreen SPF 50 PA+++.",
+    description: "A complete three-step LEVA ritual: cleanse with LEVA Face Wash, care with LEVA Cream, then finish with LEVA Tinted Sunblock SPF 50 PA+++.",
     image: "/images/leva-complete-ritual-bundle.webp",
     productSlugs: ["product-01", "product-02", "product-03"],
-    price: 16080,
+    price: 3680,
     savePercent: 20,
   },
   {
     slug: "the-essentials",
     name: "The Duo",
-    description: "The brightening cream and tinted sunscreen, paired for a daytime ritual.",
+    description: "The LEVA Cream and LEVA Tinted Sunblock, paired for a daytime ritual.",
     productSlugs: ["product-01", "product-02"],
-    price: 13230,
+    price: 2835,
     savePercent: 10,
   },
 ];

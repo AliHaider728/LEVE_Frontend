@@ -10,7 +10,7 @@ export function AuthShell({ title, line, children }: { title: string; line: stri
           <img src={logo.url} alt="LEVA" className="h-14 lg:h-16 w-auto self-start object-contain" />
           <img
             src={products[1]?.image}
-            alt="LEVA Tinted Sunscreen"
+            alt="LEVA Tinted Sunblock"
             className="mx-auto my-6 aspect-[4/5] w-3/4 rounded-2xl object-cover"
           />
           <p className="text-sm font-light text-foreground">A softer kind of strength.</p>

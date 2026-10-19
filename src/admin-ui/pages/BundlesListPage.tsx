@@ -31,7 +31,7 @@ export const BundlesListPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-heading font-black text-2xl text-[#382b31]">Curated Product Bundles</h1>
-          <p className="text-xs text-[#382b31]/50 font-medium">Curate discounted sets, custom skincare routines, and special boxed pairings.</p>
+          <p className="text-xs text-[#382b31]/75 font-medium">Curate discounted sets, custom skincare routines, and special boxed pairings.</p>
         </div>
         <button type="button" onClick={() => setActivePage('bundle-new')} className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#673742] to-[#673742] hover:from-[#673742] hover:to-[#673742] text-white px-5 py-2.5 text-xs font-bold shadow-sm">
           <Plus className="w-4 h-4"/> Add Bundle
@@ -40,8 +40,8 @@ export const BundlesListPage: React.FC = () => {
 
       <div className="bg-white p-4 rounded-3xl border border-[#ecdfe4]/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
-          <input type="text" placeholder="Search bundles..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-[#ecdfe4] outline-none"/>
-          <Search className="w-4 h-4 text-[#382b31]/40 absolute left-3 top-2.5"/>
+          <input type="text" placeholder="Search bundles..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 text-xs text-[#382b31] placeholder:text-[#382b31]/50 rounded-xl border border-[#ecdfe4] outline-none"/>
+          <Search className="w-4 h-4 text-[#382b31]/50 absolute left-3 top-2.5"/>
         </div>
       </div>
 
@@ -50,26 +50,27 @@ export const BundlesListPage: React.FC = () => {
             const discountPct = bundle.discountPercent || (bundle.originalTotalPrice && bundle.currentPrice && bundle.originalTotalPrice > bundle.currentPrice
                 ? Math.round(((bundle.originalTotalPrice - bundle.currentPrice) / bundle.originalTotalPrice) * 100)
                 : 0);
+            const bundleCover = bundle.image || bundle.customImage || (bundle.slug === 'the-essentials' || bundle.name.toLowerCase().includes('duo') ? '/images/brightening-cream-main.webp' : '') || (bundle.products && bundle.products[0]?.product?.images?.[0]);
             return (<div key={bundle.id} className="bg-white rounded-3xl border border-[#ecdfe4] shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow group">
               <div>
                 <div className="relative aspect-video bg-[#FFF4F6] overflow-hidden">
-                  <img src={getSafeImageSrc(bundle.image || bundle.customImage)} alt={bundle.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                  <img src={getSafeImageSrc(bundleCover)} alt={bundle.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
                   <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
                     {discountPct > 0 && (<span className="px-2.5 py-1 bg-[#673742] text-white text-[10px] font-black uppercase rounded-lg shadow-sm">
                         Save {discountPct}%
                       </span>)}
-                    {bundle.isBestseller && (<span className="px-2.5 py-1 bg-[#FFF4F6] text-white text-[10px] font-black uppercase rounded-lg shadow-sm flex items-center gap-1">
-                        <Sparkles className="w-3 h-3"/> Popular
+                    {bundle.isBestseller && (<span className="px-2.5 py-1 bg-white text-[#673742] border border-[#673742]/20 text-[10px] font-black uppercase rounded-lg shadow-sm flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-[#673742]"/> Popular
                       </span>)}
                   </div>
                 </div>
 
                 <div className="p-5 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${bundle.isActive ? 'bg-[#FFF4F6] text-[#673742]' : 'bg-slate-100 text-slate-500'}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${bundle.isActive ? 'bg-[#FFF4F6] text-[#673742] border-[#673742]/20' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                       {bundle.isActive ? 'Active' : 'Draft'}
                     </span>
-                    <span className="text-[11px] font-bold text-[#382b31]/50">
+                    <span className="text-[11px] font-bold text-[#382b31]/75">
                       {bundle.products?.length || 0} Products
                     </span>
                   </div>
@@ -77,7 +78,7 @@ export const BundlesListPage: React.FC = () => {
                   <h3 className="font-heading font-black text-base text-[#382b31] leading-snug">
                     {bundle.name}
                   </h3>
-                  <p className="text-xs text-[#382b31]/60 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-[#382b31]/80 line-clamp-2 leading-relaxed">
                     {bundle.shortDescription || bundle.description}
                   </p>
 
@@ -85,7 +86,7 @@ export const BundlesListPage: React.FC = () => {
                     <span className="font-heading font-black text-lg text-[#382b31]">
                       {formatPrice(bundle.currentPrice || 0)}
                     </span>
-                    {bundle.originalTotalPrice && bundle.originalTotalPrice > (bundle.currentPrice || 0) && (<span className="text-xs text-[#382b31]/40 line-through">
+                    {bundle.originalTotalPrice && bundle.originalTotalPrice > (bundle.currentPrice || 0) && (<span className="text-xs text-[#382b31]/60 font-medium line-through">
                         {formatPrice(bundle.originalTotalPrice)}
                       </span>)}
                   </div>

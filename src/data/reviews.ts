@@ -7,7 +7,7 @@ export const reviews: Review[] = [
     city: "Lahore",
     rating: 5,
     quote: "My skin feels so soft now. The cream is my favourite.",
-    product: "Skin Brightening Cream",
+    product: "LEVA Cream",
   },
   {
     name: "Sana M.",
@@ -21,7 +21,7 @@ export const reviews: Review[] = [
     city: "Faisalabad",
     rating: 4,
     quote: "Gentle face wash, no dryness at all.",
-    product: "Skin Brightening Face Wash",
+    product: "LEVA Face Wash",
   },
   {
     name: "Zainab T.",
@@ -35,14 +35,14 @@ export const reviews: Review[] = [
     city: "Rawalpindi",
     rating: 5,
     quote: "My sensitive skin loves the cleanser.",
-    product: "Skin Brightening Face Wash",
+    product: "LEVA Face Wash",
   },
   {
     name: "Amna J.",
     city: "Sialkot",
     rating: 5,
     quote: "WhatsApp ordering was so easy.",
-    product: "Skin Brightening Cream",
+    product: "LEVA Cream",
   },
 ];
 
