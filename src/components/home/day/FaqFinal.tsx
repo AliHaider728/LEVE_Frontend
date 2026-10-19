@@ -2,7 +2,6 @@ import { useRef, useState, type FormEvent } from "react";
 import { Link } from "@/lib/router-compat";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { z } from "zod";
-import { editorialImages } from "@/lib/assets";
 import {
   Accordion,
   AccordionContent,
@@ -88,10 +87,10 @@ export function FaqFinal() {
           className="relative grid min-h-[80svh] place-items-center overflow-hidden"
         >
           <img
-            src={editorialImages.hero}
+            src="/images/leva-pink-studio-hero.webp"
             alt="LEVA skincare ritual"
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover object-[center_bottom]"
           />
           <div
             aria-hidden

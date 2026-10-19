@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from "motion/react";
-import { editorialImages } from "@/lib/assets";
 
 const text =
   "Skincare should feel like a quiet morning. Three honest steps, made for the way you really live.";
@@ -36,17 +35,17 @@ export function Manifesto() {
     >
       <motion.img
         style={{ y: y1 }}
-        src={editorialImages.closeup}
-        alt="Close-up of skin texture"
+        src="/images/brightening-cream-main.webp"
+        alt="LEVA Skin Brightening Cream"
         loading="lazy"
-        className="absolute left-[3vw] top-16 hidden h-56 w-40 rounded-t-full object-cover lg:block"
+        className="absolute left-[3vw] top-16 hidden h-56 w-40 rounded-t-full object-cover shadow-sm lg:block"
       />
       <motion.img
         style={{ y: y2 }}
-        src={editorialImages.portrait}
-        alt="Woman in soft morning light"
+        src="/images/tinted-sunscreen-studio.webp"
+        alt="LEVA Tinted Sunscreen"
         loading="lazy"
-        className="absolute bottom-16 right-[4vw] hidden h-64 w-44 rounded-2xl object-cover lg:block"
+        className="absolute bottom-16 right-[4vw] hidden h-64 w-44 rounded-2xl object-cover shadow-sm lg:block"
       />
       <p className="eyebrow mb-8 text-center">Our belief</p>
       <h2 className="mx-auto max-w-4xl text-center text-3xl font-light leading-snug text-foreground md:text-5xl">

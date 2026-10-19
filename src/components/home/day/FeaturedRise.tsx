@@ -13,7 +13,7 @@ export function FeaturedRise() {
       <Button asChild variant="link"><Link to="/shop">View all <ArrowRight /></Link></Button>
     </div>
     <CatalogStatus />
-    <div className="mt-8 grid auto-rows-fr grid-cols-2 items-stretch gap-3 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+    <div className="mt-8 grid grid-cols-2 items-start gap-3 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
       {products.map(product => <div key={product.slug} data-featured-card className="min-w-0"><ProductCard product={product} featured /></div>)}
       <BuildBundleCard />
     </div>

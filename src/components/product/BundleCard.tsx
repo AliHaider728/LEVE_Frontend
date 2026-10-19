@@ -1,9 +1,8 @@
-import Link from "next/link";
+import { Link } from "@/lib/router-compat";
 import { useStoreData } from "@/store/catalog";
-import { ShoppingBag } from "lucide-react";
+import { ArrowRight, ShoppingBag } from "lucide-react";
 import type { Bundle } from "@/data/bundles";
 import { getBundleOriginalPrice } from "@/data/bundles";
-
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
 import { Badge } from "@/components/ui/badge";
@@ -16,53 +15,95 @@ export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featu
     .map((slug) => products.find((product) => product.slug === slug))
     .filter((product): product is (typeof products)[number] => Boolean(product));
   const original = getBundleOriginalPrice(bundle, products);
+  const isDuo = bundle.slug === "the-essentials" || bundle.name.toLowerCase().includes("duo") || included.length === 2;
+
   return (
-    <article className="border-t border-primary/25 pt-6">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-primary/10 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5">
       <Link
-        href={`/bundles/${bundle.slug}`}
-        className="group relative flex aspect-[5/4] items-end justify-center overflow-hidden rounded-md bg-background cursor-pointer"
+        to="/bundles/$slug"
+        params={{ slug: bundle.slug }}
+        className="relative block aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#FFF4F6] cursor-pointer"
         aria-label={`View ${bundle.name} details`}
       >
-        {bundle.image ? (
+        {bundle.image && !isDuo ? (
           <img
             src={bundle.image}
-            alt={bundle.name + " with its included LEVA products"}
+            alt={`${bundle.name} with its included LEVA products`}
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          included.map((product, index) => (
-            <img
-              key={product.slug}
-              src={product.image}
-              alt={`${product.name} included in ${bundle.name}`}
-              loading="lazy"
-              className={`absolute bottom-0 h-[82%] w-[46%] rounded-t-md object-cover shadow-lg transition-transform duration-500 group-hover:scale-105 ${index === 0 ? "-translate-x-[42%] -rotate-3" : index === 2 ? "translate-x-[42%] rotate-3" : "z-10"}`}
-            />
-          ))
+          <div className="relative flex h-full w-full items-end justify-center pb-2">
+            {included.map((product, index) => (
+              <img
+                key={product.slug}
+                src={product.image}
+                alt={`${product.name} included in ${bundle.name}`}
+                loading="lazy"
+                className={`h-[82%] w-[46%] rounded-t-lg object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-105 ${
+                  index === 0 ? "-mr-3 z-10 -rotate-2" : "z-20 rotate-2"
+                }`}
+              />
+            ))}
+          </div>
         )}
-        <div className="absolute left-3 top-3 z-20 flex flex-wrap gap-2">
-          <Badge variant="saving">
-            Save {formatPKR(original - bundle.price)} ({bundle.savePercent}%)
+        <div className="absolute left-2.5 top-2.5 z-20 flex flex-wrap gap-1.5">
+          <Badge variant="saving" className="text-[10px] sm:text-xs">
+            Save {bundle.savePercent}%
           </Badge>
-          {featured && <Badge>Best Value</Badge>}
+          {featured && <Badge className="text-[10px] sm:text-xs">Best Value</Badge>}
         </div>
       </Link>
-      <h3 className="mt-6 text-3xl font-light"><Link href={`/bundles/${bundle.slug}`} className="hover:underline">{bundle.name}</Link></h3>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
-      <ul className="mt-4 space-y-1 text-base text-muted-foreground">
-        {included.map((product) => (
-          <li key={product.slug}>{product.name}</li>
-        ))}
-      </ul>
-      <div className="my-5 flex items-center gap-4">
-        <span className="text-sm line-through text-muted-foreground">{formatPKR(original)}</span>
-        <strong className="text-xl font-medium">{formatPKR(bundle.price)}</strong>
+
+      <div className="mt-3.5 flex flex-1 flex-col">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {included.length} Products
+          </span>
+          <span className="text-xs font-medium text-accent">
+            Save {formatPKR(original - bundle.price)}
+          </span>
+        </div>
+
+        <h3 className="mt-1 text-lg font-light leading-snug sm:text-xl md:text-2xl">
+          <Link to="/bundles/$slug" params={{ slug: bundle.slug }} className="hover:underline">
+            {bundle.name}
+          </Link>
+        </h3>
+
+        {bundle.description && (
+          <p className="mt-1.5 hidden text-xs leading-5 text-muted-foreground md:block">
+            {bundle.description}
+          </p>
+        )}
+
+        <div className="mt-2.5 flex items-baseline gap-2">
+          <strong className="text-base font-semibold text-foreground sm:text-lg">
+            {formatPKR(bundle.price)}
+          </strong>
+          <span className="text-xs text-muted-foreground line-through">
+            {formatPKR(original)}
+          </span>
+        </div>
+
+        <div className="mt-auto pt-3.5">
+          <Button
+            className="h-11 w-full text-xs font-medium sm:text-sm"
+            onClick={() => addBundle(bundle.slug)}
+          >
+            <ShoppingBag className="mr-1.5 size-4" /> Add bundle to cart
+          </Button>
+          <div className="mt-2 text-center">
+            <Link
+              to="/bundles/$slug"
+              params={{ slug: bundle.slug }}
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary hover:underline"
+            >
+              View bundle details <ArrowRight className="size-3" />
+            </Link>
+          </div>
+        </div>
       </div>
-      <Link href={`/bundles/${bundle.slug}`} className="mb-3 inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">View bundle details</Link>
-      <Button className="w-full" onClick={() => addBundle(bundle.slug)}>
-        <ShoppingBag /> Add bundle to cart
-      </Button>
     </article>
   );
 }

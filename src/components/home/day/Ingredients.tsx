@@ -1,6 +1,6 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useSpring, useTransform, useReducedMotion } from "motion/react";
-import Link from "next/link";
+import { Link } from "@/lib/router-compat";
 
 const items = [
   {
@@ -34,9 +34,10 @@ const items = [
 
 function Panel({ it }: { it: (typeof items)[number] }) {
   return (
-    <article className="grid w-[85vw] shrink-0 snap-center overflow-hidden rounded-3xl bg-background md:w-[60vw] md:grid-cols-2 lg:h-[min(54svh,470px)] lg:w-[min(43vw,610px)]">
+    <article className="grid w-[84vw] max-w-[340px] shrink-0 snap-start overflow-hidden rounded-3xl bg-background shadow-sm sm:max-w-[400px] md:w-[60vw] md:max-w-none md:grid-cols-2 lg:h-[min(54svh,470px)] lg:w-[min(43vw,610px)]">
       <Link
-        href={`/shop/${it.slug}`}
+        to="/shop/$slug"
+        params={{ slug: it.slug }}
         className="group block aspect-[4/3] overflow-hidden md:aspect-auto cursor-pointer"
         aria-label={`View ${it.name} details`}
       >
@@ -44,23 +45,23 @@ function Panel({ it }: { it: (typeof items)[number] }) {
           src={it.img}
           alt={`LEVA ${it.name}`}
           loading="lazy"
-          className="h-full w-full scale-110 object-cover transition-transform duration-500 group-hover:scale-115"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       </Link>
-      <div className="flex flex-col justify-center p-6 md:p-10">
-        <p className="text-sm font-semibold tracking-widest text-accent uppercase">
+      <div className="flex flex-col justify-center p-5 sm:p-6 md:p-8">
+        <p className="text-xs font-semibold tracking-widest text-accent uppercase sm:text-sm">
           {it.step}
         </p>
-        <h3 className="mt-2 text-2xl font-light text-foreground">
-          <Link href={`/shop/${it.slug}`} className="hover:underline">
+        <h3 className="mt-1.5 text-xl font-light text-foreground sm:text-2xl">
+          <Link to="/shop/$slug" params={{ slug: it.slug }} className="hover:underline">
             {it.name}
           </Link>
         </h3>
-        <p className="mt-4 text-xs font-semibold tracking-wider text-foreground/70 uppercase">
+        <p className="mt-3 text-[11px] font-semibold tracking-wider text-foreground/70 uppercase sm:text-xs">
           {it.ingredient}
         </p>
-        <p className="mt-2 text-[15px] leading-7 text-muted-foreground">{it.benefit}</p>
-        <p className="mt-4 text-xs leading-5 text-muted-foreground">
+        <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">{it.benefit}</p>
+        <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
           <span className="font-semibold text-foreground/70">How to Use:</span> {it.howToUse}
         </p>
       </div>
@@ -70,10 +71,27 @@ function Panel({ it }: { it: (typeof items)[number] }) {
 
 export function Ingredients() {
   const ref = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 75, damping: 28 });
   const x = useTransform(smoothProgress, [0, 1], ["0%", "-62%"]);
+
+  // Track active slide on mobile
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      const scrollLeft = el.scrollLeft;
+      const cardWidth = el.firstElementChild?.clientWidth ?? 1;
+      const idx = Math.round(scrollLeft / (cardWidth + 16));
+      setActiveIdx(Math.max(0, Math.min(items.length - 1, idx)));
+    };
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const head = (
     <div className="px-5 md:px-[8vw]">
       <p className="eyebrow">Inside the formula</p>
@@ -82,8 +100,10 @@ export function Ingredients() {
       </h2>
     </div>
   );
+
   return (
     <section aria-label="Ingredients" className="bg-secondary">
+      {/* Desktop horizontal pinning */}
       <div ref={ref} className={`relative hidden lg:block ${reduced ? "" : "h-[190vh]"}`}>
         <div
           className={`${reduced ? "py-16" : "sticky top-[var(--header-h)] h-[calc(100svh-var(--header-h))]"} flex flex-col justify-center gap-6 overflow-hidden py-6`}
@@ -99,11 +119,42 @@ export function Ingredients() {
           </motion.div>
         </div>
       </div>
-      <div className="py-16 lg:hidden">
+
+      {/* Mobile/Tablet native swipe carousel */}
+      <div className="py-14 lg:hidden">
         {head}
-        <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none]">
+        <div
+          ref={scrollRef}
+          style={{
+            WebkitOverflowScrolling: "touch",
+            touchAction: "pan-x pan-y",
+            overscrollBehaviorX: "contain",
+          }}
+          className="mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-3 [scrollbar-width:none]"
+        >
           {items.map((it) => (
             <Panel key={it.step} it={it} />
+          ))}
+        </div>
+
+        {/* Slide dot indicators */}
+        <div className="mt-4 flex items-center justify-center gap-2" aria-hidden="true">
+          {items.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              tabIndex={-1}
+              aria-label={`Go to slide ${i + 1}`}
+              onClick={() => {
+                const el = scrollRef.current;
+                if (!el) return;
+                const cardWidth = el.firstElementChild?.clientWidth ?? 1;
+                el.scrollTo({ left: i * (cardWidth + 16), behavior: "smooth" });
+              }}
+              className={`size-2 rounded-full transition-all duration-300 ${
+                activeIdx === i ? "w-6 bg-primary" : "bg-primary/20"
+              }`}
+            />
           ))}
         </div>
       </div>

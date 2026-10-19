@@ -2,7 +2,6 @@
 import { createFileRoute, Link } from "@/lib/router-compat";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { editorialImages } from "@/lib/assets";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/about")({
@@ -38,9 +37,9 @@ function About() {
           whileInView={{ clipPath: "inset(0% 0 0 0)" }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
-          src={editorialImages.portrait}
-          alt="Woman in a quiet skincare moment"
-          className="absolute inset-0 h-full w-full object-cover md:left-auto md:w-[55%]"
+          src="/images/brightening-cream-model.webp"
+          alt="LEVA Skin Brightening ritual"
+          className="absolute inset-0 h-full w-full object-cover object-top md:left-auto md:w-[55%]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/60 to-primary/10 md:bg-gradient-to-r" />
         <div className="relative z-10">
@@ -77,10 +76,10 @@ function About() {
           className="min-h-[60vh] overflow-hidden"
         >
           <img
-            src={editorialImages.skin}
-            alt="Close detail of luminous skin"
+            src="/images/tinted-sunscreen-model.webp"
+            alt="LEVA Tinted Sunscreen in morning sunlight"
             loading="lazy"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-top"
           />
         </motion.div>
         <div className="flex flex-col justify-center bg-accent px-6 py-20 text-foreground md:px-[8vw]">

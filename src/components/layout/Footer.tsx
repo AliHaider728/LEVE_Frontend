@@ -1,6 +1,6 @@
 import { useStoreData } from "@/store/catalog";
 import { FormEvent, useState } from "react";
-import { Facebook, Instagram, Music2, Send } from "lucide-react";
+import { Facebook, Instagram, Send } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 
@@ -78,7 +78,7 @@ export function Footer() {
           </nav>
           <div className="col-span-2 md:col-span-1">
             <div className="mb-5 grid gap-2 text-sm">
-              <a href={`tel:${storeConfig.phone.replace(/\s/g, "")}`}>{storeConfig.phone}</a>
+              <a href={`tel:+${storeConfig.whatsappNumber}`}>+92 314 708 0907</a>
               <a
                 href={`https://wa.me/${storeConfig.whatsappNumber}`}
                 target="_blank"
@@ -89,46 +89,38 @@ export function Footer() {
             </div>
             <div className="flex gap-2">
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/leva.pk.official/"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram"
-                className="grid size-11 place-items-center border border-primary-foreground/30"
+                className="grid size-11 place-items-center border border-primary-foreground/30 hover:border-white hover:bg-white/10 transition-colors"
               >
-                <Instagram />
+                <Instagram className="size-5" />
               </a>
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/leva.pk.official"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Facebook"
-                className="grid size-11 place-items-center border border-primary-foreground/30"
+                className="grid size-11 place-items-center border border-primary-foreground/30 hover:border-white hover:bg-white/10 transition-colors"
               >
-                <Facebook />
+                <Facebook className="size-5" />
               </a>
-              <a
-                href="https://tiktok.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="TikTok"
-                className="grid size-11 place-items-center border border-primary-foreground/30"
-              >
-                <Music2 />
-              </a>
-            </div>
-            <div className="mt-5 flex flex-wrap gap-2 text-xs">
-              <span className="border border-primary-foreground/30 px-2 py-1">COD</span>
-              <span className="border border-primary-foreground/30 px-2 py-1">JazzCash</span>
-              <span className="border border-primary-foreground/30 px-2 py-1">Easypaisa</span>
-              <span className="border border-primary-foreground/30 px-2 py-1">Bank Transfer</span>
             </div>
           </div>
         </div>
       </div>
-      <p className="mt-10 text-center text-[20vw] font-light leading-none">LEVA</p>
-      <div className="mt-6 flex justify-between text-xs uppercase text-primary-foreground/70">
+      <div className="mt-12 flex justify-center px-4">
+        <img
+          src="/images/LEVA-logo-white.png"
+          alt="LEVA"
+          className="h-auto w-full max-w-[min(80vw,520px)] object-contain opacity-95"
+          loading="lazy"
+        />
+      </div>
+      <div className="mt-8 flex justify-between text-xs uppercase text-primary-foreground/70">
         <span>© 2026 LEVA</span>
-        <div className="flex items-center gap-5"><Link to="/admin/login" className="text-[11px] normal-case opacity-65 hover:opacity-100">Admin</Link><span>Pakistan</span></div>
+        <span>Pakistan</span>
       </div>
     </footer>
   );

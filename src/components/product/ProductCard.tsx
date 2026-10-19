@@ -1,4 +1,4 @@
-import { Minus, Plus, ShoppingBag, Star } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Star, Zap } from "lucide-react";
 import { Link, useNavigate } from "@/lib/router-compat";
 import type { Product } from "@/data/products";
 import { formatPKR } from "@/config/store";
@@ -122,17 +122,17 @@ export function ProductCard({ product, featured = false }: { product: Product; f
       <Link
         to="/shop/$slug"
         params={{ slug: product.slug }}
-        className={`${featured ? "mt-3 flex-1" : "mt-4 flex-1"} block focus-visible:outline-2 focus-visible:outline-offset-4`}
+        className={`${featured ? "mt-2.5" : "mt-3"} block focus-visible:outline-2 focus-visible:outline-offset-4`}
       >
         <h3 className="line-clamp-1 text-base font-light leading-snug sm:text-lg md:text-xl">
           {product.name}
         </h3>
         <p
-          className={`${featured ? "mt-0.5" : "mt-1"} line-clamp-1 text-xs leading-relaxed text-muted-foreground sm:text-sm`}
+          className="mt-0.5 line-clamp-1 text-xs leading-relaxed text-muted-foreground sm:text-sm"
         >
           {product.benefit}
         </p>
-        <div className={`${featured ? "mt-1.5" : "mt-2"} flex flex-wrap items-center gap-1 text-xs`}>
+        <div className="mt-1 flex flex-wrap items-center gap-1 text-xs">
           {product.rating > 0 && product.reviewCount > 0 ? (
             <>
               <Star className="size-3.5 fill-accent text-accent sm:size-4" />
@@ -143,7 +143,7 @@ export function ProductCard({ product, featured = false }: { product: Product; f
             <span className="text-muted-foreground">No reviews yet</span>
           )}
         </div>
-        <div className={`${featured ? "mt-1.5" : "mt-2"} flex flex-wrap items-baseline gap-2`}>
+        <div className="mt-1 flex flex-wrap items-baseline gap-2">
           <strong className="text-sm font-semibold text-foreground sm:text-base">
             {formatPKR(product.price)}
           </strong>
@@ -155,10 +155,10 @@ export function ProductCard({ product, featured = false }: { product: Product; f
         </div>
       </Link>
 
-      {/* Mobile Actions: Touch-friendly buttons below card details */}
-      <div className="mt-auto pt-3 md:hidden">
+      {/* Mobile Actions: Icon-only touch-friendly buttons directly below details (44px tall, min tap target) */}
+      <div className="mt-2.5 md:hidden">
         {quantity > 0 ? (
-          <div className="flex h-10 items-center justify-between gap-1 rounded-sm border border-input bg-background px-1">
+          <div className="flex h-11 items-center justify-between gap-1 rounded-sm border border-input bg-background px-2">
             <Button
               variant="ghost"
               size="icon"
@@ -170,7 +170,7 @@ export function ProductCard({ product, featured = false }: { product: Product; f
                 decrement(product.slug);
               }}
             >
-              <Minus className="size-3.5" />
+              <Minus className="size-4" />
             </Button>
             <span className="text-xs font-medium">{quantity} in cart</span>
             <Button
@@ -184,36 +184,39 @@ export function ProductCard({ product, featured = false }: { product: Product; f
                 add(product.slug);
               }}
             >
-              <Plus className="size-3.5" />
+              <Plus className="size-4" />
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-2 gap-2">
             <Button
               variant="secondary"
               magnetic={false}
               disabled={soldOut}
-              className="h-10 px-1 text-xs font-medium"
+              className="h-11 w-full"
+              aria-label={`Add ${product.name} to cart`}
+              title="Add to cart"
               onClick={(e) => {
                 e.preventDefault();
                 add(product.slug);
               }}
             >
-              <ShoppingBag className="mr-1 size-3.5 shrink-0" />
-              <span className="truncate">{soldOut ? "Sold" : "Add"}</span>
+              <ShoppingBag className="size-4" />
             </Button>
             <Button
               variant="outline"
               magnetic={false}
               disabled={soldOut}
-              className="h-10 px-1 text-xs font-medium"
+              className="h-11 w-full"
+              aria-label={`Buy ${product.name} now`}
+              title="Buy now"
               onClick={(e) => {
                 e.preventDefault();
                 buyNow(product.slug);
                 void navigate({ to: "/checkout" });
               }}
             >
-              <span className="truncate">Buy now</span>
+              <Zap className="size-4" />
             </Button>
           </div>
         )}

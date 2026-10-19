@@ -12,7 +12,6 @@ import {
 import { BadgeCheck, Banknote, LayoutGrid, Rows3, SlidersHorizontal, Truck, X } from "lucide-react";
 import { concerns, productTypes, type Product } from "@/data/products";
 import { formatPKR } from "@/config/store";
-import hero from "@/assets/leva-ritual-hero.png.asset.json";
 import { ProductCard } from "@/components/product/ProductCard";
 import { StoryRow } from "@/components/shop/StoryRow";
 import { BundleScene } from "@/components/shop/BundleScene";
@@ -249,6 +248,8 @@ function Shop() {
       </Sheet>
 
       <div className="px-4 md:px-[6vw]"><CatalogStatus /></div>
+
+
       {!showBundlesOnly &&
         (results.length === 0 ? (
           <div className="px-5 py-24 text-center">
@@ -415,26 +416,23 @@ function Intro() {
           ))}
         </ul>
       </div>
-      <motion.div
-        initial={reduced ? false : { clipPath: "inset(100% 0% 0% 0%)" }}
-        animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
-        transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
-        className="mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-t-[999px] rounded-b-3xl bg-secondary"
+      <div
+        className="mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-t-[999px] rounded-b-3xl bg-[#FFF4F6] shadow-sm"
       >
         <motion.img
-          style={{ y, scale: 1.2 }}
-          src={hero.url}
-          alt="LEVA skincare essentials together"
-          className="h-full w-full object-cover"
+          style={{ y }}
+          src="/images/leva-pink-studio-hero.webp"
+          alt="LEVA three skincare essentials together"
+          className="h-full w-full object-cover object-[68%_bottom]"
         />
-      </motion.div>
+      </div>
     </section>
   );
 }
 
 /** Static cards remain visible without animation or IntersectionObserver. */
 function ShopGrid({ results }: { results: Product[] }) {
-  return <div data-shop-grid className="grid auto-rows-fr grid-cols-2 items-stretch gap-3 px-4 pt-6 pb-12 md:grid-cols-3 md:gap-6 md:px-[6vw] lg:grid-cols-4">
+  return <div data-shop-grid className="grid grid-cols-2 items-start gap-3 px-4 pt-6 pb-12 md:grid-cols-3 md:gap-6 md:px-[6vw] lg:grid-cols-4">
     {results.map(product => <div key={product.slug} className="min-w-0"><ProductCard product={product} /></div>)}
     <BuildBundleCard />
   </div>;

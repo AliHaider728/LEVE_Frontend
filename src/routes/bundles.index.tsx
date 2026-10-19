@@ -3,7 +3,7 @@ import { useStoreData } from "@/store/catalog";
 import { useRef } from "react";
 import { createFileRoute, Link } from "@/lib/router-compat";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
-import { ArrowRight, BadgeCheck, Layers3, ShoppingBag, Truck } from "lucide-react";
+import { ArrowRight, BadgeCheck, Check, Layers3, ShoppingBag, Sparkles, Truck } from "lucide-react";
 import { getBundleOriginalPrice, bundles as localBundles, type Bundle } from "@/data/bundles";
 
 import { formatPKR } from "@/config/store";
@@ -29,106 +29,104 @@ export const Route = createFileRoute("/bundles/")({
   component: BundlesPage,
 });
 
-const fly = [
-  { x: -80, y: 40, rotate: -8 },
-  { x: 0, y: 90, rotate: 0 },
-  { x: 80, y: 40, rotate: 8 },
-];
 const fmt = (v: number) => formatPKR(Math.round(v));
 
 function BundleTile({ bundle }: { bundle: Bundle }) {
   const { products } = useStoreData();
   const addBundle = useCart((s) => s.addBundle);
-  const reduced = useReducedMotion();
   const included = bundle.productSlugs
     .map((s) => products.find((p) => p.slug === s))
     .filter((p): p is (typeof products)[number] => !!p);
   const original = getBundleOriginalPrice(bundle, products);
   const isDuo = bundle.slug === "the-essentials" || bundle.name.toLowerCase().includes("duo") || included.length === 2;
   const showStaticImage = Boolean(bundle.image && !isDuo);
+
   return (
-    <article className="flex w-[84vw] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border border-primary/10 bg-white md:w-[440px]">
-      <div className="relative aspect-[5/4] overflow-hidden bg-gradient-to-b from-[#FFF4F6]/50 to-secondary">
+    <article className="flex w-[82vw] max-w-[340px] shrink-0 snap-center flex-col overflow-hidden rounded-3xl border border-primary/10 bg-white shadow-sm sm:w-[360px] md:w-[440px] md:max-w-none">
+      <Link
+        to="/bundles/$slug"
+        params={{ slug: bundle.slug }}
+        className="relative block aspect-[4/3] w-full overflow-hidden bg-[#FFF4F6] cursor-pointer sm:aspect-[5/4]"
+        aria-label={`View ${bundle.name} details`}
+      >
         {showStaticImage ? (
           <img
             src={bundle.image}
-            alt={bundle.name + " with its included LEVA products"}
+            alt={`${bundle.name} with its included LEVA products`}
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="h-full w-full object-contain p-3 transition-transform duration-500 hover:scale-105"
           />
         ) : (
-          included.map((p, i) => (
-            <motion.img
-              key={p.slug}
-              src={p.image}
-              alt={p.name}
-              loading="lazy"
-              initial={
-                reduced
-                  ? false
-                  : included.length === 2
-                  ? i === 0
-                    ? { x: -90, y: 30, rotate: -6, opacity: 0 }
-                    : { x: 90, y: 30, rotate: 6, opacity: 0 }
-                  : { ...fly[i % 3], opacity: 0 }
-              }
-              whileInView={{
-                x: 0,
-                y: 0,
-                rotate: included.length === 2 ? (i === 0 ? -2 : 2) : 0,
-                opacity: 1,
-              }}
-              viewport={{ once: true, amount: 0.15, margin: "0px 0px -30px 0px" }}
-              transition={{
-                duration: 0.85,
-                delay: i * 0.15,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              className={`absolute bottom-0 rounded-t-2xl object-cover shadow-[0_12px_30px_rgba(0,0,0,0.12)] ${
-                included.length === 2 ? "h-[84%] w-[44%]" : "h-[80%] w-[46%]"
-              }`}
-              style={{
-                left:
-                  included.length === 2
-                    ? i === 0
-                      ? "12%"
-                      : "46%"
-                    : `${(included.length === 3 ? 4 : 6) + i * (included.length === 3 ? 25 : 42)}%`,
-                zIndex: i === 1 ? 2 : 1,
-              }}
-            />
-          ))
+          <div className="relative flex h-full w-full items-end justify-center pb-2">
+            {included.map((p, i) => (
+              <img
+                key={p.slug}
+                src={p.image}
+                alt={p.name}
+                loading="lazy"
+                className={`h-[82%] w-[46%] rounded-t-xl object-contain drop-shadow-md transition-transform duration-500 hover:scale-105 ${
+                  i === 0 ? "-mr-3 z-10 -rotate-2" : "z-20 rotate-2"
+                }`}
+              />
+            ))}
+          </div>
         )}
-        <motion.div
-          initial={reduced ? false : { scale: 0 }}
-          whileInView={{ scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ type: "spring", delay: 0.5, stiffness: 320, damping: 12 }}
-          className="absolute left-3 top-3 z-10 flex gap-2"
-        >
+        <div className="absolute left-3 top-3 z-10 flex gap-2">
           <Badge variant="saving">Save {bundle.savePercent}%</Badge>
           {included.length === 3 && <Badge>Best Value</Badge>}
-        </motion.div>
-      </div>
-      <div className="flex flex-1 flex-col p-6">
-        <h2 className="text-2xl font-light text-foreground"><Link to={`/bundles/${bundle.slug}`} className="hover:underline">{bundle.name}</Link></h2>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
-        <ul className="mt-2 text-sm text-muted-foreground">
+        </div>
+      </Link>
+
+      <div className="flex flex-1 flex-col p-5 md:p-7">
+        <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span>{included.length} Products</span>
+          <span className="font-medium text-accent">Save {formatPKR(original - bundle.price)}</span>
+        </div>
+
+        <h2 className="mt-1 text-xl font-light text-foreground sm:text-2xl md:mt-2 md:text-3xl">
+          <Link to="/bundles/$slug" params={{ slug: bundle.slug }} className="hover:underline">
+            {bundle.name}
+          </Link>
+        </h2>
+
+        {/* Description & included list on desktop */}
+        <p className="mt-2 hidden text-sm leading-6 text-muted-foreground md:block">
+          {bundle.description}
+        </p>
+        <ul className="mt-2 hidden text-sm text-muted-foreground md:block">
           {included.map((p) => (
             <li key={p.slug}>· {p.name}</li>
           ))}
         </ul>
-        <p className="mt-4 flex items-baseline gap-3">
-          <strong className="text-xl font-medium">
+
+        <p className="mt-3 flex items-baseline gap-2.5 md:mt-4 md:gap-3">
+          <strong className="text-xl font-medium md:text-2xl">
             <CountUp value={bundle.price} format={fmt} />
           </strong>
           <span className="text-sm text-muted-foreground line-through">{formatPKR(original)}</span>
         </p>
-        <p className="text-sm text-primary">You save {formatPKR(original - bundle.price)}</p>
-        <Link to={`/bundles/${bundle.slug}`} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline underline-offset-4">View bundle details <ArrowRight className="size-4" /></Link>
-        <Button className="mt-2 h-12" disabled={!bundle.id} onClick={() => addBundle(bundle.slug)}>
-          <ShoppingBag /> Add bundle to cart
-        </Button>
+        <p className="hidden text-sm text-primary md:block">
+          You save {formatPKR(original - bundle.price)}
+        </p>
+
+        <div className="mt-auto pt-4 md:pt-5">
+          <Button
+            className="h-11 w-full sm:h-12"
+            disabled={!bundle.id}
+            onClick={() => addBundle(bundle.slug)}
+          >
+            <ShoppingBag className="mr-1.5 size-4" /> Add bundle to cart
+          </Button>
+          <div className="mt-2 text-center">
+            <Link
+              to="/bundles/$slug"
+              params={{ slug: bundle.slug }}
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary hover:underline md:text-sm"
+            >
+              View bundle details <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
+        </div>
       </div>
     </article>
   );
@@ -136,19 +134,60 @@ function BundleTile({ bundle }: { bundle: Bundle }) {
 
 function BuildTile() {
   return (
-    <article className="flex w-[84vw] shrink-0 snap-center flex-col justify-between rounded-3xl bg-primary p-8 text-primary-foreground md:w-[440px]">
+    <article className="flex w-[82vw] max-w-[340px] shrink-0 snap-center flex-col justify-between rounded-3xl border border-primary/20 bg-primary p-6 text-primary-foreground shadow-sm sm:w-[360px] md:w-[440px] md:max-w-none md:p-8">
       <div>
-        <p className="eyebrow text-primary-foreground/80">Your mix</p>
-        <h2 className="mt-3 text-3xl font-light">Build your own bundle</h2>
-        <p className="mt-3 text-[15px] leading-7 text-primary-foreground/90">
-          Pick any 2 items for 10% off, or 3+ for 20% off.
+        <div className="flex items-center justify-between">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
+            <Sparkles className="size-3 text-accent" /> Custom Routine
+          </span>
+          <span className="text-xs font-medium text-white/80">Up to 20% off</span>
+        </div>
+        <p className="eyebrow mt-4 hidden text-primary-foreground/80 md:block">Your mix</p>
+        <h2 className="mt-2 text-2xl font-light md:mt-1 md:text-3xl">Build your own bundle</h2>
+        <p className="mt-2 text-xs text-white/80 sm:text-sm md:text-[15px] md:leading-7 md:text-primary-foreground/90">
+          Pick any 2 items for 10% off, or 3 for 20% off. Curate your personalised LEVA ritual.
         </p>
+
+        <div className="mt-4 space-y-2.5 md:mt-6 md:space-y-3">
+          <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 p-3">
+            <div className="flex items-center gap-2">
+              <span className="grid size-5 place-items-center rounded-full bg-white/20 text-[10px] font-bold text-white">
+                <Check className="size-3" />
+              </span>
+              <div>
+                <p className="text-xs font-semibold text-white sm:text-sm">Choose any 2 products</p>
+                <p className="text-[10px] text-white/70">Everyday duo ritual</p>
+              </div>
+            </div>
+            <span className="shrink-0 rounded-md bg-white/20 px-2 py-1 text-xs font-bold text-accent">
+              Save 10%
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl border border-accent/40 bg-white/15 p-3">
+            <div className="flex items-center gap-2">
+              <span className="grid size-5 place-items-center rounded-full bg-accent text-[10px] font-bold text-primary">
+                ★
+              </span>
+              <div>
+                <p className="text-xs font-semibold text-white sm:text-sm">Choose any 3 products</p>
+                <p className="text-[10px] text-accent">Complete 3-step ritual</p>
+              </div>
+            </div>
+            <span className="shrink-0 rounded-md bg-accent px-2 py-1 text-xs font-bold text-primary">
+              Save 20%
+            </span>
+          </div>
+        </div>
       </div>
-      <Button asChild className="mt-8 h-12 bg-white text-primary hover:bg-accent">
-        <Link to="/bundles/build">
-          Start building <ArrowRight />
-        </Link>
-      </Button>
+
+      <div className="mt-6 pt-2 md:mt-8">
+        <Button asChild className="h-11 w-full bg-white text-primary hover:bg-accent sm:h-12">
+          <Link to="/bundles/build">
+            Start building <ArrowRight className="ml-1.5 size-4" />
+          </Link>
+        </Button>
+      </div>
     </article>
   );
 }
@@ -165,6 +204,7 @@ function BundlesPage() {
     [Layers3, "Complete routine"],
     [Truck, "Free delivery over Rs. 3,000"],
   ] as const;
+
   const tiles = (
     <>
       {displayBundles.map((b) => (
@@ -173,6 +213,7 @@ function BundlesPage() {
       <BuildTile />
     </>
   );
+
   const intro = (
     <div className="px-5 md:px-[8vw]">
       <p className="eyebrow">LEVA / Bundles</p>
@@ -184,18 +225,19 @@ function BundlesPage() {
       </p>
     </div>
   );
+
   return (
-    <main className="pb-24 pt-24 md:pt-[var(--header-h)]">
+    <main className="pb-24 pt-[calc(var(--header-h)+1.5rem)] md:pt-[calc(var(--header-h)+1.5rem)]">
       <div ref={ref} className={`relative hidden lg:block ${reduced ? "" : "h-[220vh]"}`}>
         <div
-          className={`${reduced ? "py-16" : "sticky top-[var(--header-h)] h-[calc(100svh-var(--header-h))]"} flex flex-col justify-center gap-8 overflow-hidden`}
+          className={`${reduced ? "py-16" : "sticky top-[var(--header-h)] min-h-[calc(100svh-var(--header-h))]"} flex flex-col justify-center gap-6 overflow-hidden py-6`}
         >
           {intro}
           <motion.div style={reduced ? {} : { x }} className="flex gap-8 pl-[8vw] pr-[8vw]">
             {tiles}
           </motion.div>
           {!reduced && (
-            <div className="mx-[8vw] h-0.5 bg-primary/10">
+            <div className="mx-[8vw] mt-2 h-0.5 bg-primary/10">
               <motion.div
                 className="h-full origin-left bg-accent"
                 style={{ scaleX: scrollYProgress }}

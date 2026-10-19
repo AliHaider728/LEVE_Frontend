@@ -1,20 +1,14 @@
-import Link from "next/link";
 import { useStoreData } from "@/store/catalog";
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from "motion/react";
-import { ShoppingBag } from "lucide-react";
+import { ArrowRight, ShoppingBag, Sparkles } from "lucide-react";
+import { Link } from "@/lib/router-compat";
 import { getBundleOriginalPrice, bundles as localBundles, type Bundle } from "@/data/bundles";
 
 import { formatPKR } from "@/config/store";
 import { useCart } from "@/store/cart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-const dirs = [
-  { x: -120, y: 0 },
-  { x: 0, y: 120 },
-  { x: 120, y: 0 },
-];
 
 function Card({
   bundle,
@@ -47,102 +41,91 @@ function Card({
   const original = getBundleOriginalPrice(bundle, products);
   const isDuo = bundle.slug === "the-essentials" || bundle.name.toLowerCase().includes("duo") || included.length === 2;
   const showStaticImage = Boolean(bundle.image && !isDuo);
+
   return (
     <div
-      className="mb-6 flex items-start justify-center md:sticky md:top-[calc(var(--header-h)+2rem)] md:mb-0 md:h-[66svh] md:last:h-auto md:last:pb-16"
-      style={{ paddingTop: index * 24 }}
+      className="mb-6 flex items-start justify-center md:sticky md:top-[calc(var(--header-h)+2rem)] md:mb-0 md:h-[52svh] md:last:h-auto md:last:pb-16"
+      style={{ paddingTop: index * 20 }}
     >
       <motion.article
         style={{ scale, opacity: dim }}
-        className="grid w-full max-w-5xl origin-top gap-6 overflow-hidden rounded-3xl bg-background p-5 shadow-[0_20px_60px_-30px_var(--color-primary)] md:grid-cols-2 md:p-8"
+        className="grid w-full max-w-4xl origin-top gap-6 overflow-hidden rounded-3xl bg-background p-5 shadow-[0_20px_50px_-25px_var(--color-primary)] md:grid-cols-[1.1fr_1fr] md:p-6"
       >
         <Link
-          href={`/bundles/${bundle.slug}`}
-          className="group relative block aspect-[5/4] overflow-hidden rounded-2xl bg-gradient-to-b from-[#FFF4F6]/50 to-secondary cursor-pointer"
+          to="/bundles/$slug"
+          params={{ slug: bundle.slug }}
+          className="group relative block aspect-[4/3] overflow-hidden rounded-2xl bg-[#FFF4F6] cursor-pointer sm:aspect-[16/11]"
           aria-label={`View ${bundle.name} details`}
         >
           {showStaticImage ? (
             <img
               src={bundle.image}
-              alt={bundle.name + " with its included LEVA products"}
+              alt={`${bundle.name} with its included LEVA products`}
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-contain p-3 transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            included.map((p, i) => (
-              <motion.img
-                key={p.slug}
-                src={p.image}
-                alt={`${p.name} in ${bundle.name}`}
-                loading="lazy"
-                initial={
-                  reduced
-                    ? false
-                    : included.length === 2
-                    ? i === 0
-                      ? { x: -90, y: 30, rotate: -6, opacity: 0 }
-                      : { x: 90, y: 30, rotate: 6, opacity: 0 }
-                    : { ...dirs[i % 3], opacity: 0 }
-                }
-                whileInView={{
-                  x: 0,
-                  y: 0,
-                  rotate: included.length === 2 ? (i === 0 ? -2 : 2) : 0,
-                  opacity: 1,
-                }}
-                viewport={{ once: true, amount: 0.15, margin: "0px 0px -30px 0px" }}
-                transition={{
-                  duration: 0.85,
-                  delay: i * 0.15,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className={`absolute bottom-0 rounded-t-2xl object-cover shadow-[0_12px_30px_rgba(0,0,0,0.12)] ${
-                  included.length === 2 ? "h-[84%] w-[44%]" : "h-[78%] w-[44%]"
-                }`}
-                style={{
-                  left:
-                    included.length === 2
-                      ? i === 0
-                        ? "12%"
-                        : "46%"
-                      : `${6 + i * (included.length === 3 ? 25 : 44)}%`,
-                  zIndex: i === 1 ? 2 : 1,
-                }}
-              />
-            ))
+            <div className="relative flex h-full w-full items-end justify-center pb-2">
+              {included.map((p, i) => (
+                <img
+                  key={p.slug}
+                  src={p.image}
+                  alt={p.name}
+                  loading="lazy"
+                  className={`h-[82%] w-[44%] rounded-t-xl object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-105 ${
+                    i === 0 ? "-mr-3 z-10 -rotate-2" : "z-20 rotate-2"
+                  }`}
+                />
+              ))}
+            </div>
           )}
-          <motion.div
-            initial={reduced ? false : { scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ type: "spring", delay: 0.5, stiffness: 300, damping: 14 }}
-            className="absolute left-3 top-3 z-10 flex gap-2"
-          >
+          <div className="absolute left-3 top-3 z-10 flex gap-2">
             <Badge variant="saving">
               Save {formatPKR(original - bundle.price)} ({bundle.savePercent}%)
             </Badge>
             {included.length === 3 && <Badge>Best Value</Badge>}
-          </motion.div>
+          </div>
         </Link>
         <div className="flex flex-col justify-center">
-          <p className="eyebrow">Bundle {index + 1}</p>
-          <h3 className="mt-2 text-2xl font-light text-foreground md:text-3xl"><Link href={`/bundles/${bundle.slug}`} className="hover:underline">{bundle.name}</Link></h3>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
-          <ul className="mt-3 space-y-1 text-[15px] text-muted-foreground">
-            {included.map((p) => (
-              <li key={p.slug}>· {p.name}</li>
-            ))}
-          </ul>
-          <p className="mt-4 flex items-baseline gap-3">
-            <strong className="text-xl font-medium">{formatPKR(bundle.price)}</strong>
+          <p className="eyebrow">{included.length} Products</p>
+          <h3 className="mt-1 text-2xl font-light text-foreground md:text-3xl">
+            <Link to="/bundles/$slug" params={{ slug: bundle.slug }} className="hover:underline">
+              {bundle.name}
+            </Link>
+          </h3>
+          <p className="mt-3 flex items-baseline gap-3">
+            <strong className="text-2xl font-medium">{formatPKR(bundle.price)}</strong>
             <span className="text-sm text-muted-foreground line-through">
               {formatPKR(original)}
             </span>
           </p>
-          <Link href={`/bundles/${bundle.slug}`} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline underline-offset-4">View bundle details</Link>
-          <Button className="mt-2 h-12" onClick={() => addBundle(bundle.slug)}>
-            <ShoppingBag /> Add bundle
-          </Button>
+          <p className="mt-1 text-sm font-medium text-accent">
+            You save {formatPKR(original - bundle.price)}
+          </p>
+          <div className="mt-6 flex flex-col gap-2.5">
+            <Button className="h-11 md:h-12" onClick={() => addBundle(bundle.slug)}>
+              <ShoppingBag className="mr-1.5 size-4" /> Add bundle to cart
+            </Button>
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <Link
+                to="/bundles/$slug"
+                params={{ slug: bundle.slug }}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary hover:underline"
+              >
+                View bundle details <ArrowRight className="size-3.5" />
+              </Link>
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="h-8 border-primary/20 bg-transparent text-xs font-medium text-primary hover:bg-primary hover:text-white"
+              >
+                <Link to="/bundles/build">
+                  <Sparkles className="mr-1 size-3 text-accent" /> Make your own bundle
+                </Link>
+              </Button>
+            </div>
+          </div>
         </div>
       </motion.article>
     </div>
@@ -157,11 +140,20 @@ export function BundleStack() {
   if (displayBundles.length === 0) return null;
   return (
     <section aria-label="Bundles" className="bg-secondary px-5 pt-16 md:px-[8vw] md:pt-24">
-      <p className="eyebrow">Bundles</p>
-      <h2 className="mt-2 text-3xl font-light text-foreground md:text-[2.75rem]">
-        Better together.
-      </h2>
-      <div ref={ref} className="mt-10 pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <p className="eyebrow">Bundles</p>
+          <h2 className="mt-2 text-3xl font-light text-foreground md:text-[2.75rem]">
+            Better together.
+          </h2>
+        </div>
+        <Button asChild variant="outline" className="h-11 border-primary/25 bg-white text-xs font-medium text-primary hover:bg-primary hover:text-white sm:text-sm">
+          <Link to="/bundles/build">
+            <Sparkles className="mr-1.5 size-3.5 text-accent" /> Make your own bundle
+          </Link>
+        </Button>
+      </div>
+      <div ref={ref} className="mt-8 pb-8">
         {displayBundles.map((b, i) => (
           <Card
             key={b.slug}
@@ -171,6 +163,16 @@ export function BundleStack() {
             progress={scrollYProgress}
           />
         ))}
+      </div>
+      <div className="flex flex-col items-center justify-center gap-2 pb-12 text-center">
+        <Button asChild size="lg" className="h-12 bg-primary px-8 text-sm font-medium text-white shadow-md hover:bg-primary/90">
+          <Link to="/bundles/build">
+            <Sparkles className="mr-2 size-4 text-accent" /> Make your own bundle →
+          </Link>
+        </Button>
+        <p className="text-xs text-muted-foreground">
+          Choose any 2 for 10% off, or all 3 for 20% off.
+        </p>
       </div>
     </section>
   );

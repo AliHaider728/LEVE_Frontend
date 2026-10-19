@@ -1,10 +1,9 @@
 "use client";
 import { createFileRoute } from "@/lib/router-compat";
 import { useState, type FormEvent } from "react";
-import { Facebook, Instagram, MessageCircle, Music2 } from "lucide-react";
+import { Facebook, Instagram } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { editorialImages } from "@/lib/assets";
 import { storeConfig } from "@/config/store";
 
 const schema = z.object({
@@ -16,6 +15,7 @@ const schema = z.object({
     .regex(/^((\+92)|0)3\d{2}-?\d{7}$/, "Enter a valid Pakistan mobile number."),
   message: z.string().trim().min(1, "Please enter a message.").max(1000),
 });
+
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
@@ -32,9 +32,11 @@ export const Route = createFileRoute("/contact")({
   }),
   component: Contact,
 });
+
 function Contact() {
   const [sent, setSent] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const result = schema.safeParse(Object.fromEntries(new FormData(event.currentTarget)));
@@ -49,24 +51,27 @@ function Contact() {
     setErrors({});
     setSent(true);
   };
+
   const error = (name: string) =>
     errors[name] ? (
       <span role="alert" className="mt-2 block text-sm text-destructive">
         {errors[name]}
       </span>
     ) : null;
+
   const fields = [
     { name: "name", label: "Name", type: "text" },
     { name: "email", label: "Email", type: "email" },
     { name: "phone", label: "Phone", type: "tel" },
   ] as const;
+
   return (
     <main>
       <section className="grid min-h-svh pt-20 md:grid-cols-2 md:pt-28">
-        <div className="relative min-h-[45vh] overflow-hidden">
+        <div className="relative min-h-[45vh] overflow-hidden bg-secondary">
           <img
-            src={editorialImages.closeup}
-            alt="Woman during a skincare ritual"
+            src="/images/face-wash-ritual.webp"
+            alt="LEVA skincare ritual"
             className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-primary/35 via-transparent to-transparent" />
@@ -115,6 +120,7 @@ function Contact() {
           )}
         </div>
       </section>
+
       <section className="grid gap-12 bg-primary px-6 py-20 text-primary-foreground md:grid-cols-2 md:px-[8vw]">
         <h2 className="text-5xl font-light">Elsewhere.</h2>
         <div className="grid gap-5 text-base">
@@ -140,45 +146,24 @@ function Contact() {
           </a>
           <div className="flex gap-2 pt-2">
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/leva.pk.official/"
               target="_blank"
               rel="noreferrer"
               aria-label="Instagram"
-              className="grid size-11 place-items-center border border-primary-foreground/30"
+              className="grid size-11 place-items-center border border-primary-foreground/30 hover:border-white hover:bg-white/10 transition-colors"
             >
-              <Instagram />
+              <Instagram className="size-5" />
             </a>
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/leva.pk.official"
               target="_blank"
               rel="noreferrer"
               aria-label="Facebook"
-              className="grid size-11 place-items-center border border-primary-foreground/30"
+              className="grid size-11 place-items-center border border-primary-foreground/30 hover:border-white hover:bg-white/10 transition-colors"
             >
-              <Facebook />
-            </a>
-            <a
-              href="https://tiktok.com"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="TikTok"
-              className="grid size-11 place-items-center border border-primary-foreground/30"
-            >
-              <Music2 />
-            </a>
-            <a
-              href={`https://wa.me/${storeConfig.whatsappNumber}`}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="WhatsApp"
-              className="grid size-11 place-items-center border border-primary-foreground/30"
-            >
-              <MessageCircle />
+              <Facebook className="size-5" />
             </a>
           </div>
-          <p className="mt-4 text-sm text-primary-foreground/75">
-            Contact and social details are placeholders.
-          </p>
         </div>
       </section>
     </main>

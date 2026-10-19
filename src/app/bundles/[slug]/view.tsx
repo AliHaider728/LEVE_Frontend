@@ -31,7 +31,7 @@ export default function View() {
       <div className="mt-4 grid gap-8 lg:grid-cols-[1.06fr_.94fr] lg:gap-14">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#FFF4F6] to-[#FCEEF1] aspect-square flex items-end justify-center">
           {bundle.image && bundle.slug !== 'the-essentials' && !bundle.name.toLowerCase().includes('duo') ? (
-            <img src={bundle.image} alt={`${bundle.name} with LEVA products`} className="aspect-square w-full object-cover"/>
+            <img src={bundle.image} alt={`${bundle.name} with LEVA products`} className="aspect-square w-full object-contain p-4"/>
           ) : (
             <div className="relative h-full w-full overflow-hidden">
               {included.map((product, i) => (
