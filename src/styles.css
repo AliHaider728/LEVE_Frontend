@@ -64,6 +64,8 @@
 }
 
 :root {
+  --announce-h: 0px;
+  --navbar-h: 4rem;
   --header-h: 4rem;
   --announcement-offset: 0px;
   --radius: 0.25rem;
@@ -162,7 +164,7 @@
 .product-vessel { color: var(--primary); background: color-mix(in oklab, var(--background) 80%, var(--accent)); box-shadow: 16px 18px 45px color-mix(in oklab, var(--primary) 18%, transparent); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 
-@media (min-width: 768px) { :root { --header-h: 7rem; --announcement-offset: 2rem; } }
+@media (min-width: 768px) { :root { --announce-h: 2rem; --navbar-h: 5rem; --header-h: 7rem; --announcement-offset: 2rem; } }
 
 /* Reserve room for mobile navigation and the product purchase bar. */
 @media (max-width: 767px) {

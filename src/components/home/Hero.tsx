@@ -43,9 +43,8 @@ export function Hero() {
         {/* Hero Content (Text & CTA) */}
         <motion.div
           className="absolute left-6 top-3 z-20 flex max-w-[calc(100%-3rem)] flex-col sm:left-8 sm:top-5 sm:max-w-md md:bottom-8 md:left-12 md:top-auto lg:bottom-10 lg:left-[6%] xl:bottom-14 xl:max-w-lg"
-          initial={reducedMotion ? false : { y: 25, opacity: 0 }}
+          initial={false}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: reducedMotion ? 0 : 0.15, duration: reducedMotion ? 0 : 0.7 }}
         >
           <p className="eyebrow mb-2 text-xs font-medium uppercase tracking-[0.2em] sm:mb-3 sm:text-sm">
             Skincare for her
