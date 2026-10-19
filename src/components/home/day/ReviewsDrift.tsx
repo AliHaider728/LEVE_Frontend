@@ -177,8 +177,12 @@ function WriteReview() {
 }
 
 export function ReviewsDrift() {
-  const { reviews, reviewsLive } = useStoreData();
+  const { reviews } = useStoreData();
   const s = getReviewSummary(reviews);
+  const mid = Math.ceil(reviews.length / 2);
+  const firstHalf = reviews.slice(0, mid);
+  const secondHalf = reviews.slice(mid);
+
   return (
     <section aria-label="Reviews" className="grid gap-4 bg-primary py-16 md:py-24">
       <div className="mb-6 grid gap-8 px-5 md:grid-cols-[1fr_auto] md:items-end md:px-[8vw]">
@@ -188,36 +192,50 @@ export function ReviewsDrift() {
             <h2 className="mt-2 text-3xl font-light text-white md:text-[2.75rem]">
               Loved across Pakistan.
             </h2>
-            <div className="mt-3 flex items-center gap-3 text-white">
-              <span className="text-4xl font-light">{s.average.toFixed(1)}</span>
-              <div>
-                <Stars n={Math.round(s.average)} />
-                <p className="text-xs text-white/80">{s.count} reviews{!reviewsLive && " · sample data"}</p>
+            {s.count > 0 ? (
+              <div className="mt-3 flex items-center gap-3 text-white">
+                <span className="text-4xl font-light">{s.average.toFixed(1)}</span>
+                <div>
+                  <Stars n={Math.round(s.average)} />
+                  <p className="text-xs text-white/80">{s.count} {s.count === 1 ? "review" : "reviews"}</p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <p className="mt-3 text-sm text-white/80">No reviews yet</p>
+            )}
           </div>
-          <ul className="grid max-w-xs gap-1.5 text-xs text-white sm:ml-8">
-            {s.bars.map((b) => (
-              <li key={b.star} className="grid grid-cols-[2rem_1fr_1.5rem] items-center gap-2">
-                <span>{b.star}★</span>
-                <span className="h-1.5 overflow-hidden rounded-full bg-white/20">
-                  <motion.span
-                    className="block h-full origin-left bg-accent"
-                    initial={{ scaleX: 0 }}
-                    whileInView={{ scaleX: s.count ? b.count / s.count : 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8 }}
-                  />
-                </span>
-                <span>{b.count}</span>
-              </li>
-            ))}
-          </ul>
+          {s.count > 0 && (
+            <ul className="grid max-w-xs gap-1.5 text-xs text-white sm:ml-8">
+              {s.bars.map((b) => (
+                <li key={b.star} className="grid grid-cols-[2rem_1fr_1.5rem] items-center gap-2">
+                  <span>{b.star}★</span>
+                  <span className="h-1.5 overflow-hidden rounded-full bg-white/20">
+                    <motion.span
+                      className="block h-full origin-left bg-accent"
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: s.count ? b.count / s.count : 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8 }}
+                    />
+                  </span>
+                  <span>{b.count}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <WriteReview />
       </div>
-      <Row items={reviews.slice(0, 4)} dir={-1} />
-      <Row items={reviews.slice(4)} dir={1} />
+      {reviews.length > 0 ? (
+        <>
+          <Row items={firstHalf} dir={-1} />
+          {secondHalf.length > 0 && <Row items={secondHalf} dir={1} />}
+        </>
+      ) : (
+        <div className="px-5 py-8 text-center text-white/70 md:px-[8vw]">
+          <p className="text-base font-light">No customer reviews yet. Be the first to share your experience with LEVA skincare.</p>
+        </div>
+      )}
     </section>
   );
 }

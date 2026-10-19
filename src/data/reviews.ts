@@ -1,50 +1,7 @@
 /** Placeholder reviews for preview. Replace with real customer reviews. */
 export type Review = { name: string; city: string; rating: number; quote: string; product: string; verified?: boolean };
 
-export const reviews: Review[] = [
-  {
-    name: "Ayesha K.",
-    city: "Lahore",
-    rating: 5,
-    quote: "My skin feels so soft now. The cream is my favourite.",
-    product: "LEVA Cream",
-  },
-  {
-    name: "Sana M.",
-    city: "Karachi",
-    rating: 5,
-    quote: "Got it with Cash on Delivery in 3 days. Lovely packing.",
-    product: "The Complete Ritual",
-  },
-  {
-    name: "Mahnoor R.",
-    city: "Faisalabad",
-    rating: 4,
-    quote: "Gentle face wash, no dryness at all.",
-    product: "LEVA Face Wash",
-  },
-  {
-    name: "Zainab T.",
-    city: "Multan",
-    rating: 5,
-    quote: "The bundle is great value. Full routine sorted.",
-    product: "The Duo",
-  },
-  {
-    name: "Iqra N.",
-    city: "Rawalpindi",
-    rating: 5,
-    quote: "My sensitive skin loves the cleanser.",
-    product: "LEVA Face Wash",
-  },
-  {
-    name: "Amna J.",
-    city: "Sialkot",
-    rating: 5,
-    quote: "WhatsApp ordering was so easy.",
-    product: "LEVA Cream",
-  },
-];
+export const reviews: Review[] = [];
 
 export function getReviewSummary(list: Review[] = reviews) {
   const count = list.length;

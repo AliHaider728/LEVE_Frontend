@@ -1,7 +1,7 @@
 import { adminBackendOrigin } from '@/lib/api/admin-origin';
 import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
-const allowed = [/^admin\/(features|dashboard|customers|reports|best-sellers(?:\/[^/]+)?)$/, /^categories(?:\/admin\/all|\/[^/]+(?:\/delete-impact)?)?$/, /^global-attributes(?:\/[^/]+(?:\/terms(?:\/[^/]+)?)?)?$/, /^reviews(?:\/admin|\/[^/]+(?:\/(approve|reject))?)?$/, /^audio-reviews(?:\/admin|\/[^/]+)?$/, /^contact(?:\/[^/]+(?:\/status)?)?$/, /^bundles(?:\/[^/]+)?$/, /^coupons(?:\/[^/]+)?$/, /^settings(?:\/(routine|social))?$/, /^auth\/(login|logout|me|users)$/, /^products(?:\/[^/]+)?$/, /^orders(?:\/[^/]+(?:\/(status|tracking))?)?$/, /^upload\/image$/, /^features$/];
+const allowed = [/^admin\/(features|dashboard|customers|reports|best-sellers(?:\/[^/]+)?)$/, /^categories(?:\/admin\/all|\/[^/]+(?:\/delete-impact)?)?$/, /^global-attributes(?:\/[^/]+(?:\/terms(?:\/[^/]+)?)?)?$/, /^reviews(?:\/admin(?:\/import-csv)?|\/[^/]+(?:\/(approve|reject))?)?$/, /^audio-reviews(?:\/admin|\/[^/]+)?$/, /^contact(?:\/[^/]+(?:\/status)?)?$/, /^bundles(?:\/[^/]+)?$/, /^coupons(?:\/[^/]+)?$/, /^settings(?:\/(routine|social))?$/, /^auth\/(login|logout|me|users)$/, /^products(?:\/[^/]+)?$/, /^orders(?:\/[^/]+(?:\/(status|tracking))?)?$/, /^upload\/image$/, /^features$/];
 async function proxy(request: NextRequest, { params }: {
     params: Promise<{
         path: string[];

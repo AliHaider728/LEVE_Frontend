@@ -97,11 +97,15 @@ export function ProductReviews({ productId, productSlug, productName, catalogRea
           <p className="eyebrow">From the LEVA community</p>
           <h2 id="reviews-heading" className="mt-2 text-3xl font-light md:text-5xl">Customer reviews</h2>
           {!loading && !error && <div className="mt-4 flex items-center gap-3 text-sm">
-            {reviews.length > 0 ? <>
-              <strong className="text-2xl font-medium">{average.toFixed(1)}</strong>
-              <Stars rating={Math.round(average)} />
-            </> : <Star aria-hidden="true" className="size-4 text-accent" />}
-            <span className="text-muted-foreground">{reviews.length} {reviews.length === 1 ? "review" : "reviews"}</span>
+            {reviews.length > 0 ? (
+              <>
+                <strong className="text-2xl font-medium">{average.toFixed(1)}</strong>
+                <Stars rating={Math.round(average)} />
+                <span className="text-muted-foreground">{reviews.length} {reviews.length === 1 ? "review" : "reviews"}</span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">No reviews yet</span>
+            )}
           </div>}
         </div>
         <Button type="button" variant="outline" magnetic={false} onClick={() => { setSubmitted(false); setFormError(""); setOpen(true); }}>Write a review</Button>
