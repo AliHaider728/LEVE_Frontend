@@ -115,7 +115,7 @@ function ProductPage() {
       <section className="px-5 py-16 md:px-[8vw] md:py-20">
         <p className="eyebrow mb-4">Complete the ritual</p>
         <h2 className="mb-12 text-5xl font-light md:text-7xl">You may also like.</h2>
-        <div className={`mx-auto grid grid-cols-2 gap-4 sm:gap-6 ${suggestions.length <= 2 ? "max-w-2xl" : suggestions.length === 3 ? "max-w-4xl md:grid-cols-3" : "max-w-6xl md:grid-cols-3 xl:grid-cols-4"}`}>
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 max-w-6xl">
           {suggestions.map((item) => (
             <ProductCard key={item.slug} product={item.id ? item : { ...item, rating: 0, reviewCount: 0 }} />
           ))}

@@ -1,10 +1,12 @@
 import { useRef } from "react";
 import { motion, useScroll, useSpring, useTransform, useReducedMotion } from "motion/react";
+import Link from "next/link";
 
 const items = [
   {
     step: "01",
     name: "LEVA Face Wash",
+    slug: "product-03",
     ingredient: "Hyaluronic Acid",
     benefit: "Helps retain moisture for soft, fresh, and hydrated-looking skin.",
     howToUse: "Apply to a damp face, massage gently for 15–20 seconds, then rinse thoroughly.",
@@ -13,6 +15,7 @@ const items = [
   {
     step: "02",
     name: "LEVA Cream",
+    slug: "product-01",
     ingredient: "Alpha Arbutin",
     benefit: "Helps reduce the appearance of dark spots and promotes a brighter, more even-looking skin tone.",
     howToUse: "Apply a small amount to clean skin once or twice daily.",
@@ -21,6 +24,7 @@ const items = [
   {
     step: "SPF 50",
     name: "LEVA Tinted Sunblock",
+    slug: "product-02",
     ingredient: "UVA & UVB Protection",
     benefit: "Helps protect against sunburn, tanning, and premature skin aging.",
     howToUse: "Apply 15 minutes before sun exposure. Reapply every 2 hours outdoors.",
@@ -31,19 +35,27 @@ const items = [
 function Panel({ it }: { it: (typeof items)[number] }) {
   return (
     <article className="grid w-[85vw] shrink-0 snap-center overflow-hidden rounded-3xl bg-background md:w-[60vw] md:grid-cols-2 lg:h-[min(54svh,470px)] lg:w-[min(43vw,610px)]">
-      <div className="aspect-[4/3] overflow-hidden md:aspect-auto">
+      <Link
+        href={`/shop/${it.slug}`}
+        className="group block aspect-[4/3] overflow-hidden md:aspect-auto cursor-pointer"
+        aria-label={`View ${it.name} details`}
+      >
         <img
           src={it.img}
           alt={`LEVA ${it.name}`}
           loading="lazy"
-          className="h-full w-full scale-110 object-cover"
+          className="h-full w-full scale-110 object-cover transition-transform duration-500 group-hover:scale-115"
         />
-      </div>
+      </Link>
       <div className="flex flex-col justify-center p-6 md:p-10">
         <p className="text-sm font-semibold tracking-widest text-accent uppercase">
           {it.step}
         </p>
-        <h3 className="mt-2 text-2xl font-light text-foreground">{it.name}</h3>
+        <h3 className="mt-2 text-2xl font-light text-foreground">
+          <Link href={`/shop/${it.slug}`} className="hover:underline">
+            {it.name}
+          </Link>
+        </h3>
         <p className="mt-4 text-xs font-semibold tracking-wider text-foreground/70 uppercase">
           {it.ingredient}
         </p>

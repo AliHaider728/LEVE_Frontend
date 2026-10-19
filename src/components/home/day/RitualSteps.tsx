@@ -22,10 +22,10 @@ const stepDetails = {
     text: "Start soft. Wash away the night without stripping your skin.",
     highlights: ["Hyaluronic Acid", "Sulfate-Free", "Gentle Purifying", "All Skin Types"],
     fallbackReview: {
-      name: "Iqra N.",
-      city: "Rawalpindi",
+      name: "Hania Aslam",
+      city: "",
       rating: 5,
-      quote: "Gentle and refreshing. Doesn't strip moisture or feel tight at all!",
+      quote: "Face wash use karna easy hai aur washing ke baad fresh feel hota hai. Daily routine mein easily include ho jata hai.",
     },
   },
   Cream: {
@@ -34,10 +34,10 @@ const stepDetails = {
     text: "Seal it in. Skin stays calm, bright and soft all day.",
     highlights: ["Alpha Arbutin", "Dark Spot Reduction", "Radiant Glow", "Featherlight"],
     fallbackReview: {
-      name: "Ayesha K.",
-      city: "Lahore",
+      name: "Ayesha Malik",
+      city: "",
       rating: 5,
-      quote: "My skin feels so soft and glowing now. The cream is truly my favourite.",
+      quote: "Cream achi hai, texture bhi soft hai. Daily skincare routine mein easily use ho jati hai.",
     },
   },
   Sunscreen: {
@@ -46,10 +46,10 @@ const stepDetails = {
     text: "Finish with tinted SPF 50 PA+++ broad-spectrum defense.",
     highlights: ["SPF 50 PA+++", "UVA/UVB Defense", "Sheer Natural Tint", "Zero White Cast"],
     fallbackReview: {
-      name: "Zara M.",
-      city: "Karachi",
+      name: "Zainab Ahmed",
+      city: "",
       rating: 5,
-      quote: "Finally a tinted sunscreen in Pakistan with no white cast and a natural dewy finish.",
+      quote: "Tinted finish achi hai, apply karna bhi easy hai. Mujhe iska lightweight texture pasand aya.",
     },
   },
 };
@@ -62,6 +62,7 @@ function Stage({ i }: { i: number }) {
 
   const matchingReview = reviews?.find(
     (r) =>
+      r.rating === 5 &&
       r.product &&
       (r.product.toLowerCase().includes(p.name.toLowerCase()) ||
         p.name.toLowerCase().includes(r.product.toLowerCase()))
@@ -70,7 +71,12 @@ function Stage({ i }: { i: number }) {
 
   return (
     <div className="grid items-center gap-8 md:grid-cols-12 md:gap-10 lg:gap-14">
-      <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-3xl bg-secondary shadow-md md:col-span-5 md:max-w-none">
+      <Link
+        to="/shop/$slug"
+        params={{ slug: p.slug }}
+        className="group relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-3xl bg-secondary shadow-md md:col-span-5 md:max-w-none cursor-pointer"
+        aria-label={`View ${p.name} details`}
+      >
         <AnimatePresence initial={false}>
           <motion.img
             key={p.slug}
@@ -81,7 +87,7 @@ function Stage({ i }: { i: number }) {
             animate={{ clipPath: "circle(75% at 50% 50%)" }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </AnimatePresence>
         {p.badge && (
@@ -91,7 +97,7 @@ function Stage({ i }: { i: number }) {
             </span>
           </div>
         )}
-      </div>
+      </Link>
 
       <div className="min-w-0 md:col-span-7">
         <AnimatePresence mode="wait">
@@ -120,9 +126,11 @@ function Stage({ i }: { i: number }) {
                     <Star key={idx} className="size-3.5 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <span className="font-semibold text-foreground">{p.rating || 4.9}</span>
+                <span className="font-semibold text-foreground">
+                  {p.rating ? Number(p.rating).toFixed(1) : "5.0"}
+                </span>
                 <span className="text-[11px] text-muted-foreground">
-                  ({p.reviewCount || 84} reviews)
+                  ({p.reviewCount || 0} reviews)
                 </span>
               </div>
             </div>

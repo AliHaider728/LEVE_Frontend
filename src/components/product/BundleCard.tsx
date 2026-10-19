@@ -18,13 +18,17 @@ export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featu
   const original = getBundleOriginalPrice(bundle, products);
   return (
     <article className="border-t border-primary/25 pt-6">
-      <div className="relative flex aspect-[5/4] items-end justify-center overflow-hidden rounded-md bg-background">
+      <Link
+        href={`/bundles/${bundle.slug}`}
+        className="group relative flex aspect-[5/4] items-end justify-center overflow-hidden rounded-md bg-background cursor-pointer"
+        aria-label={`View ${bundle.name} details`}
+      >
         {bundle.image ? (
           <img
             src={bundle.image}
             alt={bundle.name + " with its included LEVA products"}
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           included.map((product, index) => (
@@ -33,7 +37,7 @@ export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featu
               src={product.image}
               alt={`${product.name} included in ${bundle.name}`}
               loading="lazy"
-              className={`absolute bottom-0 h-[82%] w-[46%] rounded-t-md object-cover shadow-lg ${index === 0 ? "-translate-x-[42%] -rotate-3" : index === 2 ? "translate-x-[42%] rotate-3" : "z-10"}`}
+              className={`absolute bottom-0 h-[82%] w-[46%] rounded-t-md object-cover shadow-lg transition-transform duration-500 group-hover:scale-105 ${index === 0 ? "-translate-x-[42%] -rotate-3" : index === 2 ? "translate-x-[42%] rotate-3" : "z-10"}`}
             />
           ))
         )}
@@ -43,7 +47,7 @@ export function BundleCard({ bundle, featured = false }: { bundle: Bundle; featu
           </Badge>
           {featured && <Badge>Best Value</Badge>}
         </div>
-      </div>
+      </Link>
       <h3 className="mt-6 text-3xl font-light"><Link href={`/bundles/${bundle.slug}`} className="hover:underline">{bundle.name}</Link></h3>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{bundle.description}</p>
       <ul className="mt-4 space-y-1 text-base text-muted-foreground">

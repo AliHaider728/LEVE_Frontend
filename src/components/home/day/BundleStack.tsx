@@ -56,13 +56,17 @@ function Card({
         style={{ scale, opacity: dim }}
         className="grid w-full max-w-5xl origin-top gap-6 overflow-hidden rounded-3xl bg-background p-5 shadow-[0_20px_60px_-30px_var(--color-primary)] md:grid-cols-2 md:p-8"
       >
-        <div className="relative aspect-[5/4] overflow-hidden rounded-2xl bg-gradient-to-b from-[#FFF4F6]/50 to-secondary">
+        <Link
+          href={`/bundles/${bundle.slug}`}
+          className="group relative block aspect-[5/4] overflow-hidden rounded-2xl bg-gradient-to-b from-[#FFF4F6]/50 to-secondary cursor-pointer"
+          aria-label={`View ${bundle.name} details`}
+        >
           {showStaticImage ? (
             <img
               src={bundle.image}
               alt={bundle.name + " with its included LEVA products"}
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             included.map((p, i) => (
@@ -119,7 +123,7 @@ function Card({
             </Badge>
             {included.length === 3 && <Badge>Best Value</Badge>}
           </motion.div>
-        </div>
+        </Link>
         <div className="flex flex-col justify-center">
           <p className="eyebrow">Bundle {index + 1}</p>
           <h3 className="mt-2 text-2xl font-light text-foreground md:text-3xl"><Link href={`/bundles/${bundle.slug}`} className="hover:underline">{bundle.name}</Link></h3>
