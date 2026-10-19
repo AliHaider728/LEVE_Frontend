@@ -8,26 +8,27 @@ export function Hero() {
 
   return (
     <section
-      className="relative flex min-h-[calc(100svh-var(--header-h,4rem))] w-full flex-col overflow-hidden bg-[#f4d7df] text-primary md:min-h-[calc(100vh-var(--header-h,7rem))]"
+      className="relative flex min-h-[calc(100svh-var(--header-h,4rem))] w-full flex-col overflow-hidden bg-[#f4d7df] text-primary md:min-h-[520px]"
       style={{
         paddingTop: "var(--header-h, 4rem)",
       }}
     >
-      {/* ── Desktop hero (≥768px): full-viewport image ── */}
+      {/* ── Desktop hero (≥768px): fixed parallax image ── */}
       <div
-        className="relative hidden w-full flex-1 overflow-hidden md:flex md:min-h-[680px] lg:min-h-[760px] xl:min-h-[820px]"
+        className="relative hidden w-full flex-1 overflow-hidden md:flex md:min-h-[500px] lg:min-h-[540px] xl:min-h-[580px]"
         style={{
-          height: "calc(100vh - var(--header-h, 7rem))",
+          height: "calc(88vh - var(--header-h, 7rem))",
+          maxHeight: "640px",
         }}
       >
         <div
-          className="absolute inset-0 bg-cover bg-no-repeat bg-[center_bottom] lg:bg-[64%_bottom] xl:bg-[center_bottom]"
+          className="absolute inset-0 bg-cover bg-no-repeat md:bg-fixed bg-[center_bottom] lg:bg-[64%_bottom] xl:bg-[center_bottom]"
           style={{
             backgroundImage: "url('/images/leva-pink-studio-hero.webp')",
           }}
         />
         <motion.div
-          className="absolute bottom-12 left-12 z-20 flex max-w-md flex-col lg:bottom-16 lg:left-[6%] xl:bottom-20 xl:max-w-lg"
+          className="absolute bottom-8 left-10 z-20 flex max-w-md flex-col lg:bottom-12 lg:left-[6%] xl:bottom-14 xl:max-w-lg"
           initial={false}
           animate={{ y: 0, opacity: 1 }}
         >

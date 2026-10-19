@@ -417,13 +417,13 @@ function Intro() {
         </ul>
       </div>
       <div
-        className="mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-t-[999px] rounded-b-3xl bg-[#FFF4F6] shadow-sm"
+        className="mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-t-[999px] rounded-b-3xl bg-[#FFF4F6] shadow-sm"
       >
         <motion.img
           style={{ y }}
-          src="/images/leva-pink-studio-hero.webp"
+          src="/images/leva-shop-hero-trio.webp"
           alt="LEVA three skincare essentials together"
-          className="h-full w-full object-cover object-[68%_bottom]"
+          className="h-full w-full object-cover object-bottom"
         />
       </div>
     </section>

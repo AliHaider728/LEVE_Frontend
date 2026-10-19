@@ -51,17 +51,30 @@ function About() {
           </h1>
         </div>
       </section>
-      <section className="grid gap-12 px-6 py-28 md:grid-cols-2 md:px-[10vw] md:py-40">
-        <p className="eyebrow">The story</p>
+      <section className="grid items-center gap-12 px-6 py-20 md:grid-cols-2 md:gap-16 md:px-[10vw] md:py-32">
+        <div className="relative aspect-[4/5] w-full max-w-md overflow-hidden rounded-3xl bg-secondary shadow-sm">
+          <img
+            src="/images/face-wash-ritual.webp"
+            alt="LEVA considered skincare ritual"
+            loading="lazy"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute left-4 top-4">
+            <span className="eyebrow rounded-full bg-white/85 px-3 py-1 shadow-sm backdrop-blur-sm">
+              The story
+            </span>
+          </div>
+        </div>
         <div>
-          <h2 className="text-5xl font-light leading-tight md:text-7xl">
+          <p className="eyebrow mb-3">Our beginning</p>
+          <h2 className="text-4xl font-light leading-tight sm:text-5xl md:text-6xl">
             Skincare that makes room for you.
           </h2>
-          <p className="mt-10 max-w-md text-base leading-8">
+          <p className="mt-6 max-w-md text-base leading-8 text-foreground/85">
             LEVA begins with three essentials and one simple belief: the most meaningful ritual is
             the one you want to return to. An invitation to slow down, to notice, and to care.
           </p>
-          <p className="mt-6 max-w-md text-base leading-8">
+          <p className="mt-4 max-w-md text-base leading-8 text-foreground/85">
             Created for her pace, each ritual strips away the noise around beauty and returns
             attention to a simple, tactile moment of self-respect.
           </p>

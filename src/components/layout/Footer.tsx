@@ -60,8 +60,6 @@ export function Footer() {
             className="grid content-start gap-4 text-xs font-medium uppercase tracking-wider"
           >
             <Link to="/shop">Shop</Link>
-            <Link to="/bundles">Bundles</Link>
-            <Link to="/bundles/build">Build your own</Link>
             <Link to="/account">Account</Link>
             <Link to="/about">About</Link>
             <Link to="/contact">Contact</Link>
@@ -110,11 +108,11 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <div className="mt-12 flex justify-center px-4">
+      <div className="mt-14 flex justify-center px-4">
         <img
           src="/images/LEVA-logo-white.png"
           alt="LEVA"
-          className="h-auto w-full max-w-[min(80vw,520px)] object-contain opacity-95"
+          className="h-auto w-full max-w-[min(94vw,760px)] md:max-w-4xl lg:max-w-5xl object-contain opacity-95 transition-transform hover:scale-[1.02]"
           loading="lazy"
         />
       </div>

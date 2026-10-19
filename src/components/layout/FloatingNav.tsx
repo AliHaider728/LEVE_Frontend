@@ -2,16 +2,16 @@ import {useStoreData} from '@/store/catalog';
 import {formatPKR} from '@/config/store';
 import {useEffect,useState,useRef} from 'react';
 import {Link,useRouterState} from '@/lib/router-compat';
-import {Contact,Heart,Home,Layers3,Search,ShoppingBag,Store} from 'lucide-react';
+import {Contact,Heart,Home,Search,ShoppingBag,Store} from 'lucide-react';
+import {ProductSearch} from '@/components/search/ProductSearch';
 import logo from '@/assets/LEVA.png.asset.json';
 import {useCart} from '@/store/cart';
 import {useWishlist} from '@/store/wishlist';
 import {Button} from '@/components/ui/button';
 import {CartDrawer} from '@/components/layout/CartDrawer';
 import {UserMenu} from '@/components/layout/UserMenu';
-import {ProductSearch} from '@/components/search/ProductSearch';
-const desktopLinks=[{label:'Home',to:'/'},{label:'Shop',to:'/shop'},{label:'Bundles',to:'/bundles'},{label:'About',to:'/about'},{label:'Contact',to:'/contact'}];
-const tabs=[{label:'Home',to:'/',icon:Home},{label:'Shop',to:'/shop',icon:Store},{label:'Bundles',to:'/bundles',icon:Layers3},{label:'Cart',to:'/cart',icon:ShoppingBag},{label:'Contact',to:'/contact',icon:Contact}];
+const desktopLinks=[{label:'Home',to:'/'},{label:'Shop',to:'/shop'},{label:'About',to:'/about'},{label:'Contact',to:'/contact'}];
+const tabs=[{label:'Home',to:'/',icon:Home},{label:'Shop',to:'/shop',icon:Store},{label:'Cart',to:'/cart',icon:ShoppingBag},{label:'Contact',to:'/contact',icon:Contact}];
 export function FloatingNav(){
  const {settings}=useStoreData();
  const header=useRef<HTMLElement>(null);
@@ -84,7 +84,7 @@ export function FloatingNav(){
     </div>
    </header>
   </div>
-  <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t border-primary/15 bg-white pb-[env(safe-area-inset-bottom)] md:hidden">{tabs.map(tab=>{const Icon=tab.icon;const active=tab.to==='/'?pathname==='/':pathname.startsWith(tab.to);return <Link key={tab.to} to={tab.to} className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-medium ${active?'text-accent':'text-foreground'}`}><Icon className="size-5"/><span>{tab.label}</span>{tab.label==='Cart'&&count>0&&<span className="absolute right-[22%] top-1 grid size-5 place-items-center rounded-full bg-accent text-xs text-accent-foreground">{count}</span>}</Link>;})}</nav>
+  <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-primary/15 bg-white pb-[env(safe-area-inset-bottom)] md:hidden">{tabs.map(tab=>{const Icon=tab.icon;const active=tab.to==='/'?pathname==='/':pathname.startsWith(tab.to);return <Link key={tab.to} to={tab.to} className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-medium ${active?'text-accent':'text-foreground'}`}><Icon className="size-5"/><span>{tab.label}</span>{tab.label==='Cart'&&count>0&&<span className="absolute right-[22%] top-1 grid size-5 place-items-center rounded-full bg-accent text-xs text-accent-foreground">{count}</span>}</Link>;})}</nav>
   <ProductSearch open={searchOpen} onOpenChange={setSearchOpen}/><CartDrawer/>
  </>;
 }
