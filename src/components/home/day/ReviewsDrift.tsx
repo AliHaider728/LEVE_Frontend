@@ -38,17 +38,19 @@ function Row({ items, dir }: { items: Review[]; dir: 1 | -1 }) {
   const paused = useRef(false);
   const { scrollY } = useScroll();
   const vel = useSpring(useVelocity(scrollY), { damping: 50, stiffness: 400 });
-  const factor = useTransform(vel, [-1500, 0, 1500], [5, 1, 5], { clamp: false });
+  const factor = useTransform(vel, [-1000, 0, 1000], [1.8, 1, 1.8], { clamp: true });
   const x = useTransform(base, (v) => `${(((v % 50) + 50) % 50) - 50}%`);
   useAnimationFrame((_, delta) => {
     if (reduced || paused.current) return;
-    base.set(base.get() + dir * 0.002 * delta * Math.abs(factor.get()));
+    base.set(base.get() + dir * 0.0006 * delta * Math.abs(factor.get()));
   });
   return (
     <div
       className="overflow-hidden"
       onMouseEnter={() => (paused.current = true)}
       onMouseLeave={() => (paused.current = false)}
+      onTouchStart={() => (paused.current = true)}
+      onTouchEnd={() => (paused.current = false)}
     >
       <motion.div
         style={reduced ? {} : { x }}
