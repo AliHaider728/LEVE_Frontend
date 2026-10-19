@@ -12,10 +12,11 @@ export function Hero() {
       className="relative flex w-full flex-col overflow-hidden bg-[#f4d7df] text-primary"
       style={{
         paddingTop: "var(--header-h, 4rem)",
-        minHeight: "100svh",
+        height: "100svh",
+        minHeight: "420px",
       }}
     >
-      <div className="relative h-[calc(100svh-var(--header-h,4rem))] min-h-[560px] w-full flex-1 overflow-hidden">
+      <div className="relative h-full w-full flex-1 overflow-hidden">
         {/* Desktop Hero Product Image with bg-attachment fixed */}
         <div
           className="absolute inset-0 hidden bg-cover bg-no-repeat md:block md:bg-fixed bg-[center_bottom] lg:bg-[64%_bottom] xl:bg-[center_bottom]"
@@ -34,14 +35,14 @@ export function Hero() {
               priority
               quality={90}
               sizes="100vw"
-              className="object-cover object-[92%_bottom] sm:object-[86%_bottom]"
+              className="object-cover object-[94%_bottom] sm:object-[88%_bottom]"
             />
           </div>
         </div>
 
         {/* Hero Content (Text & CTA) */}
         <motion.div
-          className="absolute left-6 top-3 z-20 flex max-w-[calc(100%-3rem)] flex-col sm:left-8 sm:top-5 sm:max-w-md md:left-12 md:top-8 lg:bottom-[12%] lg:left-[6%] lg:top-auto xl:bottom-[14%] xl:max-w-lg"
+          className="absolute left-6 top-3 z-20 flex max-w-[calc(100%-3rem)] flex-col sm:left-8 sm:top-5 sm:max-w-md md:bottom-8 md:left-12 md:top-auto lg:bottom-10 lg:left-[6%] xl:bottom-14 xl:max-w-lg"
           initial={reducedMotion ? false : { y: 25, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: reducedMotion ? 0 : 0.15, duration: reducedMotion ? 0 : 0.7 }}

@@ -1,6 +1,6 @@
 import {useStoreData} from '@/store/catalog';
 import {formatPKR} from '@/config/store';
-import {useEffect,useLayoutEffect,useState,useRef} from 'react';
+import {useEffect,useState,useRef} from 'react';
 import {Link,useRouterState} from '@/lib/router-compat';
 import {Contact,Heart,Home,Layers3,Search,ShoppingBag,Store} from 'lucide-react';
 import logo from '@/assets/LEVA.png.asset.json';
@@ -32,11 +32,12 @@ export function FloatingNav(){
   const element=header.current;
   if(!element)return;
   const measure=()=>{
-   const strip=announcement.current?.getBoundingClientRect();
-   const visibleAnnouncement=strip?Math.max(0,Math.min(strip.height,strip.bottom)):0;
-   const navbarHeight=element.getBoundingClientRect().height;
+   const stripHeight=announcement.current?.offsetHeight??0;
+   const navbarHeight=element.offsetHeight||80;
+   const y=Math.max(0,window.scrollY);
+   const visibleAnnouncement=Math.max(0,stripHeight-y);
    document.documentElement.style.setProperty('--announcement-offset',visibleAnnouncement+'px');
-   document.documentElement.style.setProperty('--header-h',visibleAnnouncement+(hiddenRef.current?0:navbarHeight)+'px');
+   document.documentElement.style.setProperty('--header-h',(stripHeight+navbarHeight)+'px');
   };
   measureHeader.current=measure;
   const observer=new ResizeObserver(measure);
@@ -46,7 +47,6 @@ export function FloatingNav(){
   measure();
   return()=>{observer.disconnect();window.removeEventListener('resize',measure);document.documentElement.style.removeProperty('--header-h');document.documentElement.style.removeProperty('--announcement-offset');measureHeader.current=()=>{};};
  },[]);
- useLayoutEffect(()=>{measureHeader.current();},[hidden]);
 
  useEffect(()=>{
   let sampledY=Math.max(0,window.scrollY);
@@ -62,19 +62,19 @@ export function FloatingNav(){
     show(false);sampledY=y;return;
    }
    const delta=y-sampledY;
-   if(Math.abs(delta)<8)return;
+   if(Math.abs(delta)<4)return;
    sampledY=y;
    if(delta>0&&y>140)show(true);
    else if(delta<0)show(false);
   };
-  const onScroll=()=>{if(!frame)frame=requestAnimationFrame(()=>{frame=0;measureHeader.current();update();});};
+  const onScroll=()=>{if(!frame)frame=requestAnimationFrame(()=>{frame=0;update();});};
   update();
   window.addEventListener('scroll',onScroll,{passive:true});
   return()=>{window.removeEventListener('scroll',onScroll);cancelAnimationFrame(frame);};
  },[pathname,searchOpen,cartOpen]);
  return <>
   <div ref={announcement} className="absolute inset-x-0 top-0 z-50 hidden h-8 items-center justify-center bg-primary px-4 text-center text-xs font-medium text-primary-foreground md:flex">Free delivery over {formatPKR(settings.freeShippingThreshold)}&nbsp; | &nbsp;Cash on Delivery nationwide&nbsp; | &nbsp;WhatsApp +{settings.whatsappNumber}</div>
-  <header ref={header} data-store-header data-nav-hidden={hidden} onFocusCapture={()=>{hiddenRef.current=false;setHidden(false);}} style={{top:'var(--announcement-offset, 0px)'}} className={`fixed inset-x-0 z-40 border-b border-primary/10 bg-white text-foreground transition-[transform,top,box-shadow,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${hidden?'-translate-y-full':'translate-y-0'} ${scrolled||pathname!=='/'?'shadow-sm':''}`}>
+  <header ref={header} data-store-header data-nav-hidden={hidden} onFocusCapture={()=>{hiddenRef.current=false;setHidden(false);}} style={{top:'var(--announcement-offset, 0px)'}} className={`fixed inset-x-0 z-40 border-b border-primary/10 bg-white text-foreground transition-transform duration-200 ease-out motion-reduce:transition-none ${hidden?'-translate-y-full':'translate-y-0'} ${scrolled||pathname!=='/'?'shadow-sm':''}`}>
    <div className="flex h-16 min-w-0 w-full items-center justify-between gap-2 px-3 md:grid md:h-20 md:grid-cols-[1fr_auto_1fr] md:px-6 lg:px-8">
     <Link to="/" aria-label="LEVA home" className="min-w-0 shrink-0 md:col-start-2 md:row-start-1 md:justify-self-center"><img src={logo.url} alt="LEVA" className="h-12 w-auto max-w-[110px] object-contain md:h-[70px] md:max-w-none lg:h-[90px]"/></Link>
     <nav aria-label="Primary navigation" className="hidden items-center gap-2 md:col-start-1 md:row-start-1 md:flex lg:gap-6">{desktopLinks.map(link=><Link key={link.to} to={link.to} className="inline-flex min-h-11 items-center whitespace-nowrap text-[11px] font-semibold tracking-wide uppercase lg:text-sm focus-visible:outline-2 focus-visible:outline-offset-4" activeProps={{className:'border-b-2 border-current'}}>{link.label}</Link>)}</nav>
