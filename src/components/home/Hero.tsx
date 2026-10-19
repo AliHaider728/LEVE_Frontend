@@ -1,12 +1,10 @@
 import Image from "next/image";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 
 export function Hero() {
-  const { scrollYProgress } = useScroll();
-  const imageY = useTransform(scrollYProgress, [0, 0.2], [0, 50]);
   const reducedMotion = useReducedMotion();
 
   return (
@@ -18,11 +16,16 @@ export function Hero() {
       }}
     >
       <div className="relative h-[calc(100svh-var(--header-h,4rem))] min-h-[560px] w-full flex-1 overflow-hidden">
-        {/* Hero Product Image */}
-        <motion.div
-          className="absolute inset-x-0 bottom-16 h-[46%] w-full overflow-hidden sm:bottom-16 sm:h-[48%] md:bottom-0 md:h-[58%] lg:inset-0 lg:h-full"
-          style={reducedMotion ? {} : { y: imageY }}
-        >
+        {/* Desktop Hero Product Image with bg-attachment fixed */}
+        <div
+          className="absolute inset-0 hidden bg-cover bg-no-repeat md:block md:bg-fixed bg-[center_bottom] lg:bg-[64%_bottom] xl:bg-[center_bottom]"
+          style={{
+            backgroundImage: "url('/images/leva-pink-studio-hero.webp')",
+          }}
+        />
+
+        {/* Mobile Hero Product Image */}
+        <div className="absolute inset-x-0 bottom-16 h-[46%] w-full overflow-hidden sm:bottom-16 sm:h-[48%] md:hidden">
           <div className="relative h-full w-full">
             <Image
               src="/images/leva-pink-studio-hero.webp"
@@ -31,10 +34,10 @@ export function Hero() {
               priority
               quality={90}
               sizes="100vw"
-              className="object-cover object-[92%_bottom] sm:object-[86%_bottom] md:object-[72%_bottom] lg:object-[64%_bottom] xl:object-[center_bottom]"
+              className="object-cover object-[92%_bottom] sm:object-[86%_bottom]"
             />
           </div>
-        </motion.div>
+        </div>
 
         {/* Hero Content (Text & CTA) */}
         <motion.div

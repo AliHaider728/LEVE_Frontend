@@ -46,10 +46,10 @@ export function Footer() {
                 type="submit"
                 variant="secondary"
                 size="icon"
-                className="min-h-12 min-w-12 border-primary-foreground text-primary-foreground"
+                className="min-h-12 min-w-12 bg-white text-primary hover:bg-white/90"
                 aria-label="Subscribe"
               >
-                <Send />
+                <Send className="size-4" />
               </Button>
             </form>
           )}
