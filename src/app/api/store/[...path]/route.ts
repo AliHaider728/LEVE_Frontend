@@ -32,14 +32,30 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
     const body = request.method === 'GET' || request.method === 'HEAD' ? undefined : await request.arrayBuffer();
     if (body && body.byteLength > 1024 * 1024) return NextResponse.json({ error: 'Request is too large.' }, { status: 413 });
     const upstreamPath = route.replace(/^api\//, '');
-    const response = await fetch(`${origin}/api/${upstreamPath}${request.nextUrl.search}`, {
-      method: request.method,
-      headers,
-      body,
-      cache: 'no-store',
-      redirect: 'manual',
-      signal: AbortSignal.timeout(20000),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${origin}/api/${upstreamPath}${request.nextUrl.search}`, {
+        method: request.method,
+        headers,
+        body,
+        cache: 'no-store',
+        redirect: 'manual',
+        signal: AbortSignal.timeout(8000),
+      });
+    } catch (localErr) {
+      if (origin !== 'https://leva-backend.vercel.app') {
+        response = await fetch(`https://leva-backend.vercel.app/api/${upstreamPath}${request.nextUrl.search}`, {
+          method: request.method,
+          headers,
+          body,
+          cache: 'no-store',
+          redirect: 'manual',
+          signal: AbortSignal.timeout(20000),
+        });
+      } else {
+        throw localErr;
+      }
+    }
     const result = new NextResponse(await response.arrayBuffer(), {
       status: response.status,
       headers: {

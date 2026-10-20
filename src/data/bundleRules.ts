@@ -4,7 +4,7 @@ import { products } from "@/data/products";
 /** Custom bundle discount tiers. minItems = total units selected. Edit here only. */
 export const bundleTiers = [
   { minItems: 2, rate: 0.1 },
-  { minItems: 3, rate: 0.2 },
+  { minItems: 3, rate: 0.15 },
 ] as const;
 
 export function getCustomBundle(selection: Record<string, number>, catalog = products, settings?: RoutineDiscountSettings) {

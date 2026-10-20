@@ -140,12 +140,12 @@ function BuildTile() {
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
             <Sparkles className="size-3 text-accent" /> Custom Routine
           </span>
-          <span className="text-xs font-medium text-white/80">Up to 20% off</span>
+          <span className="text-xs font-medium text-white/80">Up to 15% off</span>
         </div>
         <p className="eyebrow mt-4 hidden text-primary-foreground/80 md:block">Your mix</p>
         <h2 className="mt-2 text-2xl font-light md:mt-1 md:text-3xl">Build your own bundle</h2>
         <p className="mt-2 text-xs text-white/80 sm:text-sm md:text-[15px] md:leading-7 md:text-primary-foreground/90">
-          Pick any 2 items for 10% off, or 3 for 20% off. Curate your personalised LEVA ritual.
+          Pick any 2 items for 10% off, or 3+ for 15% off. Curate your personalised LEVA ritual.
         </p>
 
         <div className="mt-4 space-y-2.5 md:mt-6 md:space-y-3">
@@ -175,7 +175,7 @@ function BuildTile() {
               </div>
             </div>
             <span className="shrink-0 rounded-md bg-accent px-2 py-1 text-xs font-bold text-primary">
-              Save 20%
+              Save 15%
             </span>
           </div>
         </div>

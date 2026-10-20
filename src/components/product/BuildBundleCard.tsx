@@ -28,7 +28,7 @@ export function BuildBundleCard() {
     <Link
       to="/bundles/build"
       className="group relative flex h-full min-h-[340px] min-w-0 flex-col justify-between overflow-hidden rounded-md border border-primary/20 bg-primary p-3.5 text-primary-foreground shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 sm:min-h-[400px] sm:p-5"
-      aria-label="Build your own bundle — Choose any 2 products to save 10%, or any 3 to save 20%"
+      aria-label="Build your own bundle — Choose any 2 products to save 10%, or any 3 to save 15%"
     >
       {/* Subtle decorative background gradient */}
       <div
@@ -48,7 +48,7 @@ export function BuildBundleCard() {
           <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:gap-1.5 sm:px-2.5 sm:py-1 sm:text-xs">
             <Sparkles className="size-2.5 text-accent sm:size-3" /> Custom Routine
           </span>
-          <span className="text-[10px] font-medium text-white/75 sm:text-[11px]">Up to 20% off</span>
+          <span className="text-[10px] font-medium text-white/75 sm:text-[11px]">Up to 15% off</span>
         </motion.div>
 
         {/* Heading */}
@@ -83,7 +83,7 @@ export function BuildBundleCard() {
             </span>
           </div>
 
-          {/* Tier 2: Choose 3 -> Save 20% */}
+          {/* Tier 2: Choose 3 -> Save 15% */}
           <div className="flex items-center justify-between gap-1.5 rounded-lg border border-accent/40 bg-white/15 p-2 transition-colors group-hover:bg-white/20 sm:p-3">
             <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
               <span className="grid size-4 shrink-0 place-items-center rounded-full bg-accent text-[9px] font-bold text-primary sm:size-5 sm:text-[10px]">
@@ -91,7 +91,7 @@ export function BuildBundleCard() {
               </span>
               <div className="min-w-0">
                 <p className="truncate text-[11px] font-semibold text-white sm:text-sm">
-                  Choose any 3
+                  Choose 3 or more
                 </p>
                 <p className="hidden text-[10px] text-accent sm:block sm:text-[11px]">
                   Complete 3-step ritual

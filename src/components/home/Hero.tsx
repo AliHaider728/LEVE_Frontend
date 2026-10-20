@@ -17,12 +17,12 @@ export function Hero() {
         className="relative hidden w-full flex-1 overflow-hidden bg-[#5a323a] md:flex md:min-h-[500px] lg:min-h-[540px] xl:min-h-[580px]"
         style={{ height: "calc(88vh - var(--header-h, 7rem))", maxHeight: "640px" }}
       >
-        {/* Simple fade-in only — zero layout shift, no scale, no clipPath */}
+        {/* Original smooth aperture reveal */}
         <motion.div
-          className="absolute inset-0"
-          initial={reducedMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="absolute inset-0 overflow-hidden"
+          initial={reducedMotion ? false : { clipPath: "inset(40% 30% 40% 30%)" }}
+          animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
+          transition={{ duration: 1.25, ease: [0.76, 0, 0.24, 1] }}
         >
           <div
             className="h-full w-full bg-cover bg-no-repeat md:bg-fixed bg-[center_bottom] lg:bg-[64%_bottom] xl:bg-[center_bottom]"
@@ -31,9 +31,9 @@ export function Hero() {
         </motion.div>
         <motion.div
           className="absolute top-12 left-8 z-20 flex max-w-md flex-col sm:top-14 sm:left-10 md:top-16 md:left-12 lg:top-20 lg:left-[6%] xl:top-24 xl:max-w-lg"
-          initial={reducedMotion ? false : { y: 20, opacity: 0 }}
+          initial={reducedMotion ? false : { y: 35, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ delay: 0.35, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
           <p className="eyebrow mb-3 text-sm font-medium uppercase tracking-[0.2em]">
             Skincare for her

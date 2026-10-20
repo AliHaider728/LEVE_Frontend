@@ -16,9 +16,9 @@ export const Route = createFileRoute("/bundles/build")({
   head: () => ({
     meta: [
       { title: "Build Your Own Ritual — LEVA" },
-      { name: "description", content: "Pick your LEVA products and save up to 20% with a custom skincare bundle." },
+      { name: "description", content: "Pick your LEVA products and save up to 15% with a custom skincare bundle." },
       { property: "og:title", content: "Build Your Own LEVA Ritual" },
-      { property: "og:description", content: "2 products = 10% off, 3 products = 20% off." },
+      { property: "og:description", content: "2 products = 10% off, 3+ products = 15% off." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -61,7 +61,7 @@ function BuildBundle() {
   const cb = getCustomBundle(sel, products, storeConfig.routineDiscount);
   const shipping = cb.count ? getShipping(cb.price, storeConfig) : 0;
   const ready = cb.count >= bundleTiers[0].minItems;
-  const top = bundleTiers[bundleTiers.length - 1] ?? { minItems: 3, rate: 0.2 };
+  const top = bundleTiers[bundleTiers.length - 1] ?? { minItems: 3, rate: 0.15 };
   const change = (slug: string, d: number) =>
     setSel((s) => ({ ...s, [slug]: Math.max(0, Math.min(10, (s[slug] ?? 0) + d)) }));
   const toggle = (slug: string) =>

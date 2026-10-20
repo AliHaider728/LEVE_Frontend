@@ -32,7 +32,16 @@ async function proxy(request: NextRequest, { params }: {
         const body = ['GET', 'HEAD'].includes(request.method) ? undefined : await request.arrayBuffer();
         if (body && body.byteLength > (route === 'audio-reviews' ? 11 : 6) * 1024 * 1024)
             return NextResponse.json({ error: 'Upload is too large.' }, { status: 413 });
-        const response = await fetch(origin + '/api/' + route + request.nextUrl.search, { method: request.method, headers, body, credentials: 'include', cache: 'no-store', redirect: 'manual', signal: AbortSignal.timeout(25000) });
+        let response: Response;
+        try {
+            response = await fetch(origin + '/api/' + route + request.nextUrl.search, { method: request.method, headers, body, credentials: 'include', cache: 'no-store', redirect: 'manual', signal: AbortSignal.timeout(8000) });
+        } catch (fetchErr) {
+            if (origin !== 'https://leva-backend.vercel.app') {
+                response = await fetch('https://leva-backend.vercel.app/api/' + route + request.nextUrl.search, { method: request.method, headers, body, credentials: 'include', cache: 'no-store', redirect: 'manual', signal: AbortSignal.timeout(20000) });
+            } else {
+                throw fetchErr;
+            }
+        }
         const result = new NextResponse(await response.arrayBuffer(), { status: response.status, headers: { 'Content-Type': response.headers.get('content-type') || 'application/json', 'Cache-Control': 'no-store' } });
         // Keep the HttpOnly session on the frontend host so middleware can validate it.
         for (const value of response.headers.getSetCookie()) {

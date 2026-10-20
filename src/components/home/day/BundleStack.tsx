@@ -154,7 +154,7 @@ export function BundleStack() {
           </Link>
         </Button>
         <p className="text-xs text-muted-foreground">
-          Choose any 2 for 10% off, or all 3 for 20% off.
+          Choose any 2 for 10% off, or all 3 for 15% off.
         </p>
       </div>
     </section>
