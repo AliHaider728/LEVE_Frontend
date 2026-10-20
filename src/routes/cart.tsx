@@ -4,7 +4,6 @@ import { CustomBundleLine } from "@/components/product/CustomBundleLine";
 import { createFileRoute, Link } from "@/lib/router-compat";
 import { Minus, Plus, Trash2 } from "lucide-react";
 
-import { getBundleOriginalPrice } from "@/data/bundles";
 import { formatPKR, getFreeShippingRemaining } from "@/config/store";
 import { getCartTotals } from "@/lib/cart-totals";
 import { useCart } from "@/store/cart";
@@ -70,13 +69,6 @@ function Cart() {
                   onPlus={() => cart.addBundle(bundle.slug)}
                   onRemove={() => cart.removeBundle(bundle.slug)}
                 />
-                <p className="-mt-5 mb-6 ml-24 text-sm">
-                  Bundle discount: -
-                  {formatPKR(
-                    (getBundleOriginalPrice(bundle, products) - bundle.price) *
-                      (cart.bundles[bundle.slug] ?? 0),
-                  )}
-                </p>
               </div>
             ))}
           </div>

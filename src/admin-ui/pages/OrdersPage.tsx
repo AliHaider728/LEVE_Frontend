@@ -7,7 +7,7 @@ import { uiRequest,orderFromAPI } from '../api';
 import { formatPrice } from '../utils/formatters';
 import { RoutineContents } from '../components/RoutineContents';
 export const OrdersPage: React.FC = () => {
-    const { orders, updateOrderStatus, updateOrderTracking, deleteOrder, showToast, confirm, activePageParams } = useAdminUI();
+    const { orders, updateOrderStatus, updateOrderTracking, deleteOrder, showToast, confirm, activePageParams, activePage } = useAdminUI();
     const [page,setPage]=useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -15,7 +15,7 @@ export const OrdersPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState('All');
     const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
     useEffect(()=>{setPage(1);},[searchQuery,activeTab]);
-    useEffect(()=>{if(activePageParams?.id)void uiRequest('orders/'+encodeURIComponent(activePageParams.id)).then(data=>{const order=orderFromAPI(data);setSelectedOrder(order);setTrackingInput(order.trackingNumber||'');}).catch(error=>showToast(error.message,'error'));},[activePageParams,orders,showToast]);
+    useEffect(()=>{if(activePage==='orders'&&activePageParams?.id)void uiRequest('orders/'+encodeURIComponent(activePageParams.id)).then(data=>{const order=orderFromAPI(data);setSelectedOrder(order);setTrackingInput(order.trackingNumber||'');}).catch(error=>showToast(error.message,'error'));},[activePage,activePageParams,orders,showToast]);
     const normalizedSearchQuery = searchQuery.trim().toLowerCase();
     const filteredOrders = orders.filter(o => {
         const matchesTab = activeTab === 'All' || o.status === activeTab;

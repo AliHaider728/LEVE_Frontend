@@ -420,9 +420,6 @@ function Checkout() {
             value={`-${formatPKR(totals.customDiscount)}`}
           />
         )}
-        {totals.bundleDiscount > 0 && !totals.customDiscount && (
-          <Row label="Bundle savings" value={`-${formatPKR(totals.bundleDiscount)}`} />
-        )}
         {totals.couponDiscount > 0 && (
           <Row
             label={`Coupon discount (${cart.coupon})`}

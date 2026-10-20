@@ -3,7 +3,6 @@ import { useState } from "react";
 import { MessageCircle, Minus, Plus, Trash2 } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 
-import { getBundleOriginalPrice } from "@/data/bundles";
 import { formatPKR, getFreeShippingRemaining } from "@/config/store";
 import { CustomBundleLine } from "@/components/product/CustomBundleLine";
 import { getCartTotals, getCouponRate } from "@/lib/cart-totals";
@@ -152,12 +151,6 @@ export function CartDrawer() {
                   <div className="min-w-0">
                     <p className="text-base font-medium">{b.name}</p>
                     <p className="text-sm text-muted-foreground">{formatPKR(b.price)}</p>
-                    <p className="text-xs text-primary">
-                      Bundle discount: -
-                      {formatPKR(
-                        (getBundleOriginalPrice(b) - b.price) * (bundleItems[b.slug] ?? 0),
-                      )}
-                    </p>
                     <div className="mt-2 flex items-center gap-1">
                       <Button
                         variant="ghost"

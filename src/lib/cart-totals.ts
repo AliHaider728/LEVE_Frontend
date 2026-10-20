@@ -1,4 +1,4 @@
-import { bundles, getBundleOriginalPrice } from "@/data/bundles";
+import { bundles } from "@/data/bundles";
 import { products } from "@/data/products";
 import { getCustomBundle } from "@/data/bundleRules";
 import type { StoreSettings } from "@/lib/api/catalog";
@@ -23,19 +23,14 @@ export function getCartTotals(
     (sum, product) => sum + product.price * (items[product.slug] ?? 0),
     0,
   );
-  const bundleOriginal = data.bundles.reduce(
-    (sum, bundle) => sum + getBundleOriginalPrice(bundle, data.products) * (bundleItems[bundle.slug] ?? 0),
-    0,
-  );
   const bundleSubtotal = data.bundles.reduce(
     (sum, bundle) => sum + bundle.price * (bundleItems[bundle.slug] ?? 0),
     0,
   );
-  const subtotal = productSubtotal + bundleOriginal + cb.original;
-  const bundleDiscount = bundleOriginal - bundleSubtotal;
+  const subtotal = productSubtotal + bundleSubtotal + cb.original;
   const customDiscount = cb.discount;
   const couponDiscount = Math.round(productSubtotal * getCouponRate(coupon));
-  const discount = bundleDiscount + customDiscount + couponDiscount;
+  const discount = customDiscount + couponDiscount;
   const afterCoupon = Math.max(0, productSubtotal - couponDiscount) + bundleSubtotal + cb.price;
   const shipping = getShipping(afterCoupon, data.settings);
   return {
@@ -44,11 +39,11 @@ export function getCartTotals(
     customPrice: cb.price,
     customCount: cb.count,
     productSubtotal,
-    bundleOriginal,
+    bundleOriginal: bundleSubtotal,
     bundleSubtotal,
     subtotal,
     payableSubtotal: afterCoupon,
-    bundleDiscount,
+    bundleDiscount: 0,
     couponDiscount,
     discount,
     shipping,
