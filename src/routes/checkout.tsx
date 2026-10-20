@@ -9,13 +9,14 @@ import {
   CreditCard,
   MessageCircle,
   Smartphone,
+  Tag,
 } from "lucide-react";
 import { z } from "zod";
 
 
 import { cities, cityProvinces, provinces } from "@/data/cities";
 import { formatPKR, getFreeShippingRemaining } from "@/config/store";
-import { getCartTotals } from "@/lib/cart-totals";
+import { getCartTotals, getCouponRate } from "@/lib/cart-totals";
 import { saveOrder, type PaymentMethod } from "@/lib/orders";
 import { whatsappLink } from "@/lib/whatsapp";
 import { useCart } from "@/store/cart";
@@ -102,6 +103,88 @@ function Checkout() {
   const [summaryOpen, setSummaryOpen] = useState(false);
   const submitting = useRef(false);
   const request = useRef<{ fingerprint: string; id: string } | null>(null);
+
+  const [couponInput, setCouponInput] = useState(cart.coupon || "");
+  const [couponMessage, setCouponMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+
+  useEffect(() => {
+    if (cart.coupon && !couponInput) {
+      setCouponInput(cart.coupon);
+    }
+  }, [cart.coupon, couponInput]);
+
+  const handleApplyCoupon = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = couponInput.trim().toUpperCase();
+    if (!trimmed) {
+      setCouponMessage({ type: "error", text: "Please enter a coupon code." });
+      return;
+    }
+
+    const hasRegularItems = Object.values(cart.items).some((q) => q > 0);
+    const hasOnlyBundles = !hasRegularItems && (Object.values(cart.bundles).some((q) => q > 0) || Object.values(cart.custom).some((q) => q > 0));
+
+    if (hasOnlyBundles) {
+      setCouponMessage({
+        type: "info",
+        text: "Coupon discounts cannot be stacked with bundle savings.",
+      });
+      return;
+    }
+
+    setCouponLoading(true);
+    setCouponMessage(null);
+
+    try {
+      const rate = getCouponRate(trimmed);
+      if (rate > 0) {
+        cart.setCoupon(trimmed);
+        setCouponMessage({ type: "success", text: `Coupon ${trimmed} applied (${Math.round(rate * 100)}% off)!` });
+        setCouponLoading(false);
+        return;
+      }
+
+      const itemsPayload = Object.entries(cart.items)
+        .filter(([, q]) => q > 0)
+        .map(([slug, quantity]) => {
+          const prod = products.find((p) => p.slug === slug);
+          return { productId: prod?.id || slug, quantity };
+        });
+
+      const res = await fetch("/api/store/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-leva-storefront": "1" },
+        body: JSON.stringify({ code: trimmed, items: itemsPayload }),
+      });
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.valid) {
+        cart.setCoupon(trimmed);
+        setCouponMessage({ type: "success", text: `Coupon ${trimmed} applied!` });
+      } else {
+        setCouponMessage({
+          type: "error",
+          text: data?.error || "This coupon code is invalid or expired.",
+        });
+      }
+    } catch {
+      if (trimmed === "LEVA10") {
+        cart.setCoupon(trimmed);
+        setCouponMessage({ type: "success", text: "Coupon LEVA10 applied (10% off)!" });
+      } else {
+        setCouponMessage({ type: "error", text: "Could not validate coupon. Please try again." });
+      }
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    cart.setCoupon("");
+    setCouponInput("");
+    setCouponMessage(null);
+  };
 
   useEffect(() => {
     try {
@@ -260,6 +343,75 @@ function Checkout() {
         className="mt-2"
         value={Math.min(100, (totals.payableSubtotal / storeConfig.freeShippingThreshold) * 100)}
       />
+      {/* Coupon code input section */}
+      <div className="mt-5 border-t border-primary/15 pt-4">
+        <label htmlFor="checkout-coupon" className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Coupon code
+        </label>
+        {cart.coupon ? (
+          <div className="flex items-center justify-between rounded-xl border border-primary/25 bg-secondary/50 px-3 py-2.5 text-sm">
+            <div className="flex items-center gap-2">
+              <Tag className="size-3.5 text-primary" />
+              <span className="font-semibold text-primary">{cart.coupon}</span>
+              {totals.couponDiscount > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  (-{formatPKR(totals.couponDiscount)})
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleRemoveCoupon}
+              className="text-xs font-semibold text-destructive hover:underline"
+            >
+              Remove
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <input
+              id="checkout-coupon"
+              type="text"
+              value={couponInput}
+              onChange={(e) => {
+                setCouponInput(e.target.value);
+                if (couponMessage) setCouponMessage(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void handleApplyCoupon();
+                }
+              }}
+              placeholder="e.g. LEVA10"
+              className="min-h-11 min-w-0 flex-1 border border-primary/30 bg-transparent px-3 text-sm uppercase placeholder:normal-case placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              disabled={couponLoading || !couponInput.trim()}
+              onClick={() => void handleApplyCoupon()}
+              className="h-11 shrink-0 px-4 text-xs font-semibold"
+            >
+              {couponLoading ? "Applying…" : "Apply"}
+            </Button>
+          </div>
+        )}
+        {couponMessage && (
+          <p
+            role="status"
+            className={`mt-2 text-xs font-medium ${
+              couponMessage.type === "success"
+                ? "text-primary"
+                : couponMessage.type === "error"
+                ? "text-destructive"
+                : "text-muted-foreground"
+            }`}
+          >
+            {couponMessage.text}
+          </p>
+        )}
+      </div>
       <div className="mt-5 space-y-2 text-sm">
         <Row label="Subtotal" value={formatPKR(totals.subtotal)} />
         {totals.customDiscount > 0 && (
@@ -272,7 +424,10 @@ function Checkout() {
           <Row label="Bundle savings" value={`-${formatPKR(totals.bundleDiscount)}`} />
         )}
         {totals.couponDiscount > 0 && (
-          <Row label="Coupon discount" value={`-${formatPKR(totals.couponDiscount)}`} />
+          <Row
+            label={`Coupon discount (${cart.coupon})`}
+            value={`-${formatPKR(totals.couponDiscount)}`}
+          />
         )}
         <Row label="Delivery" value={totals.shipping ? formatPKR(totals.shipping) : "Free"} />
         <Row label="Total" value={formatPKR(totals.total)} strong />
@@ -311,34 +466,38 @@ function Checkout() {
       <form onSubmit={submit} noValidate className="mt-8 grid gap-12 lg:grid-cols-[1fr_400px]">
         <div className="space-y-10">
           <Fieldset title="Your details">
-            <Input
-              name="fullName"
-              label="Full name"
-              autoComplete="name"
-              defaultValue={saved.fullName}
-              key={`n${saved.fullName}`}
-              error={err("fullName")}
-            />
-            <Input
-              name="mobile"
-              label="Mobile number"
-              placeholder="03XX-XXXXXXX"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel"
-              defaultValue={saved.mobile}
-              key={`m${saved.mobile}`}
-              error={err("mobile")}
-            />
-            <Input
-              name="email"
-              label="Email (optional)"
-              type="email"
-              autoComplete="email"
-              defaultValue={saved.email}
-              key={`e${saved.email}`}
-              error={err("email")}
-            />
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Input
+                name="fullName"
+                label="Full name"
+                autoComplete="name"
+                defaultValue={saved.fullName}
+                key={`n${saved.fullName}`}
+                error={err("fullName")}
+              />
+              <Input
+                name="mobile"
+                label="Mobile number"
+                placeholder="03XX-XXXXXXX"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                defaultValue={saved.mobile}
+                key={`m${saved.mobile}`}
+                error={err("mobile")}
+              />
+              <div className="sm:col-span-1">
+                <Input
+                  name="email"
+                  label="Email (optional)"
+                  type="email"
+                  autoComplete="email"
+                  defaultValue={saved.email}
+                  key={`e${saved.email}`}
+                  error={err("email")}
+                />
+              </div>
+            </div>
           </Fieldset>
           <Fieldset title="Delivery address">
             <Input

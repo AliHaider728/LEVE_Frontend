@@ -10,6 +10,7 @@ const allowed: Array<{ pattern: RegExp; methods: string[] }> = [
   { pattern: /^api\/features$/, methods: ['GET'] },
   { pattern: /^api\/reviews\/product\/[^/]+$/, methods: ['GET'] },
   { pattern: /^api\/reviews$/, methods: ['POST'] },
+  { pattern: /^api\/coupons\/validate$/, methods: ['POST'] },
   { pattern: /^api\/orders$/, methods: ['POST'] },
 ];
 
