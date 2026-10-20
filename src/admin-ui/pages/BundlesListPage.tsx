@@ -50,7 +50,7 @@ export const BundlesListPage: React.FC = () => {
             const discountPct = bundle.discountPercent || (bundle.originalTotalPrice && bundle.currentPrice && bundle.originalTotalPrice > bundle.currentPrice
                 ? Math.round(((bundle.originalTotalPrice - bundle.currentPrice) / bundle.originalTotalPrice) * 100)
                 : 0);
-            const bundleCover = bundle.image || bundle.customImage || (bundle.slug === 'the-essentials' || bundle.name.toLowerCase().includes('duo') ? '/images/brightening-cream-main.webp' : '') || (bundle.products && bundle.products[0]?.product?.images?.[0]);
+            const bundleCover = bundle.image || bundle.customImage || (bundle.slug === 'the-essentials' || bundle.name.toLowerCase().includes('duo') ? 'https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/brightening-cream-main.webp' : '') || (bundle.products && bundle.products[0]?.product?.images?.[0]);
             return (<div key={bundle.id} className="bg-white rounded-3xl border border-[#ecdfe4] shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow group">
               <div>
                 <div className="relative aspect-video bg-[#FFF4F6] overflow-hidden">

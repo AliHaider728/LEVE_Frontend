@@ -87,7 +87,7 @@ export function FaqFinal() {
           className="relative grid min-h-[80svh] place-items-center overflow-hidden"
         >
           <img
-            src="/images/leva-pink-studio-hero.webp"
+            src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-pink-studio-hero.webp"
             alt="LEVA skincare ritual"
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover object-[center_bottom]"

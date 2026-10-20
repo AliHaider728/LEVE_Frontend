@@ -76,7 +76,7 @@ export const LoginPage: React.FC = () => {
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFF4F6] rounded-full -mr-32 -mt-32 opacity-50 pointer-events-none"></div>
 
           <div className="relative z-10">
-            <img src="/images/LEVA-logo.png" alt="LEVA" className="mb-6 h-14 w-36 object-contain"/><h2 className="text-3xl font-display text-[#382b31] mb-2 font-bold">Admin Login</h2>
+            <img src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/LEVA-logo.png" alt="LEVA" className="mb-6 h-14 w-36 object-contain"/><h2 className="text-3xl font-display text-[#382b31] mb-2 font-bold">Admin Login</h2>
             <p className="text-[#382b31]/40 text-xs font-medium mb-8">Welcome back. Please enter your details.</p>
 
             {error && (<div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-start gap-3">

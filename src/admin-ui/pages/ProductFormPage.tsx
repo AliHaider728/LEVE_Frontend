@@ -467,7 +467,7 @@ export const ProductFormPage: React.FC = () => {
 
             <div>
               <label htmlFor="product-image-urls" className="block text-xs font-bold text-[#382b31]/80 mb-2">Image URLs (one per line; first is main)</label>
-              <textarea id="product-image-urls" value={imageUrlsDraft} onChange={e => setImageUrlsDraft(e.target.value)} onBlur={() => setImages(imageUrlsDraft.split(/\r?\n/).map(url => url.trim()).filter(Boolean).slice(0, 8))} rows={3} className="w-full rounded-xl border border-[#ecdfe4] px-3 py-2 text-xs" placeholder="/images/product-main.webp" />
+              <textarea id="product-image-urls" value={imageUrlsDraft} onChange={e => setImageUrlsDraft(e.target.value)} onBlur={() => setImages(imageUrlsDraft.split(/\r?\n/).map(url => url.trim()).filter(Boolean).slice(0, 8))} rows={3} className="w-full rounded-xl border border-[#ecdfe4] px-3 py-2 text-xs" placeholder="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/..." />
             </div>
 
             {/* Gallery Images */}

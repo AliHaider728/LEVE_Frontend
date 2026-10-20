@@ -67,7 +67,7 @@ export const AdminLayout: React.FC<{
         {/* Brand Header */}
         <div className="flex h-16 items-center justify-between border-b border-[#ecdfe4] px-4">
           <div className="flex items-center gap-3 overflow-hidden">
-            <img src="/images/LEVA-logo.png" alt="LEVA" className="h-10 w-16 shrink-0 object-contain"/>
+            <img src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/LEVA-logo.png" alt="LEVA" className="h-10 w-16 shrink-0 object-contain"/>
             {(!collapsed || mobileMenuOpen) && (<div className="truncate">
                 <span className="font-heading font-black tracking-wider text-base uppercase text-[#382b31] block">
                   LEVA

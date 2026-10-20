@@ -35,14 +35,14 @@ export function Manifesto() {
     >
       <motion.img
         style={{ y: y1 }}
-        src="/images/brightening-cream-main.webp"
+        src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/brightening-cream-main.webp"
         alt="LEVA Skin Brightening Cream"
         loading="lazy"
         className="absolute left-[3vw] top-16 hidden h-56 w-40 rounded-t-full object-cover shadow-sm lg:block"
       />
       <motion.img
         style={{ y: y2 }}
-        src="/images/tinted-sunscreen-studio.webp"
+        src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/tinted-sunscreen-studio.webp"
         alt="LEVA Tinted Sunscreen"
         loading="lazy"
         className="absolute bottom-16 right-[4vw] hidden h-64 w-44 rounded-2xl object-cover shadow-sm lg:block"

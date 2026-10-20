@@ -110,7 +110,7 @@ export function Footer() {
       </div>
       <div className="mt-14 flex justify-center px-4">
         <img
-          src="/images/LEVA-logo-white.png"
+          src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/LEVA-logo-white.png"
           alt="LEVA"
           className="h-auto w-full max-w-[min(85vw,480px)] sm:max-w-[520px] md:max-w-[580px] lg:max-w-[640px] object-contain opacity-95 transition-opacity hover:opacity-100"
           loading="lazy"

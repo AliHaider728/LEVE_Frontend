@@ -428,7 +428,7 @@ function Intro() {
       >
         <motion.img
           style={{ y }}
-          src="/images/leva-shop-hero-trio.webp"
+          src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-shop-hero-trio.webp"
           alt="LEVA three skincare essentials together"
           className="h-full w-full object-cover object-bottom"
         />

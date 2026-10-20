@@ -10,7 +10,7 @@ const items = [
     ingredient: "Hyaluronic Acid",
     benefit: "Helps retain moisture for soft, fresh, and hydrated-looking skin.",
     howToUse: "Apply to a damp face, massage gently for 15–20 seconds, then rinse thoroughly.",
-    img: "/images/leva-face-wash-formula.jpg",
+    img: "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-face-wash-formula.jpg",
   },
   {
     step: "02",
@@ -19,7 +19,7 @@ const items = [
     ingredient: "Alpha Arbutin",
     benefit: "Helps reduce the appearance of dark spots and promotes a brighter, more even-looking skin tone.",
     howToUse: "Apply a small amount to clean skin once or twice daily.",
-    img: "/images/leva-brightening-cream-formula.jpg",
+    img: "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-brightening-cream-formula.jpg",
   },
   {
     step: "SPF 50",
@@ -28,7 +28,7 @@ const items = [
     ingredient: "UVA & UVB Protection",
     benefit: "Helps protect against sunburn, tanning, and premature skin aging.",
     howToUse: "Apply 15 minutes before sun exposure. Reapply every 2 hours outdoors.",
-    img: "/images/leva-tinted-sunscreen-formula.jpg",
+    img: "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-tinted-sunscreen-formula.jpg",
   },
 ];
 

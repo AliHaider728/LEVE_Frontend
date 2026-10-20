@@ -36,9 +36,23 @@ export type SkinType = "Dry" | "Oily" | "Combination" | "Normal" | "Sensitive";
 export const productTypes: ProductType[] = ["Cleanser", "Sunscreen", "Cream"];
 export const concerns: Concern[] = ["Dullness", "Dryness", "Uneven tone", "Sensitivity"];
 
-const creamImages = ["/images/brightening-cream-main.webp", "/images/brightening-cream-model.webp", "/images/brightening-cream-hand.webp"];
-const sunscreenImages = ["/images/tinted-sunscreen-main.webp", "/images/tinted-sunscreen-model.webp", "/images/tinted-sunscreen-studio.webp"];
-const washImages = ["/images/face-wash-main.webp", "/images/face-wash-model.webp", "/images/face-wash-ritual.webp"];
+const R2_BASE = "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev";
+
+const creamImages = [
+  `${R2_BASE}/images/brightening-cream-main.webp`,
+  `${R2_BASE}/images/brightening-cream-model.webp`,
+  `${R2_BASE}/images/brightening-cream-hand.webp`,
+];
+const sunscreenImages = [
+  `${R2_BASE}/images/tinted-sunscreen-main.webp`,
+  `${R2_BASE}/images/tinted-sunscreen-model.webp`,
+  `${R2_BASE}/images/tinted-sunscreen-studio.webp`,
+];
+const washImages = [
+  `${R2_BASE}/images/face-wash-main.webp`,
+  `${R2_BASE}/images/face-wash-model.webp`,
+  `${R2_BASE}/images/face-wash-ritual.webp`,
+];
 
 export const products: Product[] = [
   {

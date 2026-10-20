@@ -70,7 +70,7 @@ function Contact() {
       <section className="grid min-h-svh pt-20 md:grid-cols-2 md:pt-28">
         <div className="relative min-h-[45vh] overflow-hidden bg-secondary">
           <img
-            src="/images/face-wash-ritual.webp"
+            src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/face-wash-ritual.webp"
             alt="LEVA skincare ritual"
             className="h-full w-full object-cover"
           />

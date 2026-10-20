@@ -37,7 +37,7 @@ function About() {
           whileInView={{ clipPath: "inset(0% 0 0 0)" }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
-          src="/images/brightening-cream-model.webp"
+          src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/brightening-cream-model.webp"
           alt="LEVA Skin Brightening ritual"
           className="absolute inset-0 h-full w-full object-cover object-top md:left-auto md:w-[55%]"
         />
@@ -54,7 +54,7 @@ function About() {
       <section className="grid items-center gap-12 px-6 py-20 md:grid-cols-2 md:gap-16 md:px-[10vw] md:py-32">
         <div className="relative aspect-[4/5] w-full max-w-md overflow-hidden rounded-3xl bg-secondary shadow-sm">
           <img
-            src="/images/face-wash-ritual.webp"
+            src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/face-wash-ritual.webp"
             alt="LEVA considered skincare ritual"
             loading="lazy"
             className="h-full w-full object-cover"
@@ -89,7 +89,7 @@ function About() {
           className="min-h-[60vh] overflow-hidden"
         >
           <img
-            src="/images/tinted-sunscreen-model.webp"
+            src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/tinted-sunscreen-model.webp"
             alt="LEVA Tinted Sunscreen in morning sunlight"
             loading="lazy"
             className="h-full w-full object-cover object-top"

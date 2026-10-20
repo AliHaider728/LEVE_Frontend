@@ -26,7 +26,7 @@ export function Hero() {
         >
           <div
             className="h-full w-full bg-cover bg-no-repeat md:bg-fixed bg-[center_bottom] lg:bg-[64%_bottom] xl:bg-[center_bottom]"
-            style={{ backgroundImage: "url('/images/leva-pink-studio-hero.webp')" }}
+            style={{ backgroundImage: "url('https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-pink-studio-hero.webp')" }}
           />
         </motion.div>
         <motion.div
@@ -71,7 +71,7 @@ export function Hero() {
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <Image
-            src="/images/leva-mobile-hero-collection.webp"
+            src="https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-mobile-hero-collection.webp"
             alt="LEVA Pink Glow Skincare Collection mobile view"
             fill
             priority
