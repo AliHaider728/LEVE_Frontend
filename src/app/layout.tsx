@@ -18,27 +18,30 @@ export const metadata: Metadata = {
     default: "LEVA — Skincare for Her",
     template: "%s | LEVA",
   },
-  description: "LEVA skincare essentials, delivered across Pakistan. Discover considered rituals crafted for healthy, radiant skin.",
+  description: "LEVA offers premium skincare essentials delivered across Pakistan. Discover LEVA Face Wash, LEVA Tinted Sunblock SPF 50 PA+++, and LEVA Cream crafted for radiant, healthy skin.",
   keywords: [
     "LEVA",
     "LEVA skincare",
     "LEVA Pakistan",
     "leva.pk",
     "leva official",
-    "skincare Pakistan",
-    "best skincare brand Pakistan",
-    "skincare routine",
-    "gentle cleanser",
-    "hydrating cleanser",
+    "LEVA Face Wash",
+    "LEVA Tinted Sunblock",
+    "LEVA Cream",
+    "LEVA Sunblock SPF 50",
+    "LEVA brightening cream",
     "face wash Pakistan",
-    "balancing toner",
-    "skin toner",
-    "pore tightening toner",
-    "barrier moisturizer",
-    "ceramide moisturizer",
-    "face cream Pakistan",
+    "gentle face wash",
+    "foaming face wash",
+    "tinted sunblock Pakistan",
+    "sunscreen SPF 50 Pakistan",
+    "tinted sunscreen",
+    "mineral sunblock",
+    "brightening cream Pakistan",
+    "skin cream",
     "skincare bundles",
     "routine builder",
+    "complete ritual bundle",
     "buy skincare online Pakistan",
     "cash on delivery skincare",
     "glowing skin routine",
@@ -66,7 +69,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "LEVA — Skincare for Her",
-    description: "LEVA skincare essentials, delivered across Pakistan. Considered rituals for healthy, radiant skin.",
+    description: "Discover LEVA skincare essentials in Pakistan: LEVA Face Wash, LEVA Tinted Sunblock SPF 50 PA+++, and LEVA Cream. Cash on Delivery nationwide.",
     url: "https://leva.pk",
     siteName: "LEVA",
     locale: "en_PK",
@@ -75,7 +78,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "LEVA — Skincare for Her",
-    description: "LEVA skincare essentials, delivered across Pakistan.",
+    description: "Discover LEVA skincare essentials in Pakistan: LEVA Face Wash, LEVA Tinted Sunblock SPF 50 PA+++, and LEVA Cream. Cash on Delivery nationwide.",
   },
   icons: { icon: "/favicon.ico" },
 };
@@ -117,11 +120,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* Primary Google Search & SEO Meta Tags */}
         <meta
           name="description"
-          content="LEVA offers premium skincare essentials delivered across Pakistan. Gentle Cleanser, Balancing Toner, and Barrier Moisturizer crafted for healthy, radiant skin. Cash on Delivery nationwide."
+          content="LEVA offers premium skincare essentials delivered across Pakistan. Discover LEVA Face Wash, LEVA Tinted Sunblock SPF 50 PA+++, and LEVA Cream crafted for radiant, healthy skin. Cash on Delivery nationwide."
         />
         <meta
           name="keywords"
-          content="LEVA, LEVA skincare, LEVA Pakistan, leva.pk, leva official, skincare Pakistan, best skincare brand Pakistan, skincare routine, gentle cleanser, hydrating cleanser, face wash Pakistan, balancing toner, skin toner, pore tightening toner, barrier moisturizer, ceramide moisturizer, face cream Pakistan, skincare bundles, routine builder, buy skincare online Pakistan, cash on delivery skincare, glowing skin routine, acne safe skincare, healthy skin barrier, pakistani skincare brands, skincare for women"
+          content="LEVA, LEVA skincare, LEVA Pakistan, leva.pk, leva official, LEVA Face Wash, LEVA Tinted Sunblock, LEVA Cream, LEVA Sunblock SPF 50, LEVA brightening cream, face wash Pakistan, gentle face wash, foaming face wash, tinted sunblock Pakistan, sunscreen SPF 50 Pakistan, tinted sunscreen, mineral sunblock, brightening cream Pakistan, skin cream, skincare bundles, routine builder, complete ritual bundle, buy skincare online Pakistan, cash on delivery skincare, glowing skin routine, acne safe skincare, healthy skin barrier, pakistani skincare brands, skincare for women"
         />
         <meta name="author" content="LEVA Pakistan" />
         <meta name="publisher" content="LEVA" />
@@ -144,12 +147,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta property="og:locale" content="en_PK" />
         <meta property="og:url" content="https://leva.pk" />
         <meta property="og:title" content="LEVA — Considered Skincare Rituals for Her | Pakistan" />
-        <meta property="og:description" content="Discover LEVA skincare essentials in Pakistan. Gentle Cleanser, Balancing Toner, and Barrier Moisturizer. Cash on Delivery nationwide." />
+        <meta property="og:description" content="Discover LEVA skincare essentials in Pakistan: LEVA Face Wash, LEVA Tinted Sunblock SPF 50 PA+++, and LEVA Cream. Cash on Delivery nationwide." />
 
         {/* Twitter Card Search Tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="LEVA — Skincare for Her" />
-        <meta name="twitter:description" content="Premium skincare essentials crafted for healthy, radiant skin. Delivered across Pakistan with Cash on Delivery." />
+        <meta name="twitter:description" content="Discover LEVA skincare essentials in Pakistan: LEVA Face Wash, LEVA Tinted Sunblock SPF 50 PA+++, and LEVA Cream. Cash on Delivery nationwide." />
 
         <script
           dangerouslySetInnerHTML={{
