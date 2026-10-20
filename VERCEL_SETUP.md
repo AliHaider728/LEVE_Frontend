@@ -2,7 +2,7 @@
 
 Frontend project root: leva-next. Deploy the current source, including src/app/api/admin, src/app/admin and src/middleware.ts. The tracked vercel.json supplies the public backend URL at build and runtime; no credentials are included. An explicit project environment variable should use the same URL.
 
-NEXT_PUBLIC_API_URL=https://leva-backend.vercel.app
+NEXT_PUBLIC_API_URL=https://admin.leva.pk
 
 Backend project root: backend. Configure database and JWT secrets in Vercel Production environment variables, using the existing local values privately. The local .env is not deployed. Either DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME or LEVA_MYSQL_HOST, LEVA_MYSQL_PORT, LEVA_MYSQL_USER, LEVA_MYSQL_PASSWORD, LEVA_MYSQL_DATABASE are supported. Prefer one consistent set. JWT_SECRET must remain identical across backend requests and must not be a placeholder. Never place database credentials in NEXT_PUBLIC variables.
 
@@ -21,4 +21,4 @@ Redeploy the backend, then redeploy the frontend after saving environment variab
 
 Use admin@leva.pk and the password entered during the hidden admin:setup prompt.
 
-Admin requests always use /api/admin on the frontend host. BACKEND_API_URL can override the server-side connection; NEXT_PUBLIC_API_URL is the second preference. Without either, development uses http://127.0.0.1:5001 and production uses https://leva-backend.vercel.app. A missing browser API URL does not disable admin sign-in.
+Admin requests always use /api/admin on the frontend host. BACKEND_API_URL can override the server-side connection; NEXT_PUBLIC_API_URL is the second preference. Without either, development uses http://127.0.0.1:5001 and production uses https://admin.leva.pk. A missing browser API URL does not disable admin sign-in.

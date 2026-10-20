@@ -2,7 +2,7 @@
 export function adminBackendOrigin() {
   const url = process.env.BACKEND_API_URL;
   if (!url || url.includes('localhost:5001') || url.includes('127.0.0.1:5001')) {
-    return 'https://leva-backend.vercel.app';
+    return 'https://admin.leva.pk';
   }
   return url.trim().replace(/\/+$/, '');
 }

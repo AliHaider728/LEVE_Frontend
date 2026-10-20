@@ -12,8 +12,8 @@ async function fetchBackend(path: string, cookie: string) {
             signal: AbortSignal.timeout(8000)
         });
         if (res.ok) return res;
-        if (origin !== 'https://leva-backend.vercel.app') {
-            return await fetch('https://leva-backend.vercel.app' + path, {
+        if (origin !== 'https://admin.leva.pk') {
+            return await fetch('https://admin.leva.pk' + path, {
                 headers,
                 credentials: 'include',
                 cache: 'no-store',
@@ -22,8 +22,8 @@ async function fetchBackend(path: string, cookie: string) {
         }
         return res;
     } catch (err) {
-        if (origin !== 'https://leva-backend.vercel.app') {
-            return await fetch('https://leva-backend.vercel.app' + path, {
+        if (origin !== 'https://admin.leva.pk') {
+            return await fetch('https://admin.leva.pk' + path, {
                 headers,
                 credentials: 'include',
                 cache: 'no-store',

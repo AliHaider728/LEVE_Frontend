@@ -36,8 +36,8 @@ async function proxy(request: NextRequest, { params }: {
         try {
             response = await fetch(origin + '/api/' + route + request.nextUrl.search, { method: request.method, headers, body, credentials: 'include', cache: 'no-store', redirect: 'manual', signal: AbortSignal.timeout(8000) });
         } catch (fetchErr) {
-            if (origin !== 'https://leva-backend.vercel.app') {
-                response = await fetch('https://leva-backend.vercel.app/api/' + route + request.nextUrl.search, { method: request.method, headers, body, credentials: 'include', cache: 'no-store', redirect: 'manual', signal: AbortSignal.timeout(20000) });
+            if (origin !== 'https://admin.leva.pk') {
+                response = await fetch('https://admin.leva.pk/api/' + route + request.nextUrl.search, { method: request.method, headers, body, credentials: 'include', cache: 'no-store', redirect: 'manual', signal: AbortSignal.timeout(20000) });
             } else {
                 throw fetchErr;
             }

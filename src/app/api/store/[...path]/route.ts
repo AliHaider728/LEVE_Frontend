@@ -44,8 +44,8 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
         signal: AbortSignal.timeout(8000),
       });
     } catch (localErr) {
-      if (origin !== 'https://leva-backend.vercel.app') {
-        response = await fetch(`https://leva-backend.vercel.app/api/${upstreamPath}${request.nextUrl.search}`, {
+      if (origin !== 'https://admin.leva.pk') {
+        response = await fetch(`https://admin.leva.pk/api/${upstreamPath}${request.nextUrl.search}`, {
           method: request.method,
           headers,
           body,
