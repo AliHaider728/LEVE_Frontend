@@ -17,10 +17,11 @@ export default function View() {
   const slug = decodeURIComponent(params.slug ?? "");
   const bundle = bundles.find(item => item.slug === slug) ?? savedBundles.find(item => item.slug === slug);
   if (!bundle) return <main className="min-h-[60svh] px-5 pb-24 pt-28 md:px-[8vw] md:pt-[calc(var(--header-h)+3rem)]"><p className="eyebrow">LEVA / Bundles</p><h1 className="mt-4 text-4xl font-light">Bundle not found.</h1><Link href="/bundles" className="mt-8 inline-flex items-center gap-2 text-primary underline underline-offset-4"><ArrowLeft className="size-4"/>Back to bundles</Link></main>;
-  const routineOrder = ["leva-face-wash", "leva-cream", "leva-tinted-sunblock", "product-03", "product-01", "product-02"];
+  const routineOrder = ["leva-face-wash", "leva-brightening-cream", "leva-cream", "leva-tinted-sunblock", "product-03", "product-01", "product-02"];
   const included = bundle.productSlugs.map(productSlug => products.find(product => product.slug === productSlug)).filter((product): product is (typeof products)[number] => Boolean(product)).sort((a, b) => routineOrder.indexOf(a.slug) - routineOrder.indexOf(b.slug));
   const routineDirections: Record<string, string> = {
     "leva-face-wash": "Apply to a damp face, massage gently, then rinse thoroughly.",
+    "leva-brightening-cream": "Apply a small amount to clean skin, following the product label.",
     "leva-cream": "Apply a small amount to clean skin, following the product label.",
     "leva-tinted-sunblock": "Apply before sun exposure and reapply as directed on the product label.",
     "product-03": "Apply to a damp face, massage gently, then rinse thoroughly.",

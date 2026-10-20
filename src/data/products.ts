@@ -56,23 +56,23 @@ const washImages = [
 
 export const products: Product[] = [
   {
-    slug: "leva-cream",
+    slug: "leva-brightening-cream",
     number: "01",
-    name: "LEVA Cream",
+    name: "LEVA Brightening Cream",
     sku: "LEV-CRM30",
     category: "Creams & Moisturizers",
     ritual: "Step 02 · The Nourishing Veil",
     price: 1650,
     size: "30 G",
     description:
-      "LEVA Cream is an indulgent yet fast-absorbing daily moisturizing and brightening cream. Enriched with ceramides, hyaluronic acid, and nourishing botanical extracts, it works deeply to replenish lost moisture, soothe environmental stress, and brighten dull skin. It locks in long-lasting hydration, leaving your complexion soft, plump, and luminous throughout the day.",
+      "LEVA Brightening Cream is a fast-absorbing daily moisturizing and brightening cream. Enriched with ceramides, hyaluronic acid, and alpha arbutin, it replenishes lost moisture, repairs the skin barrier, and promotes a brighter, more even skin tone. Formulated for all skin types, it absorbs effortlessly without greasiness, leaving skin soft, plump, and luminous.",
     ingredients:
       "Aqua, Caprylic/Capric Triglyceride, Cetearyl Alcohol, Niacinamide, Ceramide NP, Sodium Hyaluronate, Alpha Arbutin, Licorice Root Extract, Shea Butter, Vitamin E (Tocopherol), Dimethicone, Glycerin, Phenoxyethanol, Ethylhexylglycerin.",
     usage:
       "Take a dime-sized amount and warm between fingertips. Smooth evenly over cleansed face and neck in gentle upward circular motions until fully absorbed. Use morning and evening as Step 02 of your ritual.",
-    benefit: "Deeply hydrates, repairs the moisture barrier, and enhances luminous radiance for soft, glowing skin.",
+    benefit: "A fast-absorbing daily moisturizer enriched with ceramides, hyaluronic acid, and alpha arbutin to replenish moisture, restore the skin barrier, and reveal a radiant glow.",
     faq:
-      "Is LEVA Cream suitable for oily or sensitive skin? Yes, the formula is lightweight and non-comedogenic, absorbing quickly without clogging pores or feeling greasy. Suitable for dry, normal, combination, and sensitive skin.",
+      "Is LEVA Brightening Cream suitable for oily or sensitive skin? Yes, the formula is lightweight and non-comedogenic, absorbing quickly without clogging pores or feeling greasy. Suitable for dry, normal, combination, and sensitive skin.",
     image: creamImages[0],
     hoverImage: creamImages[0],
     galleryImages: creamImages,
@@ -151,7 +151,8 @@ export const products: Product[] = [
 ];
 
 export const slugAliases: Record<string, string> = {
-  "product-01": "leva-cream",
+  "product-01": "leva-brightening-cream",
+  "leva-cream": "leva-brightening-cream",
   "product-02": "leva-tinted-sunblock",
   "product-03": "leva-face-wash",
 };

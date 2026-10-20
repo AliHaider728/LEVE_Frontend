@@ -18,6 +18,14 @@ const nextConfig = (phase: string): NextConfig => ({
       // Add your future CDN domain here, e.g. { protocol: "https", hostname: "cdn.leva.pk" }
     ],
   },
+  async redirects() {
+    return [
+      { source: "/shop/product-01", destination: "/shop/leva-brightening-cream", permanent: true },
+      { source: "/shop/leva-cream", destination: "/shop/leva-brightening-cream", permanent: true },
+      { source: "/shop/product-02", destination: "/shop/leva-tinted-sunblock", permanent: true },
+      { source: "/shop/product-03", destination: "/shop/leva-face-wash", permanent: true },
+    ];
+  },
 });
 
 export default nextConfig;

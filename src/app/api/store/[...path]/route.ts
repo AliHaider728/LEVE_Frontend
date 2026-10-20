@@ -4,14 +4,15 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 const allowed: Array<{ pattern: RegExp; methods: string[] }> = [
-  { pattern: /^api\/products(?:\/[^/]+)?$/, methods: ['GET'] },
-  { pattern: /^api\/bundles$/, methods: ['GET'] },
-  { pattern: /^api\/settings$/, methods: ['GET'] },
-  { pattern: /^api\/features$/, methods: ['GET'] },
-  { pattern: /^api\/reviews\/product\/[^/]+$/, methods: ['GET'] },
-  { pattern: /^api\/reviews$/, methods: ['POST'] },
-  { pattern: /^api\/coupons\/validate$/, methods: ['POST'] },
-  { pattern: /^api\/orders$/, methods: ['POST'] },
+  { pattern: /^(?:api\/)?products(?:\/[^/]+)?$/, methods: ['GET'] },
+  { pattern: /^(?:api\/)?bundles$/, methods: ['GET'] },
+  { pattern: /^(?:api\/)?settings$/, methods: ['GET'] },
+  { pattern: /^(?:api\/)?features$/, methods: ['GET'] },
+  { pattern: /^(?:api\/)?reviews\/product\/[^/]+$/, methods: ['GET'] },
+  { pattern: /^(?:api\/)?reviews$/, methods: ['POST'] },
+  { pattern: /^(?:api\/)?coupons\/validate$/, methods: ['POST'] },
+  { pattern: /^(?:api\/)?orders$/, methods: ['POST'] },
+  { pattern: /^(?:api\/)?auth\/(?:login|register|logout|me|forgot-password|reset-password)$/, methods: ['GET', 'POST'] },
 ];
 
 async function proxy(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {

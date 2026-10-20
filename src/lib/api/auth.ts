@@ -8,8 +8,8 @@ export type AuthUser = { id: string; name: string; email: string; phone?: string
 export type LoginInput = { email: string; password: string };
 export type RegisterInput = { name: string; phone: string; email: string; password: string };
 
-const USE_REMOTE = false;
-const BASE = "/api/v1/auth";
+const USE_REMOTE = true;
+const BASE = "/api/store/api/auth";
 const MOCK_COOKIE = "leva_demo_session";
 
 async function remote<T>(path: string, body?: unknown): Promise<T> {
@@ -19,8 +19,9 @@ async function remote<T>(path: string, body?: unknown): Promise<T> {
     headers: { "Content-Type": "application/json" },
     body: body === undefined ? null : JSON.stringify(body),
   });
-  if (!res.ok) throw new Error((await res.json().catch(() => null))?.message ?? "Request failed");
-  return res.json() as Promise<T>;
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.error ?? data?.message ?? "Request failed");
+  return data as T;
 }
 
 const wait = (ms = 600) => new Promise((r) => setTimeout(r, ms));
@@ -42,14 +43,24 @@ function readMockCookie(): AuthUser | null {
 
 export const authApi = {
   async login(input: LoginInput): Promise<AuthUser> {
-    if (USE_REMOTE) return remote("/login", input);
+    if (USE_REMOTE) {
+      const data = await remote<{ user?: AuthUser; token?: string } & AuthUser>("/login", input);
+      const user = data.user || data;
+      setMockCookie(user);
+      return user;
+    }
     await wait();
     const user = { id: "demo", name: input.email.split("@")[0] ?? "friend", email: input.email };
     setMockCookie(user);
     return user;
   },
   async register(input: RegisterInput): Promise<AuthUser> {
-    if (USE_REMOTE) return remote("/register", input);
+    if (USE_REMOTE) {
+      const data = await remote<{ user?: AuthUser; token?: string } & AuthUser>("/register", input);
+      const user = data.user || data;
+      setMockCookie(user);
+      return user;
+    }
     await wait();
     const user = { id: "demo", name: input.name, email: input.email, phone: input.phone };
     setMockCookie(user);
@@ -63,11 +74,21 @@ export const authApi = {
     if (USE_REMOTE) await remote("/refresh", {});
   },
   async logout(): Promise<void> {
-    if (USE_REMOTE) await remote("/logout", {});
+    if (USE_REMOTE) await remote("/logout", {}).catch(() => null);
     setMockCookie(null);
   },
   async me(): Promise<AuthUser | null> {
-    if (USE_REMOTE) return remote<AuthUser>("/me").catch(() => null);
+    if (USE_REMOTE) {
+      try {
+        const data = await remote<{ user?: AuthUser } | AuthUser>("/me");
+        if (!data) return null;
+        const user = (data as any).user || data;
+        setMockCookie(user);
+        return user;
+      } catch {
+        return readMockCookie();
+      }
+    }
     return readMockCookie();
   },
 };

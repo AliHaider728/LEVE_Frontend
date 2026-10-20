@@ -50,7 +50,7 @@ export function normalizeProducts(payload: unknown): Product[] {
     const category = text(categoryName, fallback.category);
     const sku = text(row.sku, fallback.sku);
     return {
-      ...fallback, id: text(row.id), slug: fallback.slug, number: String(index + 1).padStart(2, "0"), name: text(row.name, fallback.name), type,
+      ...fallback, id: text(row.id), slug: text(row.slug, fallback.slug), number: String(index + 1).padStart(2, "0"), name: text(row.name, fallback.name), type,
       sku, category, size, ingredients, usage, faq,
       price, compareAtPrice: Math.max(price, number(row.originalPrice, price)), stock,
       variationId: variant ? text(variant.id) : undefined, selectedAttributes: variant ? Object.fromEntries(Object.entries(object(variant.attributes)).map(([name,value])=>[name,String(value)])) : undefined, requiresVariation: row.productType === "variable" && !variant,

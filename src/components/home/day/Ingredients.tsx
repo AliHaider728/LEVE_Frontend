@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useSpring, useTransform, useReducedMotion } from "motion/react";
 import { Link } from "@/lib/router-compat";
+import { useStoreData } from "@/store/catalog";
 
 const items = [
   {
@@ -8,16 +9,16 @@ const items = [
     name: "LEVA Face Wash",
     slug: "leva-face-wash",
     ingredient: "Hyaluronic Acid",
-    benefit: "Helps retain moisture for soft, fresh, and hydrated-looking skin.",
+    benefit: "A gentle, purifying daily face wash that deeply cleanses pores without stripping natural moisture, leaving skin fresh, soft, and balanced.",
     howToUse: "Apply to a damp face, massage gently for 15–20 seconds, then rinse thoroughly.",
     img: "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-face-wash-formula.jpg",
   },
   {
     step: "02",
-    name: "LEVA Cream",
-    slug: "leva-cream",
-    ingredient: "Alpha Arbutin",
-    benefit: "Helps reduce the appearance of dark spots and promotes a brighter, more even-looking skin tone.",
+    name: "LEVA Brightening Cream",
+    slug: "leva-brightening-cream",
+    ingredient: "Alpha Arbutin & Ceramides",
+    benefit: "A fast-absorbing daily moisturizer enriched with ceramides, hyaluronic acid, and alpha arbutin to replenish moisture, restore the skin barrier, and reveal a radiant glow.",
     howToUse: "Apply a small amount to clean skin once or twice daily.",
     img: "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-brightening-cream-formula.jpg",
   },
@@ -26,7 +27,7 @@ const items = [
     name: "LEVA Tinted Sunblock",
     slug: "leva-tinted-sunblock",
     ingredient: "UVA & UVB Protection",
-    benefit: "Helps protect against sunburn, tanning, and premature skin aging.",
+    benefit: "Broad-spectrum SPF 50 PA+++ protection with a sheer universal tint for a radiant, non-greasy finish without white cast.",
     howToUse: "Apply 15 minutes before sun exposure. Reapply every 2 hours outdoors.",
     img: "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-tinted-sunscreen-formula.jpg",
   },
@@ -70,6 +71,7 @@ function Panel({ it }: { it: (typeof items)[number] }) {
 }
 
 export function Ingredients() {
+  const { products } = useStoreData();
   const ref = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -77,6 +79,22 @@ export function Ingredients() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 75, damping: 28 });
   const x = useTransform(smoothProgress, [0, 1], ["0%", "-62%"]);
+
+  const dynamicItems = items.map((it) => {
+    const liveProd = products.find(
+      (p) =>
+        p.slug === it.slug ||
+        (it.slug === "leva-brightening-cream" && (p.slug === "leva-cream" || p.name.toLowerCase().includes("cream"))) ||
+        p.name.toLowerCase().includes(it.name.toLowerCase().replace("leva ", ""))
+    );
+    return {
+      ...it,
+      name: liveProd?.name || it.name,
+      slug: liveProd?.slug || it.slug,
+      benefit: liveProd?.benefit || liveProd?.description || it.benefit,
+      howToUse: liveProd?.usage || it.howToUse,
+    };
+  });
 
   // Track active slide on mobile
   useEffect(() => {
@@ -113,7 +131,7 @@ export function Ingredients() {
             style={reduced ? {} : { x }}
             className={`flex gap-8 pl-[8vw] ${reduced ? "flex-wrap pr-[8vw]" : ""}`}
           >
-            {items.map((it) => (
+            {dynamicItems.map((it) => (
               <Panel key={it.step} it={it} />
             ))}
           </motion.div>
@@ -132,7 +150,7 @@ export function Ingredients() {
           }}
           className="mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-3 [scrollbar-width:none]"
         >
-          {items.map((it) => (
+          {dynamicItems.map((it) => (
             <Panel key={it.step} it={it} />
           ))}
         </div>
