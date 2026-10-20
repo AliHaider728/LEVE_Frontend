@@ -41,8 +41,17 @@ export function normalizeProducts(payload: unknown): Product[] {
     const variations = list(row.variations).map(object);
     const variant = variations.find(value => value.id === row.defaultVariationId && enabled(value.enabled));
     const price = row.productType === "variable" && variant ? number(variant.salePrice ?? variant.regularPrice, number(row.price)) : number(row.price);
+    const specs = object(row.specifications);
+    const ingredients = text(specs.Ingredients, fallback.ingredients);
+    const usage = text(specs.Usage, fallback.usage);
+    const faq = text(specs.FAQ, fallback.faq);
+    const size = text(specs.Size, fallback.size);
+    const categoryName = list(row.categoryNames)[0];
+    const category = text(categoryName, fallback.category);
+    const sku = text(row.sku, fallback.sku);
     return {
       ...fallback, id: text(row.id), slug: fallback.slug, number: String(index + 1).padStart(2, "0"), name: text(row.name, fallback.name), type,
+      sku, category, size, ingredients, usage, faq,
       price, compareAtPrice: Math.max(price, number(row.originalPrice, price)), stock,
       variationId: variant ? text(variant.id) : undefined, selectedAttributes: variant ? Object.fromEntries(Object.entries(object(variant.attributes)).map(([name,value])=>[name,String(value)])) : undefined, requiresVariation: row.productType === "variable" && !variant,
       description: text(row.description, fallback.description), benefit: text(row.shortDescription, fallback.benefit),
