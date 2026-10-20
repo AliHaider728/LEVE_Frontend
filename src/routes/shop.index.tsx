@@ -392,7 +392,11 @@ function Intro() {
       ref={ref}
       className="grid min-h-[70svh] items-center gap-10 px-5 pb-12 pt-24 md:grid-cols-[1fr_0.8fr] md:px-[6vw] md:pt-36"
     >
-      <div>
+      <motion.div
+        initial={reduced ? false : { opacity: 0, y: 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      >
         <p className="eyebrow">The LEVA Index</p>
         <h1 className="mt-3 text-4xl font-light leading-tight text-foreground md:text-[2.75rem]">
           Shop LEVA
@@ -415,8 +419,11 @@ function Intro() {
             </li>
           ))}
         </ul>
-      </div>
-      <div
+      </motion.div>
+      <motion.div
+        initial={reduced ? false : { clipPath: "inset(100% 0% 0% 0%)" }}
+        animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
+        transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
         className="mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-t-[999px] rounded-b-3xl bg-[#FFF4F6] shadow-sm"
       >
         <motion.img
@@ -425,15 +432,50 @@ function Intro() {
           alt="LEVA three skincare essentials together"
           className="h-full w-full object-cover object-bottom"
         />
-      </div>
+      </motion.div>
     </section>
   );
 }
 
-/** Static cards remain visible without animation or IntersectionObserver. */
+const shopReveal = {
+  hidden: { opacity: 0, y: 30 },
+  show: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+  }),
+};
+
 function ShopGrid({ results }: { results: Product[] }) {
-  return <div data-shop-grid className="grid grid-cols-2 items-start gap-3 px-4 pt-6 pb-12 md:grid-cols-3 md:gap-6 md:px-[6vw] lg:grid-cols-4">
-    {results.map(product => <div key={product.slug} className="min-w-0"><ProductCard product={product} /></div>)}
-    <BuildBundleCard />
-  </div>;
+  const reduced = useReducedMotion();
+  return (
+    <div
+      data-shop-grid
+      className="grid grid-cols-2 items-start gap-3 px-4 pt-6 pb-12 md:grid-cols-3 md:gap-6 md:px-[6vw] lg:grid-cols-4"
+    >
+      {results.map((product, idx) => (
+        <motion.div
+          key={product.slug}
+          custom={idx}
+          variants={shopReveal}
+          initial={reduced ? false : "hidden"}
+          whileInView="show"
+          viewport={{ once: true, amount: 0.15 }}
+          className="min-w-0"
+        >
+          <ProductCard product={product} />
+        </motion.div>
+      ))}
+      <motion.div
+        custom={results.length}
+        variants={shopReveal}
+        initial={reduced ? false : "hidden"}
+        whileInView="show"
+        viewport={{ once: true, amount: 0.15 }}
+        className="min-w-0"
+      >
+        <BuildBundleCard />
+      </motion.div>
+    </div>
+  );
 }

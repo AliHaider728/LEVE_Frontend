@@ -84,7 +84,9 @@ export function FloatingNav(){
     </div>
    </header>
   </div>
-  <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-primary/15 bg-white pb-[env(safe-area-inset-bottom)] md:hidden">{tabs.map(tab=>{const Icon=tab.icon;const active=tab.to==='/'?pathname==='/':pathname.startsWith(tab.to);return <Link key={tab.to} to={tab.to} className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-medium ${active?'text-accent':'text-foreground'}`}><Icon className="size-5"/><span>{tab.label}</span>{tab.label==='Cart'&&count>0&&<span className="absolute right-[22%] top-1 grid size-5 place-items-center rounded-full bg-accent text-xs text-accent-foreground">{count}</span>}</Link>;})}</nav>
+  {!pathname.startsWith('/checkout') && (
+    <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-primary/15 bg-white pb-[env(safe-area-inset-bottom)] md:hidden">{tabs.map(tab=>{const Icon=tab.icon;const active=tab.to==='/'?pathname==='/':pathname.startsWith(tab.to);return <Link key={tab.to} to={tab.to} className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-medium ${active?'text-accent':'text-foreground'}`}><Icon className="size-5"/><span>{tab.label}</span>{tab.label==='Cart'&&count>0&&<span className="absolute right-[22%] top-1 grid size-5 place-items-center rounded-full bg-accent text-xs text-accent-foreground">{count}</span>}</Link>;})}</nav>
+  )}
   <ProductSearch open={searchOpen} onOpenChange={setSearchOpen}/><CartDrawer/>
  </>;
 }

@@ -32,15 +32,15 @@ export function getCartTotals(
     0,
   );
   const subtotal = productSubtotal + bundleOriginal + cb.original;
-  const discountedSubtotal = productSubtotal + bundleSubtotal + cb.price;
   const bundleDiscount = bundleOriginal - bundleSubtotal;
   const customDiscount = cb.discount;
-  const couponDiscount = Math.round(discountedSubtotal * getCouponRate(coupon));
+  const couponDiscount = Math.round(productSubtotal * getCouponRate(coupon));
   const discount = bundleDiscount + customDiscount + couponDiscount;
-  const afterCoupon = Math.max(0, discountedSubtotal - couponDiscount);
+  const afterCoupon = Math.max(0, productSubtotal - couponDiscount) + bundleSubtotal + cb.price;
   const shipping = getShipping(afterCoupon, data.settings);
   return {
     customDiscount,
+    customDiscountRate: cb.rate,
     customPrice: cb.price,
     customCount: cb.count,
     productSubtotal,

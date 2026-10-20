@@ -122,6 +122,8 @@ function Checkout() {
         name: p.name,
         quantity: cart.items[p.slug] ?? 0,
         total: p.price * (cart.items[p.slug] ?? 0),
+        isCustom: false,
+        isBundle: false,
       })),
     ...bundles
       .filter((b) => cart.bundles[b.slug])
@@ -129,20 +131,21 @@ function Checkout() {
         name: b.name,
         quantity: cart.bundles[b.slug] ?? 0,
         total: b.price * (cart.bundles[b.slug] ?? 0),
+        isCustom: false,
+        isBundle: true,
       })),
     ...products
       .filter((p) => cart.custom[p.slug])
       .map((p) => ({
-        name: `${p.name} (custom bundle)`,
+        name: p.name,
         quantity: cart.custom[p.slug] ?? 0,
         total: p.price * (cart.custom[p.slug] ?? 0),
+        isCustom: true,
+        isBundle: false,
       })),
-    ...(totals.customDiscount
-      ? [{ name: "Custom bundle discount", quantity: 1, total: -totals.customDiscount }]
-      : []),
   ];
   const remaining = getFreeShippingRemaining(totals.payableSubtotal, storeConfig);
-  const waMessage = `Hi LEVA, I want to order:\n${lines.map((l) => `${l.name} x ${l.quantity}`).join("\n")}\nTotal: ${formatPKR(totals.total)}`;
+  const waMessage = `Hi LEVA, I want to order:\n${lines.map((l) => `${l.name} x ${l.quantity}${l.isCustom ? " (custom bundle)" : ""}`).join("\n")}\nTotal: ${formatPKR(totals.total)}`;
 
   const onCity = (value: string) => {
     setCity(value);
@@ -218,15 +221,33 @@ function Checkout() {
       </span>
     ) : null;
 
+  const customPercent = totals.customDiscount > 0
+    ? Math.round((totals.customDiscount / (totals.subtotal - totals.bundleOriginal)) * 100) || 20
+    : 0;
+
   const summary = (
     <>
-      <div className="space-y-3">
-        {lines.map((l) => (
-          <div key={l.name} className="flex justify-between gap-4 text-sm">
-            <span>
-              {l.name} × {l.quantity}
-            </span>
-            <span>{formatPKR(l.total)}</span>
+      <div className="divide-y divide-primary/10">
+        {lines.map((l, index) => (
+          <div key={l.name + index} className="grid grid-cols-[1fr_auto] items-start gap-4 py-2.5 text-sm first:pt-0 last:pb-0">
+            <div className="min-w-0 pr-2">
+              <div className="font-medium leading-snug text-foreground">
+                {l.name} <span className="font-normal text-muted-foreground">× {l.quantity}</span>
+              </div>
+              {l.isCustom && (
+                <span className="mt-1 inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                  Custom bundle
+                </span>
+              )}
+              {l.isBundle && (
+                <span className="mt-1 inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                  Bundle
+                </span>
+              )}
+            </div>
+            <div className="whitespace-nowrap text-right font-medium tabular-nums text-foreground">
+              {formatPKR(l.total)}
+            </div>
           </div>
         ))}
       </div>
@@ -241,7 +262,18 @@ function Checkout() {
       />
       <div className="mt-5 space-y-2 text-sm">
         <Row label="Subtotal" value={formatPKR(totals.subtotal)} />
-        {totals.discount > 0 && <Row label="Discount" value={`-${formatPKR(totals.discount)}`} />}
+        {totals.customDiscount > 0 && (
+          <Row
+            label={`Bundle savings (${customPercent}%)`}
+            value={`-${formatPKR(totals.customDiscount)}`}
+          />
+        )}
+        {totals.bundleDiscount > 0 && !totals.customDiscount && (
+          <Row label="Bundle savings" value={`-${formatPKR(totals.bundleDiscount)}`} />
+        )}
+        {totals.couponDiscount > 0 && (
+          <Row label="Coupon discount" value={`-${formatPKR(totals.couponDiscount)}`} />
+        )}
         <Row label="Delivery" value={totals.shipping ? formatPKR(totals.shipping) : "Free"} />
         <Row label="Total" value={formatPKR(totals.total)} strong />
       </div>
@@ -252,11 +284,11 @@ function Checkout() {
   );
 
   return (
-    <main className="px-5 pb-28 pt-24 md:px-[6vw] md:pt-40">
+    <main className="px-5 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-24 md:px-[6vw] md:pt-40">
       <p className="eyebrow mb-3">Guest checkout · No account needed</p>
       <h1 className="text-3xl font-light md:text-5xl">Checkout</h1>
       <CatalogStatus />
-      <p className="mt-3 text-sm text-muted-foreground">Delivery and savings are estimates until confirmed by the store.</p>
+      <p className="mt-3 text-sm text-muted-foreground">Final total is confirmed when you place the order.</p>
 
       <div className="mt-6 border border-primary/20 lg:hidden">
         <button
@@ -412,12 +444,27 @@ function Checkout() {
             {summary}
           </div>
           {failed && (
-            <p role="alert" className="mt-4 bg-secondary p-3 text-sm text-destructive">
+            <div role="alert" className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm font-medium text-destructive">
               {failed}
-            </p>
+            </div>
           )}
-          <Button type="submit" className="mt-5 h-12 w-full" disabled={loading || storeLoading} aria-busy={loading}>
-            {loading ? "Placing order…" : `Place order · ${formatPKR(totals.total)}`}
+          <Button
+            type="submit"
+            className="mt-5 h-12 w-full text-sm font-medium tracking-wide uppercase"
+            disabled={loading || storeLoading}
+            aria-busy={loading}
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="size-4 animate-spin text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                Placing order…
+              </span>
+            ) : (
+              `Place order · ${formatPKR(totals.total)}`
+            )}
           </Button>
           <CheckoutTrust />
           <Button asChild variant="outline" className="mt-4 h-11 w-full">
