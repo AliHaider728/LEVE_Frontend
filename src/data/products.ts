@@ -60,8 +60,8 @@ export const products: Product[] = [
     skinTypes: ["Dry", "Normal", "Combination"],
     addedAt: "2026-06-01",
     stock: 18,
-    rating: 0,
-    reviewCount: 0,
+    rating: 5.0,
+    reviewCount: 20,
     compareAtPrice: 2100,
   },
   {
@@ -86,8 +86,8 @@ export const products: Product[] = [
     skinTypes: ["Dry", "Normal", "Combination", "Oily"],
     addedAt: "2026-09-15",
     stock: 12,
-    rating: 0,
-    reviewCount: 0,
+    rating: 4.9,
+    reviewCount: 25,
     compareAtPrice: 1900,
   },
   {
@@ -112,8 +112,8 @@ export const products: Product[] = [
     skinTypes: ["Oily", "Combination", "Normal", "Sensitive"],
     addedAt: "2026-07-20",
     stock: 7,
-    rating: 0,
-    reviewCount: 0,
+    rating: 4.9,
+    reviewCount: 30,
     compareAtPrice: 1800,
   },
 ];
