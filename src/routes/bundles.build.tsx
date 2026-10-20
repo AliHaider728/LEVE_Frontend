@@ -3,7 +3,7 @@ import { useStoreData } from "@/store/catalog";
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@/lib/router-compat";
 import { motion, AnimatePresence, animate, useReducedMotion } from "motion/react";
-import { Check, MessageCircle, Minus, Plus, ShoppingBag, Zap, ChevronUp } from "lucide-react";
+import { Check, MessageCircle, Minus, Plus, ShoppingBag, Zap, ChevronUp, X } from "lucide-react";
 
 import { bundleTiers, getCustomBundle } from "@/data/bundleRules";
 import { formatPKR, getShipping } from "@/config/store";
@@ -67,7 +67,10 @@ function BuildBundle() {
   const toggle = (slug: string) =>
     setSel((s) => ({ ...s, [slug]: s[slug] ? 0 : 1 }));
 
-  const units = products.flatMap((p) => Array.from({ length: sel[p.slug] ?? 0 }, () => p));
+  // Show distinct selected products in ritual slots (no duplicate slots for the same product)
+  const selectedEntries = products
+    .filter((p) => (sel[p.slug] ?? 0) > 0)
+    .map((p) => ({ product: p, quantity: sel[p.slug] ?? 0 }));
   const hint = cb.next
     ? `Add ${cb.next.need} more to unlock ${Math.round(cb.next.rate * 100)}% off`
     : `Top discount unlocked: ${Math.round(top.rate * 100)}% off`;
@@ -96,22 +99,51 @@ function BuildBundle() {
   const panel = (
     <div>
       <div className="grid grid-cols-3 gap-2">
-        {Array.from({ length: Math.max(MAX_SLOTS, units.length) }).map((_, i) => {
-          const p = units[i];
+        {Array.from({ length: Math.max(MAX_SLOTS, selectedEntries.length) }).map((_, i) => {
+          const entry = selectedEntries[i];
+          const p = entry?.product;
+          const q = entry?.quantity ?? 0;
           return (
-            <div key={i} className="relative aspect-square overflow-hidden rounded-xl border border-dashed border-primary/25 bg-secondary">
-              <AnimatePresence>
+            <div
+              key={p ? p.slug : `empty-${i}`}
+              className="relative aspect-square overflow-hidden rounded-xl border border-dashed border-primary/25 bg-secondary"
+            >
+              <AnimatePresence mode="wait">
                 {p ? (
-                  <motion.img
-                    key={p.slug + i}
-                    src={p.image}
-                    alt={p.name}
-                    initial={{ opacity: 0, y: -24, scale: 0.6 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.6 }}
+                  <motion.div
+                    key={p.slug}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ type: "spring", stiffness: 260, damping: 22 }}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
+                    className="relative h-full w-full"
+                  >
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="h-full w-full object-cover"
+                    />
+                    {/* Quantity Badge on top-right of image */}
+                    <motion.span
+                      key={q}
+                      initial={{ scale: 1.25 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-1.5 top-1.5 z-10 flex min-w-5 h-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground shadow-sm"
+                    >
+                      {q}x
+                    </motion.span>
+                    {/* Quick remove button on top-left of image */}
+                    <button
+                      type="button"
+                      onClick={() => toggle(p.slug)}
+                      className="absolute left-1.5 top-1.5 z-10 grid size-5 place-items-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80"
+                      title={`Remove ${p.name}`}
+                      aria-label={`Remove ${p.name}`}
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </motion.div>
                 ) : (
                   <span className="absolute inset-0 grid place-items-center text-xs font-medium text-muted-foreground">
                     {i + 1}
