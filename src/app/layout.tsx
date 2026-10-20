@@ -22,14 +22,30 @@ export const metadata: Metadata = {
   keywords: [
     "LEVA",
     "LEVA skincare",
+    "LEVA Pakistan",
+    "leva.pk",
+    "leva official",
     "skincare Pakistan",
-    "skincare ritual",
+    "best skincare brand Pakistan",
+    "skincare routine",
     "gentle cleanser",
+    "hydrating cleanser",
+    "face wash Pakistan",
     "balancing toner",
+    "skin toner",
+    "pore tightening toner",
     "barrier moisturizer",
-    "routine bundle",
-    "Cash on Delivery Pakistan",
-    "beauty products Pakistan",
+    "ceramide moisturizer",
+    "face cream Pakistan",
+    "skincare bundles",
+    "routine builder",
+    "buy skincare online Pakistan",
+    "cash on delivery skincare",
+    "glowing skin routine",
+    "acne safe skincare",
+    "healthy skin barrier",
+    "pakistani skincare brands",
+    "skincare for women",
   ],
   authors: [{ name: "LEVA", url: "https://leva.pk" }],
   creator: "LEVA",
@@ -98,6 +114,43 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={poppins.variable}>
       <head>
+        {/* Primary Google Search & SEO Meta Tags */}
+        <meta
+          name="description"
+          content="LEVA offers premium skincare essentials delivered across Pakistan. Gentle Cleanser, Balancing Toner, and Barrier Moisturizer crafted for healthy, radiant skin. Cash on Delivery nationwide."
+        />
+        <meta
+          name="keywords"
+          content="LEVA, LEVA skincare, LEVA Pakistan, leva.pk, leva official, skincare Pakistan, best skincare brand Pakistan, skincare routine, gentle cleanser, hydrating cleanser, face wash Pakistan, balancing toner, skin toner, pore tightening toner, barrier moisturizer, ceramide moisturizer, face cream Pakistan, skincare bundles, routine builder, buy skincare online Pakistan, cash on delivery skincare, glowing skin routine, acne safe skincare, healthy skin barrier, pakistani skincare brands, skincare for women"
+        />
+        <meta name="author" content="LEVA Pakistan" />
+        <meta name="publisher" content="LEVA" />
+
+        {/* Google & Search Engine Indexing Directives */}
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+
+        {/* Regional & Target Audience Tags for Pakistan */}
+        <meta name="geo.region" content="PK" />
+        <meta name="geo.placename" content="Pakistan" />
+        <meta name="language" content="English" />
+        <meta name="rating" content="General" />
+        <link rel="canonical" href="https://leva.pk" />
+
+        {/* OpenGraph & Social Search Sharing Tags */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="LEVA" />
+        <meta property="og:locale" content="en_PK" />
+        <meta property="og:url" content="https://leva.pk" />
+        <meta property="og:title" content="LEVA — Considered Skincare Rituals for Her | Pakistan" />
+        <meta property="og:description" content="Discover LEVA skincare essentials in Pakistan. Gentle Cleanser, Balancing Toner, and Barrier Moisturizer. Cash on Delivery nationwide." />
+
+        {/* Twitter Card Search Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="LEVA — Skincare for Her" />
+        <meta name="twitter:description" content="Premium skincare essentials crafted for healthy, radiant skin. Delivered across Pakistan with Cash on Delivery." />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `if (typeof window !== 'undefined' && 'scrollRestoration' in history) { history.scrollRestoration = 'manual'; window.scrollTo(0, 0); }`,
