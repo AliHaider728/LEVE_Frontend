@@ -80,7 +80,15 @@ export const metadata: Metadata = {
     title: "LEVA — Skincare for Her",
     description: "Discover LEVA skincare essentials in Pakistan: LEVA Face Wash, LEVA Tinted Sunblock SPF 50 PA+++, and LEVA Cream. Cash on Delivery nationwide.",
   },
-  icons: { icon: "/favicon.ico" },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
@@ -92,10 +100,11 @@ const jsonLd = {
       "@id": "https://leva.pk/#organization",
       "name": "LEVA",
       "url": "https://leva.pk",
-      "logo": "https://leva.pk/favicon.ico",
+      "logo": "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/LEVA-logo.png",
       "sameAs": [
         "https://www.instagram.com/leva.pk.official/",
         "https://www.facebook.com/leva.pk.official",
+        "https://www.tiktok.com/@leva.pk.official",
       ],
     },
     {

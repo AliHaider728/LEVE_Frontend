@@ -67,6 +67,7 @@ export const ProductFormPage: React.FC = () => {
     const [metaTitle, setMetaTitle] = useState(existingProduct?.metaTitle || '');
     const [metaDescription, setMetaDescription] = useState(existingProduct?.metaDescription || '');
     const [slug, setSlug] = useState(existingProduct?.slug || '');
+    const [slugManuallyEdited, setSlugManuallyEdited] = useState(Boolean(existingProduct?.slug));
     const activeBasePrice = parseFloat(salePrice || regularPrice || '0') || 0;
     const handleSave = async (e: React.FormEvent) => {
         try {
@@ -80,10 +81,15 @@ export const ProductFormPage: React.FC = () => {
             const catObjs = categories.filter(c => selectedCategoryIds.includes(c.id));
             const imageUrls = imageUrlsDraft.split(/\r?\n/).map(url => url.trim()).filter(Boolean).slice(0, 8);
             const imagesChanged = JSON.stringify(imageUrls) !== JSON.stringify(existingProduct?.images || []);
+            const cleanSlug = (slug || name)
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
             const payload: Partial<Product> = {
                 productType,
                 name: name.trim(),
-                slug: slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                slug: cleanSlug,
                 sku: sku.trim(),
                 brand,
                 price: priceNum,
@@ -219,11 +225,12 @@ export const ProductFormPage: React.FC = () => {
             <div>
               <label className="block text-xs font-bold text-[#382b31]/80 mb-1.5">Product Name *</label>
               <input type="text" required value={name} onChange={e => {
-            setName(e.target.value);
-            if (!isEditing && !slug) {
-                setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
-            }
-        }} placeholder="e.g. Vitamin C Brightening Serum 15%" className="w-full text-sm font-bold rounded-xl border border-[#ecdfe4] px-3 py-2.5 bg-white outline-none focus:border-[#673742]"/>
+                const val = e.target.value;
+                setName(val);
+                if (!slugManuallyEdited) {
+                  setSlug(val.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''));
+                }
+              }} placeholder="e.g. Vitamin C Brightening Serum 15%" className="w-full text-sm font-bold rounded-xl border border-[#ecdfe4] px-3 py-2.5 bg-white outline-none focus:border-[#673742]"/>
             </div>
 
             <div>
@@ -536,8 +543,32 @@ export const ProductFormPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#382b31]/80 mb-1">URL Slug</label>
-              <input type="text" value={slug} onChange={e => setSlug(e.target.value)} placeholder="product-url-slug" className="w-full text-xs rounded-xl border border-[#ecdfe4] px-3 py-2 font-mono"/>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-xs font-bold text-[#382b31]/80">URL Slug</label>
+                {slugManuallyEdited && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSlugManuallyEdited(false);
+                      setSlug(name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''));
+                    }}
+                    className="text-[10px] text-[#673742] hover:underline"
+                  >
+                    Auto-generate from name
+                  </button>
+                )}
+              </div>
+              <input
+                type="text"
+                value={slug}
+                onChange={e => {
+                  const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+                  setSlug(val);
+                  setSlugManuallyEdited(Boolean(val.trim()));
+                }}
+                placeholder="product-url-slug"
+                className="w-full text-xs rounded-xl border border-[#ecdfe4] px-3 py-2 font-mono"
+              />
               <span className="text-[10px] text-[#382b31]/40 mt-1 block">Preview: /shop/{slug || '...'}</span>
             </div>
           </div>

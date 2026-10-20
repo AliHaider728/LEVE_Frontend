@@ -104,6 +104,17 @@ export function Footer() {
               >
                 <Facebook className="size-5" />
               </a>
+              <a
+                href="https://www.tiktok.com/@leva.pk.official"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="TikTok"
+                className="grid size-11 place-items-center border border-primary-foreground/30 hover:border-white hover:bg-white/10 transition-colors"
+              >
+                <svg className="size-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-3.04-4.52z"/>
+                </svg>
+              </a>
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ const items = [
   {
     step: "01",
     name: "LEVA Face Wash",
-    slug: "product-03",
+    slug: "leva-face-wash",
     ingredient: "Hyaluronic Acid",
     benefit: "Helps retain moisture for soft, fresh, and hydrated-looking skin.",
     howToUse: "Apply to a damp face, massage gently for 15–20 seconds, then rinse thoroughly.",
@@ -15,7 +15,7 @@ const items = [
   {
     step: "02",
     name: "LEVA Cream",
-    slug: "product-01",
+    slug: "leva-cream",
     ingredient: "Alpha Arbutin",
     benefit: "Helps reduce the appearance of dark spots and promotes a brighter, more even-looking skin tone.",
     howToUse: "Apply a small amount to clean skin once or twice daily.",
@@ -24,7 +24,7 @@ const items = [
   {
     step: "SPF 50",
     name: "LEVA Tinted Sunblock",
-    slug: "product-02",
+    slug: "leva-tinted-sunblock",
     ingredient: "UVA & UVB Protection",
     benefit: "Helps protect against sunburn, tanning, and premature skin aging.",
     howToUse: "Apply 15 minutes before sun exposure. Reapply every 2 hours outdoors.",

@@ -56,7 +56,7 @@ const washImages = [
 
 export const products: Product[] = [
   {
-    slug: "product-01",
+    slug: "leva-cream",
     number: "01",
     name: "LEVA Cream",
     sku: "LEV-CRM30",
@@ -87,7 +87,7 @@ export const products: Product[] = [
     compareAtPrice: 2100,
   },
   {
-    slug: "product-02",
+    slug: "leva-tinted-sunblock",
     number: "02",
     name: "LEVA Tinted Sunblock",
     sku: "LEV-TSPF50",
@@ -118,7 +118,7 @@ export const products: Product[] = [
     compareAtPrice: 1900,
   },
   {
-    slug: "product-03",
+    slug: "leva-face-wash",
     number: "03",
     name: "LEVA Face Wash",
     sku: "LEV-FW145",
@@ -150,8 +150,15 @@ export const products: Product[] = [
   },
 ];
 
+export const slugAliases: Record<string, string> = {
+  "product-01": "leva-cream",
+  "product-02": "leva-tinted-sunblock",
+  "product-03": "leva-face-wash",
+};
+
 export function getProduct(slug: string) {
-  return products.find((product) => product.slug === slug);
+  const canonical = slugAliases[slug] || slug;
+  return products.find((product) => product.slug === canonical || product.slug === slug);
 }
 
 export { formatPKR as formatPrice } from "@/config/store";
