@@ -64,24 +64,24 @@ export function FloatingNav(){
    <div
     data-announcement-bar
     aria-label="Store announcements"
-    className="announce-wrapper hidden h-[var(--announce-h)] w-full overflow-hidden bg-primary text-xs font-medium text-primary-foreground [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] md:block"
+    className="announce-wrapper flex h-8 w-full overflow-hidden bg-primary text-[11px] sm:text-xs font-medium text-primary-foreground [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"
    >
     <div className="announce-track h-full items-center">
-      {[0, 1].map((copy) => (
+      {[0, 1, 2, 3].map((copy) => (
         <span key={copy} className="flex shrink-0 items-center" aria-hidden={copy > 0}>
-          <span className="px-12">Free delivery over {formatPKR(settings.freeShippingThreshold)}</span>
-          <span aria-hidden>·</span>
-          <span className="px-12">Cash on Delivery nationwide</span>
-          <span aria-hidden>·</span>
+          <span className="px-6 sm:px-10">Free delivery over {formatPKR(settings.freeShippingThreshold)}</span>
+          <span aria-hidden className="text-white/40">|</span>
+          <span className="px-6 sm:px-10">Cash on Delivery nationwide</span>
+          <span aria-hidden className="text-white/40">|</span>
           <a
             href={`https://wa.me/${settings.whatsappNumber}`}
             target="_blank"
             rel="noreferrer"
-            className="px-12 underline-offset-2 hover:underline focus-visible:outline-2"
+            className="px-6 sm:px-10 underline-offset-2 hover:underline focus-visible:outline-2"
           >
             WhatsApp +{settings.whatsappNumber}
           </a>
-          <span aria-hidden>·</span>
+          <span aria-hidden className="text-white/40">|</span>
         </span>
       ))}
     </div>

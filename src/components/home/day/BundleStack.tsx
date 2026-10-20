@@ -44,12 +44,12 @@ function Card({
 
   return (
     <div
-      className="mb-6 flex items-start justify-center md:sticky md:top-[calc(var(--header-h)+2rem)] md:mb-0 md:h-[52svh] md:last:h-auto md:last:pb-16"
+      className="mb-6 flex items-start justify-center md:sticky md:top-[calc(var(--header-h)+2rem)] md:mb-0 md:h-[56svh] md:last:h-auto md:last:pb-16"
       style={{ paddingTop: index * 20 }}
     >
       <motion.article
         style={{ scale, opacity: dim }}
-        className="grid w-full max-w-5xl origin-top gap-6 overflow-hidden rounded-3xl bg-background p-5 shadow-[0_20px_50px_-25px_var(--color-primary)] md:grid-cols-[1.1fr_1fr] md:p-6"
+        className="grid w-full max-w-4xl origin-top gap-6 overflow-hidden rounded-3xl bg-background p-6 shadow-[0_20px_50px_-25px_var(--color-primary)] md:grid-cols-[1.1fr_1fr] md:p-8"
       >
         <Link
           to="/bundles/$slug"
@@ -130,18 +130,11 @@ export function BundleStack() {
   if (displayBundles.length === 0) return null;
   return (
     <section aria-label="Bundles" className="bg-secondary px-5 pt-16 md:px-[8vw] md:pt-24">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <p className="eyebrow">Bundles</p>
-          <h2 className="mt-2 text-3xl font-light text-foreground md:text-[2.75rem]">
-            Better together.
-          </h2>
-        </div>
-        <Button asChild variant="outline" className="h-11 border-primary/25 bg-white text-xs font-medium text-primary hover:bg-primary hover:text-white sm:text-sm">
-          <Link to="/bundles/build">
-            <Sparkles className="mr-1.5 size-3.5 text-accent" /> Make your own bundle
-          </Link>
-        </Button>
+      <div>
+        <p className="eyebrow">Bundles</p>
+        <h2 className="mt-2 text-3xl font-light text-foreground md:text-[2.75rem]">
+          Better together.
+        </h2>
       </div>
       <div ref={ref} className="mt-8 pb-8">
         {displayBundles.map((b, i) => (

@@ -32,8 +32,8 @@ export const useStoreData = create<StoreData>((set, get) => ({
     const fallback = [catalog, settings, bundles].some(result => result.status === "rejected") || products.some(product => !product.id);
     set({ products, settings: settings.status === "fulfilled" ? settings.value : storeConfig,
       bundles: bundles.status === "fulfilled" ? bundles.value : localBundles,
-      reviews: reviews.status === "fulfilled" ? reviews.value : localReviews,
-      reviewsLive: reviews.status === "fulfilled", loading: false, ready: true,
+      reviews: (reviews.status === "fulfilled" && Array.isArray(reviews.value) && reviews.value.length > 0) ? reviews.value : localReviews,
+      reviewsLive: reviews.status === "fulfilled" && Array.isArray(reviews.value) && reviews.value.length > 0, loading: false, ready: true,
       notice: fallback ? "Some live store details are unavailable. You can still browse our saved collection. Checkout will confirm availability with the store." : "" });
   },
 }));

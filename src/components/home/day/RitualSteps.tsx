@@ -42,13 +42,16 @@ function Stage({ i }: { i: number }) {
   const p = products.find((x) => x.type === order[i]) ?? products[i] ?? products[0]!;
   const detail = stepDetails[order[i]!];
 
-  const matchingReview = reviews?.find(
+  const productReviews = reviews?.filter(
     (r) =>
-      r.rating === 5 &&
       r.product &&
       (r.product.toLowerCase().includes(p.name.toLowerCase()) ||
         p.name.toLowerCase().includes(r.product.toLowerCase()))
-  );
+  ) || [];
+  const displayCount = p.reviewCount > 0 ? p.reviewCount : productReviews.length;
+  const displayRating = p.rating > 0 ? Number(p.rating).toFixed(1) : (displayCount > 0 ? "5.0" : null);
+
+  const matchingReview = productReviews.find((r) => r.rating === 5) || productReviews[0];
   const activeReview = matchingReview && matchingReview.quote ? matchingReview : null;
 
   return (
@@ -102,7 +105,7 @@ function Stage({ i }: { i: number }) {
                   </span>
                 )}
               </div>
-              {p.rating > 0 && p.reviewCount > 0 && (
+              {displayCount > 0 && (
                 <div className="flex items-center gap-1.5 text-xs">
                   <div className="flex items-center gap-0.5 text-amber-500">
                     {[...Array(5)].map((_, idx) => (
@@ -110,10 +113,10 @@ function Stage({ i }: { i: number }) {
                     ))}
                   </div>
                   <span className="font-semibold text-foreground">
-                    {Number(p.rating).toFixed(1)}
+                    {displayRating || "5.0"}
                   </span>
                   <span className="text-[11px] text-muted-foreground">
-                    ({p.reviewCount} reviews)
+                    ({displayCount} {displayCount === 1 ? "review" : "reviews"})
                   </span>
                 </div>
               )}

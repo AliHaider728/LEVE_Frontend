@@ -112,7 +112,7 @@ export function Footer() {
         <img
           src="/images/LEVA-logo-white.png"
           alt="LEVA"
-          className="h-auto w-full max-w-[min(75vw,340px)] sm:max-w-[360px] md:max-w-[420px] object-contain opacity-90 transition-opacity hover:opacity-100"
+          className="h-auto w-full max-w-[min(85vw,480px)] sm:max-w-[520px] md:max-w-[580px] lg:max-w-[640px] object-contain opacity-95 transition-opacity hover:opacity-100"
           loading="lazy"
         />
       </div>

@@ -365,8 +365,21 @@ export const ProductFormPage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-[#382b31]/80 mb-1.5">Delivery Fee Model</label>
-                <select value={deliveryType} onChange={e => setDeliveryType(e.target.value as any)} className="w-full text-xs rounded-xl border border-[#ecdfe4] px-3 py-2.5 bg-white">
-                  <option value="store_threshold">Standard Store Threshold (Free from Rs. {settings.freeShippingThreshold})</option>
+                <select
+                  value={deliveryType}
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (val === 'default_shipping') {
+                      setDeliveryType('fixed');
+                      setCustomDeliveryFee(String(settings.standardShippingFee || 250));
+                    } else {
+                      setDeliveryType(val as any);
+                    }
+                  }}
+                  className="w-full text-xs rounded-xl border border-[#ecdfe4] px-3 py-2.5 bg-white"
+                >
+                  <option value="store_threshold">Standard Store Threshold (Free from Rs. {settings.freeShippingThreshold || 3000})</option>
+                  <option value="default_shipping">Default Standard Shipping (Rs. {settings.standardShippingFee || 250})</option>
                   <option value="free">Always Free Delivery</option>
                   <option value="fixed">Custom Delivery Fee for this Item</option>
                 </select>

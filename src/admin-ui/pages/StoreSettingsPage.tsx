@@ -95,7 +95,8 @@ export const StoreSettingsPage: React.FC = () => {
 
             <div>
               <label className="text-xs font-bold text-[#382b31]/80 block mb-1">Standard Flat Delivery Fee (Rs.)</label>
-              <input type="number" step="1" required value={standardShippingFee} onChange={e => setStandardShippingFee(Number(e.target.value))} className="w-full px-3 py-2 text-xs rounded-xl border border-[#ecdfe4] focus:outline-[#673742]"/>
+              <input type="number" step="1" required value={standardShippingFee || 250} onChange={e => setStandardShippingFee(Number(e.target.value))} className="w-full px-3 py-2 text-xs rounded-xl border border-[#ecdfe4] focus:outline-[#673742]"/>
+              <p className="mt-1 text-[10px] text-[#382b31]/50 font-medium">Default flat shipping fee is Rs. 250 for orders below free shipping threshold.</p>
             </div>
 
             <div>

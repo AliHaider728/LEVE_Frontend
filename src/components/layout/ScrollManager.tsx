@@ -31,7 +31,13 @@ export function ScrollManager() {
       }
     };
 
-    // Only scroll to top on actual navigation (not first mount / refresh)
+    // On first mount without hash: ensure viewport starts clean at top
+    if (isFirstMount && !location.hash && !admin) {
+      window.scrollTo(0, 0);
+      scrollRuntime.lenis?.scrollTo(0, { immediate: true, force: true });
+    }
+
+    // Scroll to top on route change
     const isNavigation = !isFirstMount && prevPathname.current !== null && prevPathname.current !== pathname;
     prevPathname.current = pathname;
 

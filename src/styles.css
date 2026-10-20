@@ -64,10 +64,10 @@
 }
 
 :root {
-  --announce-h: 0px;
+  --announce-h: 2rem;
   --navbar-h: 4rem;
-  --header-h: 4rem;
-  --announcement-offset: 0px;
+  --header-h: 6rem;
+  --announcement-offset: 2rem;
   --radius: 0.25rem;
   --white: #ffffff;
   --blush: #fff5f6;
