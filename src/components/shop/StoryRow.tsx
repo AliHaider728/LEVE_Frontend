@@ -163,10 +163,12 @@ function Details({
       <p className="mt-3 max-w-md text-[15px] leading-7 text-muted-foreground">
         {product.benefit} {product.description}
       </p>
-      <p className="mt-4 flex items-center gap-1 text-sm">
-        <Star className="size-4 fill-accent text-accent" /> {product.rating} ·{" "}
-        <CountUp value={product.reviewCount} /> reviews
-      </p>
+      {product.rating > 0 && product.reviewCount > 0 && (
+        <p className="mt-4 flex items-center gap-1 text-sm">
+          <Star className="size-4 fill-accent text-accent" /> {product.rating} ·{" "}
+          <CountUp value={product.reviewCount} /> reviews
+        </p>
+      )}
       <div className="mt-4 flex flex-wrap items-baseline gap-3">
         <strong className="text-2xl font-medium">
           <CountUp value={product.price} format={(v) => formatPKR(Math.round(v / 10) * 10)} />

@@ -9,7 +9,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     let lenis: { raf: (time: number) => void; destroy: () => void } | undefined;
     void import("lenis").then(({ default: Lenis }) => {
       if (disposed) return;
-      const instance = new Lenis({ duration: 1.05, smoothWheel: true, anchors: true });
+      const instance = new Lenis({ duration: 1.05, smoothWheel: true });
       lenis = instance;
       scrollRuntime.lenis = instance;
       const raf = (time: number) => {

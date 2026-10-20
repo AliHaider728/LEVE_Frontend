@@ -63,9 +63,28 @@ export function FloatingNav(){
   >
    <div
     data-announcement-bar
-    className="hidden h-[var(--announce-h)] w-full items-center justify-center overflow-hidden bg-primary px-4 text-center text-xs font-medium text-primary-foreground md:flex"
+    aria-label="Store announcements"
+    className="announce-wrapper hidden h-[var(--announce-h)] w-full overflow-hidden bg-primary text-xs font-medium text-primary-foreground [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] md:block"
    >
-    Free delivery over {formatPKR(settings.freeShippingThreshold)}&nbsp; | &nbsp;Cash on Delivery nationwide&nbsp; | &nbsp;WhatsApp +{settings.whatsappNumber}
+    <div className="announce-track h-full items-center">
+      {[0, 1].map((copy) => (
+        <span key={copy} className="flex shrink-0 items-center" aria-hidden={copy > 0}>
+          <span className="px-12">Free delivery over {formatPKR(settings.freeShippingThreshold)}</span>
+          <span aria-hidden>·</span>
+          <span className="px-12">Cash on Delivery nationwide</span>
+          <span aria-hidden>·</span>
+          <a
+            href={`https://wa.me/${settings.whatsappNumber}`}
+            target="_blank"
+            rel="noreferrer"
+            className="px-12 underline-offset-2 hover:underline focus-visible:outline-2"
+          >
+            WhatsApp +{settings.whatsappNumber}
+          </a>
+          <span aria-hidden>·</span>
+        </span>
+      ))}
+    </div>
    </div>
    <header
     ref={header}

@@ -10,56 +10,30 @@ export function Hero() {
   return (
     <section
       className="relative flex min-h-[calc(100svh-var(--header-h,4rem))] w-full flex-col overflow-hidden bg-[#5a323a] text-primary md:min-h-[520px]"
-      style={{
-        paddingTop: "var(--header-h, 4rem)",
-      }}
+      style={{ paddingTop: "var(--header-h, 4rem)" }}
     >
-      {/* ── Desktop hero (≥768px): fixed parallax image with aperture reveal from 0 / dark background ── */}
+      {/* ── Desktop hero (≥768px) ── */}
       <div
         className="relative hidden w-full flex-1 overflow-hidden bg-[#5a323a] md:flex md:min-h-[500px] lg:min-h-[540px] xl:min-h-[580px]"
-        style={{
-          height: "calc(88vh - var(--header-h, 7rem))",
-          maxHeight: "640px",
-        }}
+        style={{ height: "calc(88vh - var(--header-h, 7rem))", maxHeight: "640px" }}
       >
+        {/* Simple fade-in only — zero layout shift, no scale, no clipPath */}
         <motion.div
-          className="absolute inset-0 overflow-hidden"
-          initial={
-            reducedMotion
-              ? false
-              : {
-                  clipPath: "inset(50% 50% 50% 50%)",
-                  scale: 1.08,
-                  opacity: 0,
-                }
-          }
-          animate={{
-            clipPath: [
-              "inset(50% 50% 50% 50%)",
-              "inset(46% 40% 46% 40%)",
-              "inset(0% 0% 0% 0%)",
-            ],
-            scale: [1.08, 1.05, 1],
-            opacity: [0, 1, 1],
-          }}
-          transition={{
-            duration: 1.4,
-            times: [0, 0.22, 1],
-            ease: ["easeInOut", [0.22, 1, 0.36, 1]],
-          }}
+          className="absolute inset-0"
+          initial={reducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <div
             className="h-full w-full bg-cover bg-no-repeat md:bg-fixed bg-[center_bottom] lg:bg-[64%_bottom] xl:bg-[center_bottom]"
-            style={{
-              backgroundImage: "url('/images/leva-pink-studio-hero.webp')",
-            }}
+            style={{ backgroundImage: "url('/images/leva-pink-studio-hero.webp')" }}
           />
         </motion.div>
         <motion.div
           className="absolute top-12 left-8 z-20 flex max-w-md flex-col sm:top-14 sm:left-10 md:top-16 md:left-12 lg:top-20 lg:left-[6%] xl:top-24 xl:max-w-lg"
-          initial={reducedMotion ? false : { y: 25, opacity: 0 }}
+          initial={reducedMotion ? false : { y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.35, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
           <p className="eyebrow mb-3 text-sm font-medium uppercase tracking-[0.2em]">
             Skincare for her
@@ -84,20 +58,17 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* ── Mobile hero (<768px): background image with text overlaid on top ── */}
+      {/* ── Mobile hero (<768px) ── */}
       <div
         className="relative flex w-full flex-col justify-between overflow-hidden md:hidden"
-        style={{
-          minHeight: "560px",
-          height: "calc(100svh - var(--header-h, 4rem))",
-        }}
+        style={{ minHeight: "560px", height: "calc(100svh - var(--header-h, 4rem))" }}
       >
-        {/* Background image container with subtle entrance fade */}
+        {/* Background image — opacity only, no scale to avoid layout shift */}
         <motion.div
           className="absolute inset-0 z-0"
-          initial={reducedMotion ? false : { opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+          initial={reducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <Image
             src="/images/leva-mobile-hero-collection.webp"
@@ -108,16 +79,15 @@ export function Hero() {
             sizes="100vw"
             className="object-cover object-[center_bottom]"
           />
-          {/* Subtle gradient overlay to keep text ultra-crisp while bottles remain vivid */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#f4d7df]/90 via-[#f4d7df]/35 to-transparent pointer-events-none" />
         </motion.div>
 
-        {/* Overlaid text block with slide/fade entrance */}
+        {/* Overlaid text */}
         <motion.div
           className="relative z-10 px-5 pt-6 sm:px-8 sm:pt-8"
-          initial={reducedMotion ? false : { y: 25, opacity: 0 }}
+          initial={reducedMotion ? false : { y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ delay: 0.15, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
         >
           <p className="eyebrow mb-2 text-[12px] font-medium uppercase tracking-[0.2em] text-primary sm:text-[13px]">
             Skincare for her
@@ -142,7 +112,7 @@ export function Hero() {
           </Button>
         </motion.div>
 
-        {/* Bottom breathing space so bottles at bottom remain visible */}
+        {/* Bottom breathing space */}
         <div className="relative z-10 h-24 sm:h-32 pointer-events-none" />
       </div>
     </section>

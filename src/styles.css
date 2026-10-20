@@ -195,3 +195,31 @@ html { scroll-padding-top: var(--header-h); }
   }
 }
 
+
+/* Announcement marquee */
+@keyframes marquee-ltr {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.announce-wrapper {
+  position: relative;
+}
+.announce-track {
+  display: flex;
+  align-items: center;
+  height: var(--announce-h, 2rem);
+  width: max-content;
+  animation: marquee-ltr 30s linear infinite;
+}
+.announce-wrapper:hover .announce-track,
+.announce-wrapper:focus-within .announce-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .announce-track {
+    animation: none;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}

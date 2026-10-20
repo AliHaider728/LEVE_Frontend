@@ -49,7 +49,7 @@ function Card({
     >
       <motion.article
         style={{ scale, opacity: dim }}
-        className="grid w-full max-w-4xl origin-top gap-6 overflow-hidden rounded-3xl bg-background p-5 shadow-[0_20px_50px_-25px_var(--color-primary)] md:grid-cols-[1.1fr_1fr] md:p-6"
+        className="grid w-full max-w-5xl origin-top gap-6 overflow-hidden rounded-3xl bg-background p-5 shadow-[0_20px_50px_-25px_var(--color-primary)] md:grid-cols-[1.1fr_1fr] md:p-6"
       >
         <Link
           to="/bundles/$slug"
@@ -114,16 +114,6 @@ function Card({
               >
                 View bundle details <ArrowRight className="size-3.5" />
               </Link>
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="h-8 border-primary/20 bg-transparent text-xs font-medium text-primary hover:bg-primary hover:text-white"
-              >
-                <Link to="/bundles/build">
-                  <Sparkles className="mr-1 size-3 text-accent" /> Make your own bundle
-                </Link>
-              </Button>
             </div>
           </div>
         </div>

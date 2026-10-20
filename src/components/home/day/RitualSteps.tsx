@@ -21,41 +21,23 @@ const stepDetails = {
     stepTag: "Step 01 · Cleanse & Prep",
     text: "Start soft. Wash away the night without stripping your skin.",
     highlights: ["Hyaluronic Acid", "Sulfate-Free", "Gentle Purifying", "All Skin Types"],
-    fallbackReview: {
-      name: "Hania Aslam",
-      city: "",
-      rating: 5,
-      quote: "Face wash use karna easy hai aur washing ke baad fresh feel hota hai. Daily routine mein easily include ho jata hai.",
-    },
   },
   Cream: {
     step: "Moisturize",
     stepTag: "Step 02 · Brighten & Hydrate",
     text: "Seal it in. Skin stays calm, bright and soft all day.",
     highlights: ["Alpha Arbutin", "Dark Spot Reduction", "Radiant Glow", "Featherlight"],
-    fallbackReview: {
-      name: "Ayesha Malik",
-      city: "",
-      rating: 5,
-      quote: "Cream achi hai, texture bhi soft hai. Daily skincare routine mein easily use ho jati hai.",
-    },
   },
   Sunscreen: {
     step: "Protect",
     stepTag: "Step 03 · Shield & Protect",
     text: "Finish with tinted SPF 50 PA+++ broad-spectrum defense.",
     highlights: ["SPF 50 PA+++", "UVA/UVB Defense", "Sheer Natural Tint", "Zero White Cast"],
-    fallbackReview: {
-      name: "Zainab Ahmed",
-      city: "",
-      rating: 5,
-      quote: "Tinted finish achi hai, apply karna bhi easy hai. Mujhe iska lightweight texture pasand aya.",
-    },
   },
 };
 
 function Stage({ i }: { i: number }) {
-  const { products, reviews } = useStoreData();
+  const { products, reviews, settings } = useStoreData();
   const add = useCart((s) => s.add);
   const p = products.find((x) => x.type === order[i]) ?? products[i] ?? products[0]!;
   const detail = stepDetails[order[i]!];
@@ -67,7 +49,7 @@ function Stage({ i }: { i: number }) {
       (r.product.toLowerCase().includes(p.name.toLowerCase()) ||
         p.name.toLowerCase().includes(r.product.toLowerCase()))
   );
-  const activeReview = matchingReview && matchingReview.quote ? matchingReview : detail.fallbackReview;
+  const activeReview = matchingReview && matchingReview.quote ? matchingReview : null;
 
   return (
     <div className="grid items-center gap-8 md:grid-cols-12 md:gap-10 lg:gap-14">
@@ -120,19 +102,21 @@ function Stage({ i }: { i: number }) {
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-1.5 text-xs">
-                <div className="flex items-center gap-0.5 text-amber-500">
-                  {[...Array(5)].map((_, idx) => (
-                    <Star key={idx} className="size-3.5 fill-amber-400 text-amber-400" />
-                  ))}
+              {p.rating > 0 && p.reviewCount > 0 && (
+                <div className="flex items-center gap-1.5 text-xs">
+                  <div className="flex items-center gap-0.5 text-amber-500">
+                    {[...Array(5)].map((_, idx) => (
+                      <Star key={idx} className="size-3.5 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <span className="font-semibold text-foreground">
+                    {Number(p.rating).toFixed(1)}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    ({p.reviewCount} reviews)
+                  </span>
                 </div>
-                <span className="font-semibold text-foreground">
-                  {p.rating ? Number(p.rating).toFixed(1) : "5.0"}
-                </span>
-                <span className="text-[11px] text-muted-foreground">
-                  ({p.reviewCount || 0} reviews)
-                </span>
-              </div>
+              )}
             </div>
 
             <h3 className="mt-2 text-2xl font-light text-foreground sm:text-3xl lg:text-4xl">
@@ -153,27 +137,29 @@ function Stage({ i }: { i: number }) {
               ))}
             </div>
 
-            <div className="mt-4 rounded-2xl border border-primary/10 bg-primary/[0.02] p-3.5 sm:p-4">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1 text-amber-500">
-                  {[...Array(activeReview.rating || 5)].map((_, idx) => (
-                    <Star key={idx} className="size-3 fill-amber-400 text-amber-400" />
-                  ))}
-                  <span className="ml-1 text-[11px] font-medium text-foreground/70">
-                    {(activeReview.rating || 5).toFixed(1)}
+            {activeReview && (
+              <div className="mt-4 rounded-2xl border border-primary/10 bg-primary/[0.02] p-3.5 sm:p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1 text-amber-500">
+                    {[...Array(activeReview.rating || 5)].map((_, idx) => (
+                      <Star key={idx} className="size-3 fill-amber-400 text-amber-400" />
+                    ))}
+                    <span className="ml-1 text-[11px] font-medium text-foreground/70">
+                      {(activeReview.rating || 5).toFixed(1)}
+                    </span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                    <CheckCircle2 className="size-3" /> Verified Buyer
                   </span>
                 </div>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
-                  <CheckCircle2 className="size-3" /> Verified Buyer
-                </span>
+                <p className="mt-1.5 text-xs italic leading-relaxed text-foreground/85">
+                  &ldquo;{activeReview.quote}&rdquo;
+                </p>
+                <p className="mt-1.5 text-[11px] font-medium text-muted-foreground">
+                  — {activeReview.name}{activeReview.city ? `, ${activeReview.city}` : ""}
+                </p>
               </div>
-              <p className="mt-1.5 text-xs italic leading-relaxed text-foreground/85">
-                &ldquo;{activeReview.quote}&rdquo;
-              </p>
-              <p className="mt-1.5 text-[11px] font-medium text-muted-foreground">
-                — {activeReview.name}{activeReview.city ? `, ${activeReview.city}` : ""}
-              </p>
-            </div>
+            )}
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <Button
@@ -195,7 +181,7 @@ function Stage({ i }: { i: number }) {
 
             <div className="mt-3.5 flex flex-wrap items-center gap-x-5 gap-y-1 text-[11px] text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
-                <Truck className="size-3.5 text-accent" /> Free delivery over Rs. 3,500
+                <Truck className="size-3.5 text-accent" /> Free delivery over {formatPKR(settings.freeShippingThreshold)}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <ShieldCheck className="size-3.5 text-accent" /> Cash on Delivery available

@@ -13,7 +13,7 @@ export function Footer() {
     if (typeof email === "string" && email.trim()) setSubscribed(true);
   };
   return (
-    <footer className="overflow-hidden bg-primary px-5 pb-[calc(9rem+env(safe-area-inset-bottom))] pt-16 text-primary-foreground md:px-8 md:pb-6">
+    <footer className="overflow-hidden bg-primary px-5 pb-[calc(12rem+env(safe-area-inset-bottom))] pt-16 text-primary-foreground md:px-8 md:pb-10">
       <div className="grid gap-12 border-b border-primary-foreground/20 pb-14 md:grid-cols-[1fr_1fr]">
         <div>
           <p className="max-w-md text-3xl font-light">
@@ -112,7 +112,7 @@ export function Footer() {
         <img
           src="/images/LEVA-logo-white.png"
           alt="LEVA"
-          className="h-auto w-full max-w-[min(65vw,260px)] sm:max-w-[280px] md:max-w-[320px] object-contain opacity-90 transition-opacity hover:opacity-100"
+          className="h-auto w-full max-w-[min(75vw,340px)] sm:max-w-[360px] md:max-w-[420px] object-contain opacity-90 transition-opacity hover:opacity-100"
           loading="lazy"
         />
       </div>
