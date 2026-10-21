@@ -1,12 +1,14 @@
 import { Link } from "@/lib/router-compat";
 import type { Product } from "@/data/products";
-import { formatPKR } from "@/config/store";
+import { getPriceDisplay } from "@/lib/pricing";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { WhatsAppContact } from '@/components/product/WhatsAppContact';
+import { WhatsAppContact } from "@/components/product/WhatsAppContact";
 import { QuantityStepperAdd } from "./QuantityStepperAdd";
 
 export function QuickView({ product, onClose }: { product: Product | null; onClose: () => void }) {
+  const priceInfo = getPriceDisplay(product);
+
   return (
     <Dialog open={!!product} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-3xl gap-0 overflow-hidden bg-background p-0">
@@ -22,10 +24,12 @@ export function QuickView({ product, onClose }: { product: Product | null; onClo
               <DialogTitle className="mt-2 text-2xl font-light">{product.name}</DialogTitle>
               <DialogDescription className="mt-2 text-[15px]">{product.benefit}</DialogDescription>
               <p className="mt-4 text-xl font-medium">
-                {formatPKR(product.price)}{" "}
-                <span className="ml-2 text-sm font-normal text-muted-foreground line-through">
-                  {formatPKR(product.compareAtPrice)}
-                </span>
+                {priceInfo.formattedPrice}
+                {priceInfo.hasDiscount && priceInfo.formattedCompareAtPrice && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground line-through">
+                    {priceInfo.formattedCompareAtPrice}
+                  </span>
+                )}
               </p>
               <div className="mt-6">
                 <QuantityStepperAdd slug={product.slug} />

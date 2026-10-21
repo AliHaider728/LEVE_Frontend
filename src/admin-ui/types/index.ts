@@ -135,7 +135,7 @@ export interface Product {
   soldCount?: number;
   sku?: string;
   price: number;
-  originalPrice?: number;
+  originalPrice?: number | null;
   discountPercent?: number;
   rating: number;
   reviewCount: number;

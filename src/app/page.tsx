@@ -6,13 +6,8 @@ export const metadata: Metadata = {
   openGraph: { title: "LEVA — Skincare for Her", description: "Three essentials. One considered skincare ritual.", type: "website" },
   twitter: { card: "summary_large_image" },
 };
-import { Suspense } from "react";
 import View from "./view";
 
 export default function Page() {
-  return (
-    <Suspense>
-      <View />
-    </Suspense>
-  );
+  return <View />;
 }

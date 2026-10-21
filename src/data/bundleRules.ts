@@ -1,5 +1,5 @@
 import { calculateRoutineDiscount, type RoutineDiscountSettings } from "@/lib/routine-discount";
-import { products } from "@/data/products";
+import type { Product } from "@/data/products";
 
 /** Custom bundle discount tiers. minItems = total units selected. Edit here only. */
 export const bundleTiers = [
@@ -7,7 +7,7 @@ export const bundleTiers = [
   { minItems: 3, rate: 0.15 },
 ] as const;
 
-export function getCustomBundle(selection: Record<string, number>, catalog = products, settings?: RoutineDiscountSettings) {
+export function getCustomBundle(selection: Record<string, number>, catalog: Product[] = [], settings?: RoutineDiscountSettings) {
   const count = Object.values(selection).reduce((a, b) => a + b, 0);
   const original = catalog.reduce((sum, p) => sum + p.price * (selection[p.slug] ?? 0), 0);
   const live = settings ? calculateRoutineDiscount(catalog.filter(p => selection[p.slug] > 0).map(p => ({ productId: p.id ?? p.slug, quantity: selection[p.slug], unitPrice: p.price })), settings) : undefined;

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@/lib/router-compat";
 import { motion, useInView, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { Eye, Minus, Plus, ShoppingBag, Star } from "lucide-react";
 import type { Product } from "@/data/products";
-import { formatPKR } from "@/config/store";
+import { getPriceDisplay, getStockDisplay } from "@/lib/pricing";
 import { useCart } from "@/store/cart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ export function useProductActions(product: Product) {
   const decrement = useCart((s) => s.decrement);
   const buyNow = useCart((s) => s.buyNow);
   const navigate = useNavigate();
-  const soldOut = product.badge === "Sold Out" || product.stock === 0;
+  const soldOut = !getStockDisplay(product).inStock;
   return {
     quantity,
     soldOut,
@@ -93,7 +93,7 @@ function Media({
       : shape === "arch"
         ? "inset(100% 0% 0% 0%)"
         : "inset(50% 0% 50% 0%)";
-  const discount = Math.round((1 - product.price / product.compareAtPrice) * 100);
+  const pricing = getPriceDisplay(product);
   return (
     <div ref={ref}>
       <div
@@ -124,10 +124,8 @@ function Media({
           />}
         </Link>
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-          <Badge variant={product.badge === "Limited Stock" && product.stock > 0 && product.stock <= 10 ? "stock" : "default"}>
-            {product.badge === "Limited Stock" && product.stock > 0 && product.stock <= 10 ? `Only ${product.stock} left` : product.badge}
-          </Badge>
-          <Badge variant="saving">Save {discount}%</Badge>
+          {getStockDisplay(product).badge && <Badge variant={getStockDisplay(product).badge!.variant}>{getStockDisplay(product).badge!.text}</Badge>}
+          {pricing.hasDiscount && <Badge variant="saving">{pricing.saveBadgeText}</Badge>}
         </div>
         <WishlistButton slug={product.slug} name={product.name} className="absolute right-4 top-4 size-11 bg-background/90 text-primary"/>
 
@@ -145,7 +143,7 @@ function Details({
   index: number;
   onQuickView: () => void;
 }) {
-  const discount = Math.round((1 - product.price / product.compareAtPrice) * 100);
+  const pricing = getPriceDisplay(product);
   return (
     <motion.div
       initial={{ opacity: 0, y: 32 }}
@@ -171,12 +169,9 @@ function Details({
       )}
       <div className="mt-4 flex flex-wrap items-baseline gap-3">
         <strong className="text-2xl font-medium">
-          <CountUp value={product.price} format={(v) => formatPKR(Math.round(v / 10) * 10)} />
+          {pricing.formattedPrice}
         </strong>
-        <span className="text-sm text-muted-foreground line-through">
-          {formatPKR(product.compareAtPrice)}
-        </span>
-        <Badge variant="saving">-{discount}%</Badge>
+        {pricing.hasDiscount && <><span className="text-sm text-muted-foreground line-through">{pricing.formattedCompareAtPrice}</span><Badge variant="saving">{pricing.saveBadgeText}</Badge></>}
       </div>
       <p className="mt-3 text-xs text-muted-foreground">
         For: {product.concerns.join(", ")} · {product.skinTypes.join(", ")} skin

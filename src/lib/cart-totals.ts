@@ -1,5 +1,5 @@
-import { bundles } from "@/data/bundles";
-import { products } from "@/data/products";
+
+
 import { getCustomBundle } from "@/data/bundleRules";
 import type { StoreSettings } from "@/lib/api/catalog";
 import type { Product } from "@/data/products";
@@ -16,7 +16,7 @@ export function getCartTotals(
   bundleItems: Record<string, number>,
   coupon?: string,
   custom: Record<string, number> = {},
-  data: { products: Product[]; bundles: Bundle[]; settings: StoreSettings } = { products, bundles, settings: storeConfig },
+  data: { products: Product[]; bundles: Bundle[]; settings: StoreSettings } = { products: [], bundles: [], settings: storeConfig },
 ) {
   const cb = getCustomBundle(custom, data.products, data.settings.routineDiscount);
   const productSubtotal = data.products.reduce(

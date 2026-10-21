@@ -1,7 +1,7 @@
-import { Minus, Plus, ShoppingBag, Star, Zap } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Star } from "lucide-react";
 import { Link, useNavigate } from "@/lib/router-compat";
 import type { Product } from "@/data/products";
-import { formatPKR } from "@/config/store";
+import { getPriceDisplay, getStockDisplay } from "@/lib/pricing";
 import { useCart } from "@/store/cart";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { Badge } from "@/components/ui/badge";
@@ -13,13 +13,9 @@ export function ProductCard({ product, featured = false }: { product: Product; f
   const decrement = useCart((state) => state.decrement);
   const buyNow = useCart((state) => state.buyNow);
   const navigate = useNavigate();
-  const soldOut = product.badge === "Sold Out" || product.stock === 0;
-  const isLimited = product.badge === "Limited Stock" && product.stock > 0 && product.stock <= 10;
-  const badgeLabel = isLimited ? `Only ${product.stock} left` : product.badge;
-  const discount =
-    product.compareAtPrice > product.price
-      ? Math.round((1 - product.price / product.compareAtPrice) * 100)
-      : 0;
+  const priceInfo = getPriceDisplay(product);
+  const stockInfo = getStockDisplay(product);
+  const soldOut = !stockInfo.inStock;
 
   return (
     <article className="product-card group flex h-full min-w-0 flex-col">
@@ -49,17 +45,25 @@ export function ProductCard({ product, featured = false }: { product: Product; f
 
         {/* Top-left Badges overlay (status badge + discount badge cleanly stacked) */}
         <div className="absolute left-2 top-2 z-20 flex max-w-[calc(100%-3.5rem)] flex-col items-start gap-1 sm:left-3 sm:top-3">
-          {product.badge && (
+          {stockInfo.badge && (
             <Badge
-              variant={soldOut ? "sold" : isLimited ? "stock" : "default"}
+              variant={stockInfo.badge.variant}
               className="text-[10px] sm:text-xs"
             >
-              {badgeLabel}
+              {stockInfo.badge.text}
             </Badge>
           )}
-          {discount > 0 && (
+          {!stockInfo.badge && product.badge && (
+            <Badge
+              variant="default"
+              className="text-[10px] sm:text-xs"
+            >
+              {product.badge}
+            </Badge>
+          )}
+          {priceInfo.hasDiscount && priceInfo.saveBadgeText && (
             <Badge variant="saving" className="text-[10px] sm:text-xs">
-              -{discount}%
+              {priceInfo.saveBadgeText}
             </Badge>
           )}
         </div>
@@ -145,11 +149,11 @@ export function ProductCard({ product, featured = false }: { product: Product; f
         </div>
         <div className="mt-1 flex flex-wrap items-baseline gap-2">
           <strong className="text-sm font-semibold text-foreground sm:text-base">
-            {formatPKR(product.price)}
+            {priceInfo.formattedPrice}
           </strong>
-          {product.compareAtPrice > product.price && (
+          {priceInfo.hasDiscount && priceInfo.formattedCompareAtPrice && (
             <span className="text-xs text-muted-foreground line-through">
-              {formatPKR(product.compareAtPrice)}
+              {priceInfo.formattedCompareAtPrice}
             </span>
           )}
         </div>
@@ -188,37 +192,20 @@ export function ProductCard({ product, featured = false }: { product: Product; f
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="secondary"
-              magnetic={false}
-              disabled={soldOut}
-              className="h-11 w-full"
-              aria-label={`Add ${product.name} to cart`}
-              title="Add to cart"
-              onClick={(e) => {
-                e.preventDefault();
-                add(product.slug);
-              }}
-            >
-              <ShoppingBag className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              magnetic={false}
-              disabled={soldOut}
-              className="h-11 w-full"
-              aria-label={`Buy ${product.name} now`}
-              title="Buy now"
-              onClick={(e) => {
-                e.preventDefault();
-                buyNow(product.slug);
-                void navigate({ to: "/checkout" });
-              }}
-            >
-              <Zap className="size-4" />
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            magnetic={false}
+            disabled={soldOut}
+            className="h-11 w-full gap-2 text-xs font-semibold uppercase tracking-wider"
+            aria-label={`Add ${product.name} to cart`}
+            onClick={(e) => {
+              e.preventDefault();
+              add(product.slug);
+            }}
+          >
+            <ShoppingBag className="size-4" />
+            <span>{soldOut ? "Sold out" : "Add to cart"}</span>
+          </Button>
         )}
       </div>
 

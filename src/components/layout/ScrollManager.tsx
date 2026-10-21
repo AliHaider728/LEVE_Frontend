@@ -9,9 +9,19 @@ export function ScrollManager() {
   const mounted = useRef(false);
 
   useLayoutEffect(() => {
-    const previous = history.scrollRestoration;
-    history.scrollRestoration = 'manual';
-    return () => { history.scrollRestoration = previous; };
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    const handleBeforeUnload = () => {
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   useLayoutEffect(() => {
@@ -31,13 +41,7 @@ export function ScrollManager() {
       }
     };
 
-    // On first mount without hash: ensure viewport starts clean at top
-    if (isFirstMount && !location.hash && !admin) {
-      window.scrollTo(0, 0);
-      scrollRuntime.lenis?.scrollTo(0, { immediate: true, force: true });
-    }
-
-    // Scroll to top on route change
+    // Scroll to top on route change (client-side navigation only; no programmatic scroll on first mount)
     const isNavigation = !isFirstMount && prevPathname.current !== null && prevPathname.current !== pathname;
     prevPathname.current = pathname;
 

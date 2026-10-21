@@ -165,7 +165,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
         <script
           dangerouslySetInnerHTML={{
-            __html: `if (typeof window !== 'undefined' && 'scrollRestoration' in history) { history.scrollRestoration = 'manual'; window.scrollTo(0, 0); }`,
+            __html: `if (typeof window !== 'undefined' && 'scrollRestoration' in history) { history.scrollRestoration = 'manual'; }`,
           }}
         />
         <script

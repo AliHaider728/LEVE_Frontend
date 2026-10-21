@@ -19,7 +19,7 @@ function StorefrontShell({ children }: { children: ReactNode }) {
       <WishlistHydration/>
       <SmoothScroll>
         <FloatingNav />
-        <div className="pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">{children}</div>
+        <div className="min-w-0 min-h-[100svh]">{children}</div>
         <Footer />
         <WhatsappButton />
         <Toaster position="top-center" />

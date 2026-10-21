@@ -19,47 +19,113 @@ const image = (value: unknown, fallback: string): string => {
   return /^(https?:\/\/|\/(?!\/))/.test(url) ? url : fallback;
 };
 
+export function normalizeSingleProduct(rowPayload: unknown, fallbackProduct?: Product, index = 0): Product {
+  const row = object(rowPayload);
+  if (!text(row.id) || !text(row.slug) || !text(row.name) || number(row.price, -1) <= 0) {
+    throw new ApiError("Product data was unavailable.", 0, "invalid-response");
+  }
+  const slug = text(row.slug, fallbackProduct?.slug || "");
+  const fallback = fallbackProduct ?? localProducts.find((p) => p.slug === slug) ?? localProducts[index % localProducts.length];
+  const categories = list(row.categoryNames).map(String).join(" ");
+  const label = (text(row.name) + " " + categories).toLowerCase();
+  const type = /sunscreen|sun screen|spf/.test(label)
+    ? "Sunscreen"
+    : /cleanser|wash|balm/.test(label)
+    ? "Cleanser"
+    : /cream|moisturi/.test(label)
+    ? "Cream"
+    : fallback.type;
+  const images = list(row.images);
+  const thumbnail = list(row.imageThumbnailUrls)[0] ?? images[0];
+  const mainImage = image(thumbnail, fallback.image);
+  const galleryImages = [mainImage, ...images.map((value) => image(value, mainImage))].filter(
+    (value, idx, all) => all.indexOf(value) === idx,
+  );
+  const stock = enabled(row.inStock)
+    ? enabled(row.trackInventory) && row.stockQuantity != null
+      ? Math.max(0, number(row.stockQuantity))
+      : 9999
+    : 0;
+  const variations = list(row.variations).map(object);
+  const variant = variations.find((value) => value.id === row.defaultVariationId && enabled(value.enabled));
+  const price =
+    row.productType === "variable" && variant
+      ? number(variant.salePrice) > 0 && number(variant.salePrice) < number(variant.regularPrice) ? number(variant.salePrice) : number(variant.regularPrice, number(row.price))
+      : number(row.price);
+
+  const rawOrig = row.productType === "variable" && variant ? number(variant.regularPrice) : row.originalPrice != null && row.originalPrice !== "" ? Number(row.originalPrice) : null;
+  const compareAtPrice = rawOrig !== null && Number.isFinite(rawOrig) && rawOrig > price ? rawOrig : null;
+
+  const specs = object(row.specifications);
+  const ingredients = text(specs.Ingredients, fallback.ingredients);
+  const usage = text(specs.Usage, fallback.usage);
+  const faq = text(specs.FAQ, fallback.faq);
+  const size = text(specs.Size, fallback.size);
+  const categoryName = list(row.categoryNames)[0];
+  const category = text(categoryName, fallback.category);
+  const sku = text(row.sku, fallback.sku);
+  const lowThreshold = number(row.lowStockThreshold, 5);
+  const isLowStock = enabled(row.trackInventory) && stock > 0 && stock <= lowThreshold;
+  const badge =
+    stock === 0
+      ? "Sold Out"
+      : isLowStock
+      ? "Limited Stock"
+      : enabled(row.isBestseller)
+      ? "Best Seller"
+      : enabled(row.isNewArrival)
+      ? "New"
+      : undefined;
+
+  return {
+    ...fallback,
+    id: text(row.id),
+    slug: text(row.slug, fallback.slug),
+    number: String(index + 1).padStart(2, "0"),
+    name: text(row.name, fallback.name),
+    type,
+    sku,
+    category,
+    size,
+    ingredients,
+    usage,
+    faq,
+    price,
+    compareAtPrice,
+    stock,
+    inStock: enabled(row.inStock),
+    trackInventory: enabled(row.trackInventory),
+    stockQuantity: row.stockQuantity != null ? number(row.stockQuantity) : null,
+    lowStockThreshold: row.lowStockThreshold != null ? number(row.lowStockThreshold) : null,
+    variationId: variant ? text(variant.id) : undefined,
+    selectedAttributes: variant
+      ? Object.fromEntries(Object.entries(object(variant.attributes)).map(([name, value]) => [name, String(value)]))
+      : undefined,
+    requiresVariation: row.productType === "variable" && !variant,
+    description: text(row.description, fallback.description),
+    benefit: text(row.shortDescription, fallback.benefit),
+    image: mainImage,
+    hoverImage: mainImage,
+    galleryImages,
+    rating: number(row.rating, 0),
+    reviewCount: number(row.reviewCount, 0),
+    addedAt: text(row.createdAt, fallback.addedAt),
+    badge,
+  };
+}
+
 /** Keep the three storefront slots stable so saved carts and product URLs survive refreshes. */
 export function normalizeProducts(payload: unknown): Product[] {
   if (!Array.isArray(payload)) throw new ApiError("Product data was unavailable.", 0, "invalid-response");
   const rows = payload.map(object).filter(row => text(row.id) && text(row.name) && number(row.price, -1) >= 0 && row.productType !== "bundle" && row.isVisible !== false && row.isVisible !== 0 && row.status !== "draft").slice(0, 3);
-  if (!rows.length) throw new ApiError("Product data was unavailable.", 0, "invalid-response");
+  if (!rows.length) return [];
   const remaining = [...rows];
-  return localProducts.map((fallback, index) => {
+  const ordered = localProducts.map((fallback, index) => {
     const matching = remaining.findIndex(row => row.slug === fallback.slug || text(row.name).toLowerCase() === fallback.name.toLowerCase());
-    const row = remaining.splice(matching >= 0 ? matching : 0, 1)[0];
-    if (!row) return fallback;
-    const categories = list(row.categoryNames).map(String).join(" ");
-    const label = (text(row.name) + " " + categories).toLowerCase();
-    const type = /sunscreen|sun screen|spf/.test(label) ? "Sunscreen" : /cleanser|wash|balm/.test(label) ? "Cleanser" : /cream|moisturi/.test(label) ? "Cream" : fallback.type;
-    const images = list(row.images);
-    const thumbnail = list(row.imageThumbnailUrls)[0] ?? images[0];
-    const mainImage = image(thumbnail, fallback.image);
-    const galleryImages = [mainImage, ...images.map(value => image(value, mainImage))]
-      .filter((value, index, all) => all.indexOf(value) === index);
-    const stock = enabled(row.inStock) ? enabled(row.trackInventory) ? Math.max(0, number(row.stockQuantity)) : 9999 : 0;
-    const variations = list(row.variations).map(object);
-    const variant = variations.find(value => value.id === row.defaultVariationId && enabled(value.enabled));
-    const price = row.productType === "variable" && variant ? number(variant.salePrice ?? variant.regularPrice, number(row.price)) : number(row.price);
-    const specs = object(row.specifications);
-    const ingredients = text(specs.Ingredients, fallback.ingredients);
-    const usage = text(specs.Usage, fallback.usage);
-    const faq = text(specs.FAQ, fallback.faq);
-    const size = text(specs.Size, fallback.size);
-    const categoryName = list(row.categoryNames)[0];
-    const category = text(categoryName, fallback.category);
-    const sku = text(row.sku, fallback.sku);
-    return {
-      ...fallback, id: text(row.id), slug: text(row.slug, fallback.slug), number: String(index + 1).padStart(2, "0"), name: text(row.name, fallback.name), type,
-      sku, category, size, ingredients, usage, faq,
-      price, compareAtPrice: Math.max(price, number(row.originalPrice, price)), stock,
-      variationId: variant ? text(variant.id) : undefined, selectedAttributes: variant ? Object.fromEntries(Object.entries(object(variant.attributes)).map(([name,value])=>[name,String(value)])) : undefined, requiresVariation: row.productType === "variable" && !variant,
-      description: text(row.description, fallback.description), benefit: text(row.shortDescription, fallback.benefit),
-      image: mainImage, hoverImage: mainImage, galleryImages,
-      rating: number(row.rating), reviewCount: number(row.reviewCount), addedAt: text(row.createdAt, fallback.addedAt),
-      badge: stock === 0 ? "Sold Out" : enabled(row.isBestseller) ? "Best Seller" : enabled(row.isNewArrival) ? "New" : stock < 5 ? "Limited Stock" : fallback.badge,
-    };
+    if (matching < 0) return null;
+    return normalizeSingleProduct(remaining.splice(matching, 1)[0], fallback, index);
   });
+  return [...ordered.filter((product): product is Product => product !== null), ...remaining.map((row, index) => normalizeSingleProduct(row, undefined, index + ordered.length))];
 }
 
 export function normalizeBundles(payload: unknown, products: Product[]): Bundle[] {
@@ -97,7 +163,8 @@ export function normalizeSettings(payload: unknown): StoreSettings {
 }
 
 export const catalogApi = {
-  listProducts: async () => normalizeProducts(await apiRequest<unknown>("/api/products?limit=3")),
+  listProducts: async () => normalizeProducts(await apiRequest<unknown>("/api/products?limit=100")),
+  getProduct: async (slug: string) => normalizeSingleProduct(await apiRequest<unknown>(`/api/products/${encodeURIComponent(slug)}`)),
   listBundles: async (products: Product[]) => normalizeBundles(await apiRequest<unknown>("/api/bundles"), products),
   submitReview: (input: { productId: string; productName: string; reviewerName: string; rating: number; content: string }) => apiRequest<{ message: string }>("/api/reviews", { method: "POST", body: JSON.stringify(input) }),
   settings: async () => normalizeSettings(await apiRequest<unknown>("/api/settings")),

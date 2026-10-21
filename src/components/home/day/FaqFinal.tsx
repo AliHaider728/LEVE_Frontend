@@ -81,7 +81,7 @@ export function FaqFinal() {
           ))}
         </Accordion>
       </div>
-      <div ref={ref} className="pb-16 md:pb-0">
+      <div ref={ref} className="pb-0">
         <motion.div
           style={{ clipPath: clip }}
           className="relative grid min-h-[80svh] place-items-center overflow-hidden"

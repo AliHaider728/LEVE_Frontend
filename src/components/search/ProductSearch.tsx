@@ -5,7 +5,7 @@ import {Link} from '@/lib/router-compat';
 import {useStoreData} from '@/store/catalog';
 import {apiRequest} from '@/lib/api/client';
 import {searchProducts,serverSearchMatches} from '@/lib/product-search';
-import {formatPKR} from '@/config/store';
+import {getPriceDisplay, getStockDisplay} from '@/lib/pricing';
 import type {Product} from '@/data/products';
 import {Dialog,DialogContent,DialogTitle,DialogDescription} from '@/components/ui/dialog';
 export function ProductSearch({open,onOpenChange}:{open:boolean;onOpenChange:(value:boolean)=>void}) {
@@ -24,6 +24,6 @@ export function ProductSearch({open,onOpenChange}:{open:boolean;onOpenChange:(va
    {query&&<button type="button" aria-label="Clear search" onClick={()=>{setQuery('');input.current?.focus();}} className="grid size-11 shrink-0 place-items-center"><X className="size-4"/></button>}<button className="min-h-11 shrink-0 text-xs font-semibold" type="submit">Search</button>
   </form>
   <div role="status" aria-live="polite" className="text-sm text-muted-foreground">{loading?'Searching…':query.trim()?`${results.length} matching product${results.length===1?'':'s'}`:'Explore our three essentials.'}</div>{notice&&<p className="text-xs text-muted-foreground">{notice}</p>}
-  <div className="max-h-[50dvh] overflow-y-auto overscroll-contain" data-lenis-prevent>{loading?<div aria-hidden="true" className="space-y-3 animate-pulse"><div className="h-20 bg-secondary rounded-lg"/><div className="h-20 bg-secondary rounded-lg"/></div>:query.trim()&&results.length===0?<p className="rounded-lg bg-secondary/50 p-5 text-sm">No products match “{query.trim()}”. Try another name or clear your search.</p>:(query.trim()?results:products).map(product=><Link key={product.slug} to="/shop/$slug" params={{slug:product.slug}} onClick={()=>onOpenChange(false)} className="flex min-w-0 items-center gap-4 rounded-lg p-3 hover:bg-secondary/50 focus-visible:outline-2"><img src={product.image} alt="" className="h-20 w-16 shrink-0 rounded-md object-cover"/><div className="min-w-0"><p className="text-base font-medium">{product.name}</p><p className="mt-1 text-sm">{formatPKR(product.price)}</p><p className="text-xs text-muted-foreground">{product.stock>0?'In stock':'Sold out'}</p></div></Link>)}</div>
+  <div className="max-h-[50dvh] overflow-y-auto overscroll-contain" data-lenis-prevent>{loading?<div aria-hidden="true" className="space-y-3 animate-pulse"><div className="h-20 bg-secondary rounded-lg"/><div className="h-20 bg-secondary rounded-lg"/></div>:query.trim()&&results.length===0?<p className="rounded-lg bg-secondary/50 p-5 text-sm">No products match “{query.trim()}”. Try another name or clear your search.</p>:(query.trim()?results:products).map(product=><Link key={product.slug} to="/shop/$slug" params={{slug:product.slug}} onClick={()=>onOpenChange(false)} className="flex min-w-0 items-center gap-4 rounded-lg p-3 hover:bg-secondary/50 focus-visible:outline-2"><img src={product.image} alt="" className="h-20 w-16 shrink-0 rounded-md object-cover"/><div className="min-w-0"><p className="text-base font-medium">{product.name}</p><p className="mt-1 text-sm">{getPriceDisplay(product).formattedPrice}</p><p className="text-xs text-muted-foreground">{getStockDisplay(product).stockText}</p></div></Link>)}</div>
  </DialogContent></Dialog>;
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { products, type Product } from "@/data/products";
+import { type Product } from "@/data/products";
+import { useStoreData } from "@/store/catalog";
 import { useCart } from "@/store/cart";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/lib/router-compat";
@@ -13,7 +14,7 @@ const steps = [
   { q: "Is your skin sensitive?", options: ["Yes", "A little", "No"] },
 ];
 
-function recommend(a: string[]): Product {
+function recommend(a: string[], products: Product[]): Product {
   const [type, concern, sensitive] = a;
   if (sensitive === "Yes" || concern === "Sensitivity")
     return products.find((p) => p.type === "Cleanser") ?? products[0]!;
@@ -25,16 +26,17 @@ function recommend(a: string[]): Product {
 }
 
 export function SkinQuiz({ onHighlight }: { onHighlight: (slug: string | null) => void }) {
+  const products = useStoreData(state => state.products);
   const [answers, setAnswers] = useState<string[]>([]);
   const add = useCart((s) => s.add);
   const done = answers.length === steps.length;
-  const resultProduct = done ? recommend(answers) : null;
+  const resultProduct = done && products.length ? recommend(answers, products) : null;
 
   const pick = (o: string) => {
     const next = [...answers, o];
     setAnswers(next);
-    if (next.length === steps.length) {
-      const r = recommend(next);
+    if (next.length === steps.length && products.length) {
+      const r = recommend(next, products);
       onHighlight(r.slug);
     }
   };

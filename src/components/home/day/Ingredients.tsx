@@ -9,8 +9,8 @@ const items = [
     name: "LEVA Face Wash",
     slug: "leva-face-wash",
     ingredient: "Hyaluronic Acid",
-    benefit: "A gentle, purifying daily face wash that deeply cleanses pores without stripping natural moisture, leaving skin fresh, soft, and balanced.",
-    howToUse: "Apply to a damp face, massage gently for 15–20 seconds, then rinse thoroughly.",
+    benefit: "Purifies pores deeply while maintaining natural moisture balance.",
+    howToUse: "Massage onto damp skin for 30 seconds, then rinse.",
     img: "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-face-wash-formula.jpg",
   },
   {
@@ -18,8 +18,8 @@ const items = [
     name: "LEVA Brightening Cream",
     slug: "leva-brightening-cream",
     ingredient: "Alpha Arbutin & Ceramides",
-    benefit: "A fast-absorbing daily moisturizer enriched with ceramides, hyaluronic acid, and alpha arbutin to replenish moisture, restore the skin barrier, and reveal a radiant glow.",
-    howToUse: "Apply a small amount to clean skin once or twice daily.",
+    benefit: "Hydrates deeply, fades dullness, and repairs the moisture barrier.",
+    howToUse: "Smooth over clean face and neck morning and night.",
     img: "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-brightening-cream-formula.jpg",
   },
   {
@@ -27,15 +27,15 @@ const items = [
     name: "LEVA Tinted Sunblock",
     slug: "leva-tinted-sunblock",
     ingredient: "UVA & UVB Protection",
-    benefit: "Broad-spectrum SPF 50 PA+++ protection with a sheer universal tint for a radiant, non-greasy finish without white cast.",
-    howToUse: "Apply 15 minutes before sun exposure. Reapply every 2 hours outdoors.",
+    benefit: "Broad-spectrum SPF 50 shield with a sheer, radiant natural tint.",
+    howToUse: "Apply evenly before sun exposure; reapply as needed.",
     img: "https://pub-a072adc556d047e0bacc05300ca63f83.r2.dev/images/leva-tinted-sunscreen-formula.jpg",
   },
 ];
 
 function Panel({ it }: { it: (typeof items)[number] }) {
   return (
-    <article className="grid w-[84vw] max-w-[340px] shrink-0 snap-start overflow-hidden rounded-3xl bg-background shadow-sm sm:max-w-[400px] md:w-[60vw] md:max-w-none md:grid-cols-2 lg:h-[min(54svh,470px)] lg:w-[min(43vw,610px)]">
+    <article className="grid w-[84vw] max-w-[340px] shrink-0 snap-start overflow-hidden rounded-3xl bg-background shadow-sm sm:max-w-[400px] md:w-[60vw] md:max-w-none md:grid-cols-2 lg:min-h-[420px] lg:h-auto lg:w-[min(43vw,610px)]">
       <Link
         to="/shop/$slug"
         params={{ slug: it.slug }}
@@ -91,8 +91,8 @@ export function Ingredients() {
       ...it,
       name: liveProd?.name || it.name,
       slug: liveProd?.slug || it.slug,
-      benefit: liveProd?.benefit || liveProd?.description || it.benefit,
-      howToUse: liveProd?.usage || it.howToUse,
+      benefit: it.benefit,
+      howToUse: it.howToUse,
     };
   });
 

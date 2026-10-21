@@ -19,11 +19,15 @@ export type Product = {
   image: string;
   hoverImage: string;
   galleryImages?: string[];
-  badge: "Best Seller" | "New" | "Save 20%" | "Limited Stock" | "Sold Out";
+  badge?: "Best Seller" | "New" | "Save 20%" | "Limited Stock" | "Sold Out" | string;
   stock: number;
+  stockQuantity?: number | null;
+  trackInventory?: boolean;
+  inStock?: boolean;
+  lowStockThreshold?: number | null;
   rating: number;
   reviewCount: number;
-  compareAtPrice: number;
+  compareAtPrice?: number | null;
   type: ProductType;
   concerns: Concern[];
   skinTypes: SkinType[];
@@ -70,7 +74,8 @@ export const products: Product[] = [
       "Aqua, Caprylic/Capric Triglyceride, Cetearyl Alcohol, Niacinamide, Ceramide NP, Sodium Hyaluronate, Alpha Arbutin, Licorice Root Extract, Shea Butter, Vitamin E (Tocopherol), Dimethicone, Glycerin, Phenoxyethanol, Ethylhexylglycerin.",
     usage:
       "Take a dime-sized amount and warm between fingertips. Smooth evenly over cleansed face and neck in gentle upward circular motions until fully absorbed. Use morning and evening as Step 02 of your ritual.",
-    benefit: "A fast-absorbing daily moisturizer enriched with ceramides, hyaluronic acid, and alpha arbutin to replenish moisture, restore the skin barrier, and reveal a radiant glow.",
+    benefit:
+      "A fast-absorbing daily moisturizer enriched with ceramides, hyaluronic acid, and alpha arbutin to replenish moisture, restore the skin barrier, and reveal a radiant glow.",
     faq:
       "Is LEVA Brightening Cream suitable for oily or sensitive skin? Yes, the formula is lightweight and non-comedogenic, absorbing quickly without clogging pores or feeling greasy. Suitable for dry, normal, combination, and sensitive skin.",
     image: creamImages[0],
@@ -81,10 +86,12 @@ export const products: Product[] = [
     concerns: ["Dullness", "Uneven tone", "Dryness"],
     skinTypes: ["Dry", "Normal", "Combination"],
     addedAt: "2026-06-01",
-    stock: 18,
+    stock: 9999,
+    trackInventory: false,
+    inStock: true,
     rating: 5.0,
     reviewCount: 20,
-    compareAtPrice: 2100,
+    compareAtPrice: null,
   },
   {
     slug: "leva-tinted-sunblock",
@@ -96,12 +103,13 @@ export const products: Product[] = [
     price: 1500,
     size: "SPF 50 · PA+++ (50 ML)",
     description:
-      "LEVA Tinted Sunblock delivers broad-spectrum SPF 50 PA+++ protection against harmful UVA and UVB rays while infusing the skin with a lightweight, universal tint. It seamlessly blurs minor imperfections, redness, and uneven skin tone, leaving a natural dewy finish without any sticky residue or white cast. Designed for everyday wear in Pakistan's climate, it serves as your daily sun defense and effortless no-makeup skin tint in one.",
+      "LEVA Tinted Sunblock delivers broad-spectrum SPF 50 PA+++ protection against UVA and UVB rays while infusing skin with a lightweight, universal tint. It blurs imperfections and redness with a natural dewy finish, formulated specifically for everyday wear in Pakistan without white cast or sticky residue.",
     ingredients:
       "Aqua, Zinc Oxide, Titanium Dioxide, Ethylhexyl Methoxycinnamate, Niacinamide, Sodium Hyaluronate, Vitamin E (Tocopherol), Cyclopentasiloxane, Iron Oxides (Natural Mineral Tint), Silica, Glycerin, Phenoxyethanol, Ethylhexylglycerin.",
     usage:
       "Apply generously and evenly to face, neck, and exposed skin 15 minutes before sun exposure. Gently blend with fingertips or a beauty sponge. Reapply every 2 hours, or after sweating or towel drying. Can be worn alone or as a primer under makeup.",
-    benefit: "Broad-spectrum SPF 50 PA+++ protection with a sheer universal tint for a radiant, non-greasy finish without white cast.",
+    benefit:
+      "Broad-spectrum SPF 50 PA+++ protection with a sheer universal tint for a radiant, non-greasy finish without white cast.",
     faq:
       "Will it leave a white cast or feel heavy? No, LEVA Tinted Sunblock uses micronized mineral filters with a sheer universal tint that blends naturally across Pakistani skin tones with an oil-free, weightless feel.",
     image: sunscreenImages[0],
@@ -112,10 +120,12 @@ export const products: Product[] = [
     concerns: ["Dullness", "Dryness"],
     skinTypes: ["Dry", "Normal", "Combination", "Oily"],
     addedAt: "2026-09-15",
-    stock: 12,
+    stock: 9999,
+    trackInventory: false,
+    inStock: true,
     rating: 4.9,
     reviewCount: 25,
-    compareAtPrice: 1900,
+    compareAtPrice: null,
   },
   {
     slug: "leva-face-wash",
@@ -127,26 +137,29 @@ export const products: Product[] = [
     price: 1450,
     size: "145 ML",
     description:
-      "LEVA Face Wash is a gentle, refreshing daily facial cleanser formulated to purify and revitalize the skin. It effectively removes dirt, excess oil, pollution, and impurities while respecting the skin's natural moisture barrier. Enriched with soothing botanicals, niacinamide, and pro-vitamin B5, it leaves your skin soft, thoroughly clean, and balanced without any tightness or dryness.",
+      "LEVA Face Wash is a gentle, refreshing daily facial cleanser formulated to purify and revitalize the skin. Enriched with niacinamide, pro-vitamin B5, and soothing botanical extracts, it effectively removes dirt, excess oil, and impurities while maintaining the skin barrier without tightness or dryness.",
     ingredients:
       "Aqua, Glycerin, Sodium Cocoyl Isethionate, Cocamidopropyl Betaine, Niacinamide, Panthenol (Pro-Vitamin B5), Aloe Barbadensis Leaf Juice, Allantoin, Chamomile Extract, Citric Acid, Phenoxyethanol, Ethylhexylglycerin.",
     usage:
       "Dispense 1-2 pumps onto damp hands and work into a gentle lather. Massage gently over face and neck in circular motions for 30–60 seconds, avoiding the eye area. Rinse thoroughly with lukewarm water and pat dry. Use morning and night as Step 01 of your ritual.",
-    benefit: "A gentle, purifying daily face wash that cleanses pores deeply without stripping moisture, leaving skin fresh and revitalized.",
+    benefit:
+      "A gentle, purifying daily face wash that deeply cleanses pores without stripping natural moisture, leaving skin fresh, soft, and balanced.",
     faq:
       "Is LEVA Face Wash suitable for daily use on acne-prone or sensitive skin? Yes, it is soap-free, sulfate-free, and formulated at skin-friendly pH. It cleanses deeply while keeping the skin barrier calm and hydrated.",
     image: washImages[0],
     hoverImage: washImages[0],
     galleryImages: washImages,
-    badge: "Limited Stock",
+    badge: undefined,
     type: "Cleanser",
     concerns: ["Sensitivity"],
     skinTypes: ["Oily", "Combination", "Normal", "Sensitive"],
     addedAt: "2026-07-20",
-    stock: 7,
+    stock: 9999,
+    trackInventory: false,
+    inStock: true,
     rating: 4.9,
     reviewCount: 30,
-    compareAtPrice: 1800,
+    compareAtPrice: null,
   },
 ];
 
@@ -157,7 +170,7 @@ export const slugAliases: Record<string, string> = {
   "product-03": "leva-face-wash",
 };
 
-export function getProduct(slug: string) {
+export function getProduct(slug: string): Product | undefined {
   const canonical = slugAliases[slug] || slug;
   return products.find((product) => product.slug === canonical || product.slug === slug);
 }

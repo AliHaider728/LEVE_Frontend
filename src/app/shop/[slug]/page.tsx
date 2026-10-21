@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { getProduct, products, slugAliases } from "@/data/products";
+import { notFound, redirect } from "next/navigation";
+import { slugAliases } from "@/data/products";
+import { getServerProduct } from "@/lib/server/catalog";
+import View from "./view";
 
-export function generateStaticParams() {
-  const currentSlugs = products.map((p) => ({ slug: p.slug }));
-  const legacySlugs = Object.keys(slugAliases).map((slug) => ({ slug }));
-  return [...currentSlugs, ...legacySlugs];
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const canonicalSlug = slugAliases[slug] || slug;
-  const p = getProduct(canonicalSlug);
+  const p = await getServerProduct(canonicalSlug);
   const title = `${p?.name ?? "Product"} — LEVA Pakistan`;
   const description = p?.description ?? "LEVA skincare essential.";
   return {
@@ -30,17 +28,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-import { Suspense } from "react";
-import View from "./view";
-
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const canonicalSlug = slugAliases[slug] || slug;
   if (slugAliases[slug]) {
-    redirect(`/shop/${slugAliases[slug]}`);
+    redirect(`/shop/${canonicalSlug}`);
   }
-  return (
-    <Suspense>
-      <View />
-    </Suspense>
-  );
+  const product = await getServerProduct(canonicalSlug);
+  if (!product) notFound();
+  return <View initialProduct={product} />;
 }

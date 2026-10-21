@@ -1,9 +1,9 @@
 "use client";
 import { createFileRoute, notFound } from "@/lib/router-compat";
-import { getProduct } from "@/data/products";
+import { type Product } from "@/data/products";
 import { useStoreData } from "@/store/catalog";
-import { formatPKR } from "@/config/store";
-import { WishlistButton } from '@/components/wishlist/WishlistButton';
+import { getPriceDisplay, getStockDisplay } from "@/lib/pricing";
+import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { QuantityAddToCart } from "@/components/product/QuantityAddToCart";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductGallery } from "@/components/product/ProductGallery";
@@ -20,47 +20,43 @@ import {
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: ({ params }) => {
-    const product = getProduct(params.slug);
-    if (!product) throw notFound();
-    return product;
+    return { slug: params.slug };
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: `${loaderData?.name ?? "Product"} — LEVA Pakistan` },
-      { name: "description", content: loaderData?.description ?? "LEVA skincare essential." },
-      { property: "og:title", content: `${loaderData?.name ?? "Product"} — LEVA` },
-      {
-        property: "og:description",
-        content: loaderData?.description ?? "LEVA skincare essential.",
-      },
-      { property: "og:type", content: "product" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
   component: ProductPage,
 });
 
-function ProductPage() {
+export function ProductPage({ initialProduct }: { initialProduct?: Product | null } = {}) {
   const fallback = Route.useLoaderData();
   const { products, bundles, ready } = useStoreData();
-  const product = products.find(p => p.slug === fallback.slug) ?? fallback;
+  const product = initialProduct ?? products.find((p) => p.slug === fallback.slug);
+  if (!product) { if (ready) throw notFound(); return <main className="pt-28">Loading product…</main>; }
   const suggestions = products.filter((item) => item.slug !== product.slug);
   const matchingBundle =
     bundles.find((bundle) => bundle.productSlugs.includes(product.slug)) ?? bundles[0];
-  const saving = Math.round((1 - product.price / product.compareAtPrice) * 100);
+
+  const priceInfo = getPriceDisplay(product);
+  const stockInfo = getStockDisplay(product);
+
   return (
     <main className="pb-44 pt-24 md:pb-0 md:pt-28">
       <section className="grid min-w-0 md:grid-cols-2">
         <ProductGallery key={product.slug} product={product} />
         <div className="flex min-w-0 flex-col justify-start px-5 py-8 sm:px-8 md:px-[5vw] md:py-9">
           <div className="flex flex-wrap items-center gap-2">
-            {product.badge && (
-              <Badge variant={product.stock === 0 ? "sold" : (product.badge === "Limited Stock" && product.stock > 0 && product.stock <= 10) ? "stock" : "default"}>
-                {(product.badge === "Limited Stock" && product.stock > 0 && product.stock <= 10) ? `Only ${product.stock} left` : product.badge}
+            {stockInfo.badge && (
+              <Badge variant={stockInfo.badge.variant}>
+                {stockInfo.badge.text}
               </Badge>
             )}
-            <Badge variant="saving">Save {saving}%</Badge>
-            <WishlistButton slug={product.slug} name={product.name} className="ml-auto"/>
+            {!stockInfo.badge && product.badge && (
+              <Badge variant="default">
+                {product.badge}
+              </Badge>
+            )}
+            {priceInfo.hasDiscount && priceInfo.saveBadgeText && (
+              <Badge variant="saving">{priceInfo.saveBadgeText}</Badge>
+            )}
+            <WishlistButton slug={product.slug} name={product.name} className="ml-auto" />
           </div>
           <p className="eyebrow mt-5">LEVA / Essential {product.number}</p>
           <h1 className="mt-3 break-words text-4xl font-light sm:text-5xl lg:text-6xl">{product.name}</h1>
@@ -69,13 +65,15 @@ function ProductPage() {
             {product.description}
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <strong className="text-xl font-medium">{formatPKR(product.price)}</strong>
-            <span className="text-base text-muted-foreground line-through">
-              {formatPKR(product.compareAtPrice)}
-            </span>
-            <span className="text-sm text-muted-foreground">{product.size} · tax included</span>
+            <strong className="text-xl font-medium">{priceInfo.formattedPrice}</strong>
+            {priceInfo.hasDiscount && priceInfo.formattedCompareAtPrice && (
+              <span className="text-base text-muted-foreground line-through">
+                {priceInfo.formattedCompareAtPrice}
+              </span>
+            )}
+            <span className="text-sm text-muted-foreground">{product.size}</span>
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">{product.stock >= 9999 ? "In stock" : product.stock > 0 ? `In stock · ${product.stock} available` : "Currently sold out"}</p>
+          <p className="mt-3 text-sm text-muted-foreground">{stockInfo.stockText}</p>
           <div className="mt-5">
             <QuantityAddToCart slug={product.slug} />
           </div>

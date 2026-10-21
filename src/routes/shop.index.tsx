@@ -472,7 +472,7 @@ function ShopGrid({ results }: { results: Product[] }) {
         initial={reduced ? false : "hidden"}
         whileInView="show"
         viewport={{ once: true, amount: 0.15 }}
-        className="min-w-0"
+        className="min-w-0 self-start"
       >
         <BuildBundleCard />
       </motion.div>

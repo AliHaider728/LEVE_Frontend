@@ -22,6 +22,18 @@ type CartState = {
   clear: () => void;
 };
 
+if (typeof window !== "undefined") {
+  try {
+    const legacyKeys = ["leva-catalog", "catalog-cache", "leva_catalog", "leva-products", "cached-products"];
+    for (const key of legacyKeys) {
+      window.localStorage.removeItem(key);
+      window.sessionStorage.removeItem(key);
+    }
+  } catch {
+    // ignore storage errors
+  }
+}
+
 export const useCart = create<CartState>()(
   persist(
     (set) => ({
@@ -92,6 +104,16 @@ export const useCart = create<CartState>()(
     }),
     {
       name: "leva-cart",
+      version: 2,
+      migrate: (stored) => {
+        const old = (stored ?? {}) as Record<string, unknown>;
+        const lines = (value: unknown): Record<string, number> => Object.fromEntries(
+          Object.entries(value && typeof value === 'object' ? value : {}).filter(
+            ([, quantity]) => typeof quantity === 'number' && Number.isInteger(quantity) && quantity > 0 && quantity <= 100,
+          ),
+        );
+        return { items: lines(old.items), bundles: lines(old.bundles), custom: lines(old.custom), coupon: typeof old.coupon === 'string' ? old.coupon : '' };
+      },
       partialize: ({ items, bundles, coupon, custom }) => ({ items, bundles, coupon, custom }),
     },
   ),

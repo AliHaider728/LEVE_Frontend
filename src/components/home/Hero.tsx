@@ -1,12 +1,10 @@
 import Image from "next/image";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 
 export function Hero() {
-  const reducedMotion = useReducedMotion();
-
   return (
     <section
       className="relative flex min-h-[calc(100svh-var(--header-h,4rem))] w-full flex-col overflow-hidden bg-[#5a323a] text-primary md:min-h-[520px]"
@@ -20,7 +18,7 @@ export function Hero() {
         {/* Original smooth aperture reveal */}
         <motion.div
           className="absolute inset-0 overflow-hidden"
-          initial={reducedMotion ? false : { clipPath: "inset(40% 30% 40% 30%)" }}
+          initial={false}
           animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
           transition={{ duration: 1.25, ease: [0.76, 0, 0.24, 1] }}
         >
@@ -31,7 +29,7 @@ export function Hero() {
         </motion.div>
         <motion.div
           className="absolute top-12 left-8 z-20 flex max-w-md flex-col sm:top-14 sm:left-10 md:top-16 md:left-12 lg:top-20 lg:left-[6%] xl:top-24 xl:max-w-lg"
-          initial={reducedMotion ? false : { y: 35, opacity: 0 }}
+          initial={false}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.35, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
@@ -66,7 +64,7 @@ export function Hero() {
         {/* Background image — opacity only, no scale to avoid layout shift */}
         <motion.div
           className="absolute inset-0 z-0"
-          initial={reducedMotion ? false : { opacity: 0 }}
+          initial={false}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
@@ -85,7 +83,7 @@ export function Hero() {
         {/* Overlaid text */}
         <motion.div
           className="relative z-10 px-5 pt-6 sm:px-8 sm:pt-8"
-          initial={reducedMotion ? false : { y: 20, opacity: 0 }}
+          initial={false}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.15, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
         >

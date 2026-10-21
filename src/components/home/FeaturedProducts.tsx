@@ -1,10 +1,12 @@
+"use client";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/lib/router-compat";
-import { products } from "@/data/products";
+import { useStoreData } from "@/store/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui/button";
 
 export function FeaturedProducts() {
+  const products = useStoreData(state => state.products);
   return (
     <section className="overflow-hidden px-6 py-28 md:px-[8vw] md:py-40">
       <div className="mb-14 grid gap-6 sm:flex sm:items-end sm:justify-between">

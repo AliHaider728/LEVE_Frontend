@@ -65,8 +65,26 @@ export function useNavigate(_opts?: { from?: string }) {
     const prev = Object.fromEntries(new URLSearchParams(window.location.search).entries());
     const search = typeof opts.search === "function" ? opts.search(prev) : opts.search;
     const href = buildHref({ ...opts, to: opts.to ?? pathname, search } as To);
-    if (opts.replace) router.replace(href, { scroll: false });
-    else router.push(href);
+    const scrollPos = typeof window !== "undefined" ? window.scrollY : 0;
+    const isSamePath = !opts.to || opts.to === pathname;
+
+    if (opts.replace) {
+      router.replace(href, { scroll: false });
+      if (isSamePath && opts.resetScroll === false) {
+        // Prevent scroll reset bug when changing query params / filters on same page
+        const restore = () => {
+          if (typeof window !== "undefined" && window.scrollY !== scrollPos) {
+            window.scrollTo({ top: scrollPos, behavior: "instant" });
+          }
+        };
+        requestAnimationFrame(restore);
+        setTimeout(restore, 0);
+        setTimeout(restore, 30);
+        setTimeout(restore, 100);
+      }
+    } else {
+      router.push(href);
+    }
   };
 }
 

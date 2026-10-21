@@ -25,8 +25,17 @@ export const ProductFormPage: React.FC = () => {
     const [categorySearch, setCategorySearch] = useState('');
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     // Pricing & Stock (Simple)
-    const [regularPrice, setRegularPrice] = useState<string>(existingProduct?.originalPrice ? String(existingProduct.originalPrice) : existingProduct?.price ? String(existingProduct.price) : '');
-    const [salePrice, setSalePrice] = useState<string>(existingProduct?.originalPrice ? String(existingProduct.price) : '');
+    const hasDiscount = Boolean(existingProduct?.originalPrice != null && Number(existingProduct.originalPrice) > Number(existingProduct.price));
+    const [regularPrice, setRegularPrice] = useState<string>(
+        hasDiscount
+            ? String(existingProduct!.originalPrice)
+            : existingProduct?.price != null
+            ? String(existingProduct.price)
+            : ''
+    );
+    const [salePrice, setSalePrice] = useState<string>(
+        hasDiscount ? String(existingProduct!.price) : ''
+    );
     const [sku, setSku] = useState(existingProduct?.sku || '');
     const [trackInventory, setTrackInventory] = useState(existingProduct?.trackInventory ?? true);
     const [stockQuantity, setStockQuantity] = useState<string>(existingProduct?.stockQuantity !== undefined && existingProduct?.stockQuantity !== null ? String(existingProduct.stockQuantity) : '20');
@@ -76,8 +85,14 @@ export const ProductFormPage: React.FC = () => {
                 showToast('Product name is required', 'error');
                 return;
             }
-            const priceNum = parseFloat(salePrice || regularPrice || '0') || 0;
-            const origPriceNum = salePrice && regularPrice ? parseFloat(regularPrice) : undefined;
+            const hasSale = Boolean(salePrice && salePrice.trim() && parseFloat(salePrice) > 0);
+            const regPrice = parseFloat(regularPrice || '0') || 0;
+            if (!Number.isFinite(regPrice) || regPrice <= 0 || (salePrice.trim() && (!hasSale || parseFloat(salePrice) >= regPrice))) {
+                showToast('Sale price must be positive and lower than regular price, or empty', 'error');
+                return;
+            }
+            const priceNum = hasSale ? parseFloat(salePrice) : regPrice;
+            const origPriceNum = hasSale && regPrice > priceNum ? regPrice : null;
             const catObjs = categories.filter(c => selectedCategoryIds.includes(c.id));
             const imageUrls = imageUrlsDraft.split(/\r?\n/).map(url => url.trim()).filter(Boolean).slice(0, 8);
             const imagesChanged = JSON.stringify(imageUrls) !== JSON.stringify(existingProduct?.images || []);
