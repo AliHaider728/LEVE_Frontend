@@ -75,7 +75,7 @@ export function ProductPage({ initialProduct }: { initialProduct?: Product | nul
           </div>
           <p className="mt-3 text-sm text-muted-foreground">{stockInfo.stockText}</p>
           <div className="mt-5">
-            <QuantityAddToCart slug={product.slug} />
+            <QuantityAddToCart slug={product.slug} product={product} />
           </div>
           <Accordion
             type="single"

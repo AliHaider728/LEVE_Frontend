@@ -6,7 +6,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 
 import { formatPKR, getFreeShippingRemaining } from "@/config/store";
 import { getCartTotals } from "@/lib/cart-totals";
-import { useCart } from "@/store/cart";
+import { useCart, useCartHydrated } from "@/store/cart";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
@@ -24,9 +24,46 @@ export const Route = createFileRoute("/cart")({
   component: Cart,
 });
 
+export function CartSkeleton() {
+  return (
+    <main className="min-h-[80vh] px-6 pb-24 pt-32 md:px-[10vw] md:pt-40" aria-busy="true" role="status">
+      <span className="sr-only">Loading your cart…</span>
+      <div className="mb-6 h-4 w-36 animate-pulse rounded bg-secondary" />
+      <div className="mb-14 h-12 w-48 animate-pulse rounded bg-secondary sm:h-16 md:h-20" />
+      <div className="grid gap-16 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-6">
+          <div className="h-28 animate-pulse rounded-md bg-secondary/50" />
+          <div className="h-28 animate-pulse rounded-md bg-secondary/50" />
+        </div>
+        <div className="space-y-4 border-t border-primary/20 pt-6">
+          <div className="h-4 w-24 animate-pulse rounded bg-secondary" />
+          <div className="h-10 animate-pulse rounded bg-secondary/70" />
+          <div className="h-12 animate-pulse rounded bg-secondary" />
+        </div>
+      </div>
+    </main>
+  );
+}
+
 function Cart() {
-  const { products, bundles, settings: storeConfig } = useStoreData();
+  const { products, bundles, settings: storeConfig, loading: storeLoading, ready: storeReady } = useStoreData();
   const cart = useCart();
+  const isCartHydrated = useCartHydrated();
+  const hasCartEntries =
+    Object.values(cart.items).some((q) => (q ?? 0) > 0) ||
+    Object.values(cart.bundles).some((q) => (q ?? 0) > 0) ||
+    Object.values(cart.custom).some((q) => (q ?? 0) > 0);
+
+  const isPreparing =
+    !isCartHydrated ||
+    (!storeReady && products.length === 0) ||
+    (storeLoading && products.length === 0) ||
+    (hasCartEntries && products.length === 0);
+
+  if (isPreparing) {
+    return <CartSkeleton />;
+  }
+
   const lines = products.filter((product) => cart.items[product.slug]);
   const bundleLines = bundles.filter((bundle) => cart.bundles[bundle.slug]);
   const totals = getCartTotals(cart.items, cart.bundles, cart.coupon, cart.custom, useStoreData.getState());

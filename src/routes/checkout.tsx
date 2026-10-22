@@ -19,7 +19,7 @@ import { formatPKR, getFreeShippingRemaining } from "@/config/store";
 import { getCartTotals, getCouponRate } from "@/lib/cart-totals";
 import { saveOrder, type PaymentMethod } from "@/lib/orders";
 import { whatsappLink } from "@/lib/whatsapp";
-import { useCart } from "@/store/cart";
+import { useCart, useCartHydrated } from "@/store/cart";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { API_URL } from "@/lib/api/client";
@@ -89,9 +89,76 @@ export const Route = createFileRoute("/checkout")({
   component: Checkout,
 });
 
+export function CheckoutSkeleton() {
+  return (
+    <main
+      className="px-5 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-24 md:px-[6vw] md:pt-40"
+      aria-busy="true"
+      role="status"
+    >
+      <span className="sr-only">Loading checkout…</span>
+      <div className="mb-3 h-4 w-48 animate-pulse rounded bg-secondary" />
+      <div className="mb-8 h-10 w-44 animate-pulse rounded bg-secondary md:h-12" />
+
+      <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_400px]">
+        <div className="space-y-10">
+          <div className="space-y-4 rounded-xl border border-primary/10 p-5 md:p-6">
+            <div className="mb-4 h-5 w-32 animate-pulse rounded bg-secondary" />
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div className="h-11 animate-pulse rounded bg-secondary/60" />
+              <div className="h-11 animate-pulse rounded bg-secondary/60" />
+            </div>
+            <div className="h-11 animate-pulse rounded bg-secondary/60" />
+          </div>
+
+          <div className="space-y-4 rounded-xl border border-primary/10 p-5 md:p-6">
+            <div className="mb-4 h-5 w-36 animate-pulse rounded bg-secondary" />
+            <div className="h-11 animate-pulse rounded bg-secondary/60" />
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div className="h-11 animate-pulse rounded bg-secondary/60" />
+              <div className="h-11 animate-pulse rounded bg-secondary/60" />
+            </div>
+          </div>
+
+          <div className="h-12 animate-pulse rounded bg-secondary" />
+        </div>
+
+        <div className="h-fit space-y-4 rounded-xl border border-primary/10 p-5 md:p-6">
+          <div className="mb-4 h-5 w-32 animate-pulse rounded bg-secondary" />
+          <div className="space-y-3 divide-y divide-primary/10">
+            <div className="flex justify-between py-2">
+              <div className="h-4 w-36 animate-pulse rounded bg-secondary/70" />
+              <div className="h-4 w-16 animate-pulse rounded bg-secondary/70" />
+            </div>
+            <div className="flex justify-between py-2">
+              <div className="h-4 w-28 animate-pulse rounded bg-secondary/70" />
+              <div className="h-4 w-14 animate-pulse rounded bg-secondary/70" />
+            </div>
+          </div>
+          <div className="space-y-2 border-t border-primary/10 pt-4">
+            <div className="flex justify-between">
+              <div className="h-4 w-16 animate-pulse rounded bg-secondary/70" />
+              <div className="h-4 w-20 animate-pulse rounded bg-secondary/70" />
+            </div>
+            <div className="flex justify-between">
+              <div className="h-4 w-16 animate-pulse rounded bg-secondary/70" />
+              <div className="h-4 w-16 animate-pulse rounded bg-secondary/70" />
+            </div>
+            <div className="flex justify-between pt-2">
+              <div className="h-6 w-20 animate-pulse rounded bg-secondary" />
+              <div className="h-6 w-24 animate-pulse rounded bg-secondary" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
 function Checkout() {
-  const { products, bundles, settings: storeConfig, loading: storeLoading } = useStoreData();
+  const { products, bundles, settings: storeConfig, loading: storeLoading, ready: storeReady } = useStoreData();
   const cart = useCart();
+  const isCartHydrated = useCartHydrated();
   const navigate = useNavigate();
   const [payment, setPayment] = useState<PaymentMethod>("cod");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -101,6 +168,7 @@ function Checkout() {
   const [city, setCity] = useState("");
   const [province, setProvince] = useState("");
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [removedNotice, setRemovedNotice] = useState("");
   const submitting = useRef(false);
   const request = useRef<{ fingerprint: string; id: string } | null>(null);
 
@@ -283,10 +351,44 @@ function Checkout() {
     }
   };
 
-  if (!lines.length)
+  useEffect(() => {
+    if (!isCartHydrated || !storeReady) return;
+    const invalidItems = Object.keys(cart.items).filter(
+      (slug) => (cart.items[slug] ?? 0) > 0 && !products.some((p) => p.slug === slug),
+    );
+    const invalidBundles = Object.keys(cart.bundles).filter(
+      (slug) => (cart.bundles[slug] ?? 0) > 0 && !bundles.some((b) => b.slug === slug),
+    );
+    if (invalidItems.length > 0 || invalidBundles.length > 0) {
+      for (const slug of invalidItems) cart.remove(slug);
+      for (const slug of invalidBundles) cart.removeBundle(slug);
+      const names = [...invalidItems, ...invalidBundles].join(", ");
+      setRemovedNotice(`Some items (${names}) are no longer available in our store and were removed from your cart.`);
+    }
+  }, [isCartHydrated, storeReady, cart.items, cart.bundles, products, bundles]);
+
+  const hasCartEntries =
+    Object.values(cart.items).some((q) => (q ?? 0) > 0) ||
+    Object.values(cart.bundles).some((q) => (q ?? 0) > 0) ||
+    Object.values(cart.custom).some((q) => (q ?? 0) > 0);
+
+  const isPreparing =
+    !isCartHydrated ||
+    (!storeReady && products.length === 0) ||
+    (storeLoading && products.length === 0) ||
+    (hasCartEntries && products.length === 0);
+
+  if (isPreparing) {
+    return <CheckoutSkeleton />;
+  }
+
+  if (isCartHydrated && storeReady && !lines.length)
     return (
       <main className="px-6 pb-24 pt-32 md:px-[10vw] md:pt-40">
         <h1 className="text-4xl font-light">Your cart is empty.</h1>
+        {removedNotice && (
+          <p className="mt-3 text-sm text-destructive">{removedNotice}</p>
+        )}
         <Button asChild className="mt-8">
           <Link to="/shop">Shop products</Link>
         </Button>
@@ -440,6 +542,11 @@ function Checkout() {
       <p className="eyebrow mb-3">Guest checkout · No account needed</p>
       <h1 className="text-3xl font-light md:text-5xl">Checkout</h1>
       <CatalogStatus />
+      {removedNotice && (
+        <div role="status" className="mt-4 rounded-xl border border-amber-300/60 bg-amber-50 p-4 text-sm text-amber-900">
+          {removedNotice}
+        </div>
+      )}
       <p className="mt-3 text-sm text-muted-foreground">Final total is confirmed when you place the order.</p>
 
       <div className="mt-6 border border-primary/20 lg:hidden">

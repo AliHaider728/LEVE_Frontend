@@ -20,6 +20,12 @@ const nextConfig = (phase: string): NextConfig => ({
   },
   async redirects() {
     return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.leva.pk" }],
+        destination: "https://leva.pk/:path*",
+        permanent: true,
+      },
       { source: "/shop/product-01", destination: "/shop/leva-brightening-cream", permanent: true },
       { source: "/shop/leva-cream", destination: "/shop/leva-brightening-cream", permanent: true },
       { source: "/shop/product-02", destination: "/shop/leva-tinted-sunblock", permanent: true },

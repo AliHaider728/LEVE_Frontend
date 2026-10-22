@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Checkout — LEVA Pakistan",
   description: "Fast guest checkout for LEVA skincare with Cash on Delivery across Pakistan.",
@@ -8,10 +10,11 @@ export const metadata: Metadata = {
 };
 import { Suspense } from "react";
 import View from "./view";
+import { CheckoutSkeleton } from "@/routes/checkout";
 
 export default function Page() {
   return (
-    <Suspense>
+    <Suspense fallback={<CheckoutSkeleton />}>
       <View />
     </Suspense>
   );

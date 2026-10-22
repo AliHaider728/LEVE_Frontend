@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage, type StateStorage } from "zustand/middleware";
 
 type CartState = {
   items: Record<string, number>;
@@ -33,6 +34,38 @@ if (typeof window !== "undefined") {
     // ignore storage errors
   }
 }
+
+const safeLocalStorage: StateStorage = {
+  getItem: (name: string): string | null => {
+    if (typeof window === "undefined") return null;
+    try {
+      return window.localStorage.getItem(name);
+    } catch {
+      return null;
+    }
+  },
+  setItem: (name: string, value: string): void => {
+    if (typeof window === "undefined") return;
+    try {
+      // CRITICAL: Never write to localStorage before hydration has completed.
+      // This guarantees an unhydrated initial state can never overwrite a saved cart.
+      if (useCart?.persist && !useCart.persist.hasHydrated()) {
+        return;
+      }
+      window.localStorage.setItem(name, value);
+    } catch {
+      // ignore storage write errors
+    }
+  },
+  removeItem: (name: string): void => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.removeItem(name);
+    } catch {
+      // ignore
+    }
+  },
+};
 
 export const useCart = create<CartState>()(
   persist(
@@ -105,6 +138,7 @@ export const useCart = create<CartState>()(
     {
       name: "leva-cart",
       version: 2,
+      storage: createJSONStorage(() => safeLocalStorage),
       migrate: (stored) => {
         const old = (stored ?? {}) as Record<string, unknown>;
         const lines = (value: unknown): Record<string, number> => Object.fromEntries(
@@ -118,3 +152,25 @@ export const useCart = create<CartState>()(
     },
   ),
 );
+
+export function useCartHydrated(): boolean {
+  const [hydrated, setHydrated] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return Boolean(useCart.persist?.hasHydrated?.());
+  });
+
+  useEffect(() => {
+    if (useCart.persist?.hasHydrated?.()) {
+      setHydrated(true);
+      return;
+    }
+    const unsub = useCart.persist?.onFinishHydration?.(() => {
+      setHydrated(true);
+    });
+    return () => {
+      unsub?.();
+    };
+  }, []);
+
+  return hydrated;
+}

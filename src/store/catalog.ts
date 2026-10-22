@@ -21,6 +21,10 @@ export const useStoreData = create<StoreData>((set, get) => ({
     set({ loading: true, notice: "" });
     const [catalog, settings] = await Promise.allSettled([catalogApi.listProducts(), catalogApi.settings()]);
     const products = catalog.status === "fulfilled" ? catalog.value : get().products;
+    const resolvedSettings = settings.status === "fulfilled" ? settings.value : get().settings;
+    if (catalog.status === "fulfilled" && products.length > 0) {
+      set({ products, settings: resolvedSettings, ready: true });
+    }
     const [bundles, reviews] = await Promise.allSettled([catalogApi.listBundles(products), catalog.status === "fulfilled" ? catalogApi.reviews(products) : Promise.reject(new Error("Catalog unavailable"))]);
     for (const [source, result] of Object.entries({ products: catalog, settings, bundles, reviews })) {
       if (result.status === "rejected") {
@@ -30,7 +34,7 @@ export const useStoreData = create<StoreData>((set, get) => ({
     }
     // Reviews have their own fallback and do not affect product availability.
     const fallback = [catalog, settings, bundles].some(result => result.status === "rejected");
-    set({ products, settings: settings.status === "fulfilled" ? settings.value : storeConfig,
+    set({ products, settings: resolvedSettings,
       bundles: bundles.status === "fulfilled" ? bundles.value : get().bundles,
       reviews: reviews.status === "fulfilled" ? reviews.value : get().reviews,
       reviewsLive: reviews.status === "fulfilled", loading: false, ready: true,

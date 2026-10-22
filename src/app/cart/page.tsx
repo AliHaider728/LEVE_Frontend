@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Your Cart — LEVA Pakistan",
   description: "Review your LEVA skincare order in PKR.",
@@ -8,10 +10,11 @@ export const metadata: Metadata = {
 };
 import { Suspense } from "react";
 import View from "./view";
+import { CartSkeleton } from "@/routes/cart";
 
 export default function Page() {
   return (
-    <Suspense>
+    <Suspense fallback={<CartSkeleton />}>
       <View />
     </Suspense>
   );
