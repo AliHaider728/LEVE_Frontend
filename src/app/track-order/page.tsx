@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Track Your Order — LEVA Pakistan",
-  description: "Check the status of your LEVA order with your order number and mobile number.",
-  openGraph: { title: "Track Your LEVA Order", description: "Enter your order number and phone to see your order status.", type: "website" },
+  description: "Track your LEVA order using WhatsApp number, email, or order ID.",
+  openGraph: { title: "Track Your LEVA Order", description: "Enter your WhatsApp number, email, or order number to see live tracking details.", type: "website" },
   twitter: { card: "summary_large_image" },
 };
 import { Suspense } from "react";

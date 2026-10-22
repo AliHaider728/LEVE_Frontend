@@ -18,6 +18,25 @@ const nextConfig = (phase: string): NextConfig => ({
       // Add your future CDN domain here, e.g. { protocol: "https", hostname: "cdn.leva.pk" }
     ],
   },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        ],
+      },
+      {
+        source: "/(track-order|account|checkout|cart|admin/:path*|api/:path*)",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" },
+          { key: "Pragma", value: "no-cache" },
+          { key: "Expires", value: "0" },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       {
