@@ -88,10 +88,7 @@ interface TrackResult {
 }
 
 function TrackOrder() {
-  const search = Route.useSearch();
-  const initialValue = search.query || search.order || "";
-
-  const [queryInput, setQueryInput] = useState(initialValue);
+  const [queryInput, setQueryInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -149,12 +146,6 @@ function TrackOrder() {
     }
     await fetchTracking(r.data.query);
   };
-
-  useEffect(() => {
-    if (initialValue && initialValue.length >= 3) {
-      void fetchTracking(initialValue);
-    }
-  }, [initialValue]);
 
   const getStageIcon = (key: string) => {
     switch (key) {
