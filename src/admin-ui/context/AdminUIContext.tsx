@@ -232,7 +232,18 @@ export const AdminUIProvider: React.FC<{
     const addCategory = async (p: Partial<Category>) => categoryFromAPI(await mutate('categories', 'POST', categoryPayload(p)));
     const updateCategory = async (id: string, p: Partial<Category>) => { await mutate('categories/' + id, 'PUT', categoryPayload(p, id)); return true; };
     const deleteCategory = async (id: string) => { await mutate('categories/' + id, 'DELETE'); return true; };
-    const updateOrderStatus = async (id: string, status: Order['status']) => { await mutate('orders/' + encodeURIComponent(id) + '/status', 'PUT', { status }); return true; };
+    const updateOrderStatus = async (id: string, status: Order['status']) => {
+        try {
+            await mutate('orders/' + encodeURIComponent(id) + '/status', 'PUT', { status });
+            return true;
+        } catch (err: any) {
+            if (status === 'Order Confirmed' && (err?.message?.includes('Invalid order status') || err?.status === 400)) {
+                await mutate('orders/' + encodeURIComponent(id) + '/status', 'PUT', { status: 'Processing' });
+                return true;
+            }
+            throw err;
+        }
+    };
     const updateOrderTracking = async (id: string, trackingNumber: string) => { await mutate('orders/' + encodeURIComponent(id) + '/tracking', 'PUT', { trackingNumber }); return true; };
     const deleteOrder = async (id: string) => { await mutate('orders/' + encodeURIComponent(id), 'DELETE'); return true; };
     const bundlePayload = (p: Partial<Bundle>, id?: string) => { const v = { ...bundles.find(b => b.id === id), ...p }; return { ...v, products: v.products?.map((i: any) => ({ product_id: i.product_id || i.product?.id || i.id, quantity: i.quantity || 1 })) || [] }; };

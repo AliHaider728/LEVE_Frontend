@@ -42,6 +42,9 @@ function readMockCookie(): AuthUser | null {
 }
 
 export const authApi = {
+  setAutoUser(user: AuthUser | null) {
+    setMockCookie(user);
+  },
   async login(input: LoginInput): Promise<AuthUser> {
     if (USE_REMOTE) {
       const data = await remote<{ user?: AuthUser; token?: string } & AuthUser>("/login", input);

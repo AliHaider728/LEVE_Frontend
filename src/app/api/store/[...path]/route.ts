@@ -11,7 +11,7 @@ const allowed: Array<{ pattern: RegExp; methods: string[] }> = [
   { pattern: /^(?:api\/)?reviews\/product\/[^/]+$/, methods: ['GET'] },
   { pattern: /^(?:api\/)?reviews$/, methods: ['POST'] },
   { pattern: /^(?:api\/)?coupons\/validate$/, methods: ['POST'] },
-  { pattern: /^(?:api\/)?orders$/, methods: ['POST'] },
+  { pattern: /^(?:api\/)?orders(?:\/track)?$/, methods: ['GET', 'POST'] },
   { pattern: /^(?:api\/)?auth\/(?:login|register|logout|me|forgot-password|reset-password)$/, methods: ['GET', 'POST'] },
 ];
 

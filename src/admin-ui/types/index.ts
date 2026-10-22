@@ -236,6 +236,8 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  orderId?: string;
+  user_id?: string | null;
   date: string;
   createdAt?: string;
   customerName: string;
@@ -246,17 +248,31 @@ export interface Order {
   discount: number;
   shipping: number;
   total: number;
-  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  status: 'Pending' | 'Order Confirmed' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   shippingAddress: {
     fullName: string;
     phone?: string;
     street: string;
     city: string;
-    state: string;
-    postalCode: string;
-    country: string;
+    province?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+    notes?: string;
+  };
+  billingAddress?: {
+    fullName?: string;
+    phone?: string;
+    street?: string;
+    city?: string;
+    province?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
   };
   paymentMethod: string;
+  paymentStatus?: string;
+  notes?: string;
   statusHistory?: { id: string; status: string; note?: string; timestamp: string }[];
   trackingNumber?: string;
 }

@@ -23,6 +23,8 @@ import { useCart, useCartHydrated } from "@/store/cart";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { API_URL } from "@/lib/api/client";
+import { authApi } from "@/lib/api/auth";
+import { useAuth } from "@/store/auth";
 import { buildCheckoutPayload, placeOrder } from "@/lib/api/checkout";
 import { CatalogStatus } from "@/components/product/CatalogStatus";
 import { CheckoutTrust } from "@/components/layout/CheckoutTrust";
@@ -343,6 +345,19 @@ function Checkout() {
       const orderNumber = confirmed.orderNumber;
       saveOrder(confirmed);
       cart.clear();
+
+      // Automatically log into customer session upon placing order
+      if (d.email && d.email.trim()) {
+        const autoUser = {
+          id: (confirmed as any).customerUser?.id || (confirmed as any).userId || "cust_" + Date.now().toString(36),
+          name: d.fullName.trim(),
+          email: d.email.trim().toLowerCase(),
+          phone: d.mobile.trim(),
+        };
+        authApi.setAutoUser(autoUser);
+        useAuth.setState({ user: autoUser, ready: true });
+      }
+
       await navigate({ to: "/order-confirmation/$orderNumber", params: { orderNumber } });
     } catch (error) {
       setFailed(error instanceof Error ? error.message : "We couldn’t place your order. Please try again.");

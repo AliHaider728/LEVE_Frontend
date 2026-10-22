@@ -4,6 +4,7 @@ import { createFileRoute, Link, useNavigate } from "@/lib/router-compat";
 import { z } from "zod";
 import { toast } from "sonner";
 import { WishlistContents } from "@/app/wishlist/view";
+import { readOrders } from "@/lib/orders";
 import { formatPKR } from "@/config/store";
 import { useAuth } from "@/store/auth";
 import { Button } from "@/components/ui/button";
@@ -48,9 +49,19 @@ function Account() {
   const { user, ready, init } = useAuth();
   const { tab = "orders" } = Route.useSearch();
   const navigate = useNavigate();
-  const [addresses, setAddresses] = useState<Address[]>([
-    { id: 1, label: "Home", line: "House 12, Street 4, DHA Phase 5", city: "Lahore" },
-  ]);
+  const localOrders = readOrders();
+  const displayOrders = localOrders.length > 0
+    ? localOrders.map((o) => ({
+        no: o.orderNumber,
+        date: new Date(o.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" }),
+        total: o.total,
+        status: o.status,
+      }))
+    : orders;
+  const initialAddress = localOrders.length > 0 && localOrders[0].address
+    ? [{ id: 1, label: "Home", line: localOrders[0].address.street, city: localOrders[0].address.city }]
+    : [{ id: 1, label: "Home", line: "House 12, Street 4, DHA Phase 5", city: "Lahore" }];
+  const [addresses, setAddresses] = useState<Address[]>(initialAddress);
   const [editing, setEditing] = useState<Address | null>(null);
   useEffect(() => {
     void init();
@@ -99,17 +110,19 @@ function Account() {
 
         <TabsContent value="orders" className="mt-5">
           <ul className="divide-y divide-primary/10 rounded-2xl border border-primary/10 bg-white">
-            {orders.map((o) => (
+            {displayOrders.map((o) => (
               <li key={o.no} className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
                   <p className="font-medium">{o.no}</p>
                   <p className="text-sm text-muted-foreground">{o.date} · {formatPKR(o.total)}</p>
                 </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusTone[o.status]}`}>{o.status}</span>
+                <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusTone[o.status] || "bg-primary text-primary-foreground"}`}>{o.status}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-xs text-muted-foreground">Sample orders shown until your account is connected.</p>
+          {localOrders.length === 0 && (
+            <p className="mt-3 text-xs text-muted-foreground">Sample orders shown until your account is connected.</p>
+          )}
         </TabsContent>
 
         <TabsContent value="addresses" className="mt-5 space-y-4">

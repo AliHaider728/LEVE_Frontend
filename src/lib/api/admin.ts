@@ -70,7 +70,7 @@ export interface OrderPage {
     page: number;
     totalPages: number;
 }
-export const orderStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+export const orderStatuses = ['Pending', 'Order Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
 const json = (method: string, body: unknown) => ({ method, body: JSON.stringify(body) });
 export function normalizeAdminProduct(product: AdminProduct): AdminProduct { const result = { ...product }; for (const key of ["isVisible", "inStock", "trackInventory", "isFeatured", "isBestseller", "isNewArrival", "isSpotlight"]) {
     if (result[key] !== undefined)

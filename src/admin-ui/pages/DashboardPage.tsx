@@ -208,12 +208,17 @@ export const DashboardPage: React.FC = () => {
                   <td className="p-4 text-[#382b31]/50 text-xs">{order.date}</td>
                   <td className="p-4 font-bold text-[#382b31]">{formatPrice(order.total)}</td>
                   <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wide inline-block ${order.status === 'Delivered' ? 'bg-[#FFF4F6] text-[#673742] border border-[#ecdfe4]' :
-                (order.status === 'Shipped' || order.status === 'Processing') ? 'bg-[#FFF4F6] text-[#673742] border border-[#ecdfe4]' :
-                    order.status === 'Cancelled' ? 'bg-red-100 text-red-800 border border-red-200' :
-                        'bg-[#FFF4F6] text-[#673742] border border-[#ecdfe4]'}`}>
-                      {order.status || 'Pending'}
-                    </span>
+                    {(() => {
+                      const displayStatus = order.status === 'Processing' ? 'Order Confirmed' : (order.status || 'Pending');
+                      return (
+                        <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wide inline-block ${displayStatus === 'Delivered' ? 'bg-[#FFF4F6] text-[#673742] border border-[#ecdfe4]' :
+                          (displayStatus === 'Shipped' || displayStatus === 'Order Confirmed') ? 'bg-[#FFF4F6] text-[#673742] border border-[#ecdfe4]' :
+                          displayStatus === 'Cancelled' ? 'bg-red-100 text-red-800 border border-red-200' :
+                          'bg-[#FFF4F6] text-[#673742] border border-[#ecdfe4]'}`}>
+                          {displayStatus}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="p-4 pr-6 text-right">
                     <button type="button" onClick={() => setActivePage('orders')} className="text-xs font-bold text-[#673742] hover:underline opacity-0 group-hover:opacity-100 transition-opacity">

@@ -12,7 +12,43 @@ export function uiRequest<T>(path:string,method='GET',body?:unknown):Promise<T>{
 }
 export async function uploadImage(file:File):Promise<string>{if(file.size>5*1024*1024||!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Choose a JPEG, PNG or WebP image under 5 MB.');const data=new FormData();data.append('image',file);try{const result=await uiRequest<{url:string}>('upload/image','POST',data);return result.url;}catch(error){toast.error(error instanceof Error?error.message:'Image upload failed.');throw error;}}
 export const productFromAPI=(p:any):Product=>({...p,category:p.categoryNames?.[0]||'',categorySlug:p.categorySlugs?.[0]||'',brand:p.brand||'LEVA',price:Number(p.price),originalPrice:p.originalPrice==null?undefined:Number(p.originalPrice),features:p.features||[],tags:p.tags||[],specifications:p.specifications||{},attributes:p.attributes||p.variants||[],variations:p.variations||[],images:p.images||[],description:p.description||'',safetyInfo:p.safetyInfo||''});
-export const orderFromAPI=(o:any):Order=>({...o,id:o.orderId,date:o.createdAt,customerName:o.customerName||o.shippingAddress?.fullName||'Guest',email:o.email||o.guestEmail||'',phone:o.phone||o.guestPhone||'',discount:Number(o.discountAmount||0),shipping:Number(o.shippingFee||0),subtotal:Number(o.subtotal||0),total:Number(o.total||0),items:(o.items||[]).map((i:any)=>({...i,name:i.productName||i.name||'',price:Number(i.price),image:i.image||''})),shippingAddress:{...o.shippingAddress,street:o.shippingAddress?.street||o.shippingAddress?.address||''}});
+export const orderFromAPI=(o:any):Order=>({
+  ...o,
+  id: o.orderId || o.id,
+  orderId: o.orderId || o.id,
+  user_id: o.user_id || null,
+  date: o.date || (o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' }) : ''),
+  createdAt: o.createdAt || o.date,
+  customerName: o.customerName || o.shippingAddress?.fullName || o.shippingAddress?.name || (o.guestEmail ? o.guestEmail.split('@')[0] : 'Guest Customer'),
+  email: o.email || o.guestEmail || '',
+  phone: o.phone || o.guestPhone || o.shippingAddress?.phone || '',
+  discount: Number(o.discountAmount || o.discount || 0),
+  shipping: Number(o.shippingFee || o.shipping || 0),
+  subtotal: Number(o.subtotal || 0),
+  total: Number(o.total || 0),
+  status: o.status === 'Processing' ? 'Order Confirmed' : (o.status || 'Pending'),
+  paymentMethod: o.paymentMethod || 'Cash on Delivery (COD)',
+  paymentStatus: o.status === 'Delivered' ? 'Paid (COD Collected)' : (o.status === 'Cancelled' ? 'Cancelled' : 'Unpaid (Due on Delivery)'),
+  items: (o.items||[]).map((i:any)=>({
+    ...i,
+    name: i.productName || i.name || 'Product',
+    price: Number(i.price || 0),
+    image: i.image || '',
+    quantity: Number(i.quantity || 1)
+  })),
+  shippingAddress: {
+    fullName: o.shippingAddress?.fullName || o.shippingAddress?.name || o.customerName || '',
+    phone: o.shippingAddress?.phone || o.phone || o.guestPhone || '',
+    street: o.shippingAddress?.street || o.shippingAddress?.address || '',
+    city: o.shippingAddress?.city || '',
+    province: o.shippingAddress?.province || o.shippingAddress?.state || '',
+    state: o.shippingAddress?.state || o.shippingAddress?.province || '',
+    postalCode: o.shippingAddress?.postalCode || '',
+    country: o.shippingAddress?.country || 'Pakistan',
+    notes: o.shippingAddress?.notes || o.notes || '',
+    ...o.shippingAddress
+  }
+});
 export const bundleFromAPI=(b:any):Bundle=>({...b,discountPercent:Number(b.discountPercent||0),products:(b.products||[]).map((p:any)=>({product:productFromAPI(p.product||p),quantity:Number(p.quantity||p.bundle_quantity||1)}))});
 export const couponFromAPI=(c:any):Coupon=>({...c,amount:Number(c.discountValue),minSpend:Number(c.minPurchase),usedCount:Number(c.usageCount),expiryDate:c.expiryDate?String(c.expiryDate).slice(0,10):''});
 const categoryImage=(value:any):string=>{if(typeof value!=='string')return value?.url||'';try{const parsed=JSON.parse(value);return typeof parsed==='string'?parsed:parsed?.url||'';}catch{return value;}};
