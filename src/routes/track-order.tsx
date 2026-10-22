@@ -1,26 +1,28 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { createFileRoute } from "@/lib/router-compat";
 import { z } from "zod";
 import { formatPKR, storeConfig } from "@/config/store";
 import { whatsappLink } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Clock, Truck, PackageCheck, AlertCircle, Loader2, MessageCircle } from "lucide-react";
+import { CheckCircle2, Clock, Truck, PackageCheck, AlertCircle, Loader2, MessageCircle, Search } from "lucide-react";
 
 export const Route = createFileRoute("/track-order")({
-  validateSearch: (s: Record<string, unknown>): { order?: string } =>
-    typeof s["order"] === "string" ? { order: s["order"] } : {},
+  validateSearch: (s: Record<string, unknown>): { order?: string; query?: string } => ({
+    order: typeof s["order"] === "string" ? s["order"] : undefined,
+    query: typeof s["query"] === "string" ? s["query"] : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Track Your Order — LEVA Pakistan" },
       {
         name: "description",
-        content: "Check the status of your LEVA order with your order number and mobile number.",
+        content: "Track your LEVA order using your WhatsApp/Mobile number, Email, or Order ID.",
       },
       { property: "og:title", content: "Track Your LEVA Order" },
       {
         property: "og:description",
-        content: "Enter your order number and phone to see your order status.",
+        content: "Enter your WhatsApp number, email, or order number to see live tracking details.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -30,15 +32,10 @@ export const Route = createFileRoute("/track-order")({
 });
 
 const schema = z.object({
-  order: z
+  query: z
     .string()
     .trim()
-    .min(3, "Please enter your order number or courier tracking number."),
-  phone: z
-    .string()
-    .trim()
-    .optional()
-    .or(z.literal("")),
+    .min(3, "Please enter your WhatsApp/Mobile number, Email, or Order ID."),
 });
 
 interface TrackItem {
@@ -57,6 +54,15 @@ interface TrackStage {
   completed: boolean;
   current: boolean;
   date?: string | null;
+}
+
+interface OrderSummaryItem {
+  orderId: string;
+  orderNumber: string;
+  date: string;
+  status: string;
+  total: number;
+  trackingNumber?: string | null;
 }
 
 interface TrackResult {
@@ -78,22 +84,26 @@ interface TrackResult {
   items: TrackItem[];
   stages: TrackStage[];
   statusHistory?: Array<{ status: string; note?: string; timestamp: string }>;
+  multipleOrders?: OrderSummaryItem[];
 }
 
 function TrackOrder() {
   const search = Route.useSearch();
+  const initialValue = search.query || search.order || "";
+
+  const [queryInput, setQueryInput] = useState(initialValue);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [result, setResult] = useState<TrackResult | null>(null);
 
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const r = schema.safeParse(Object.fromEntries(new FormData(e.currentTarget)));
-    if (!r.success) {
-      setErrors(Object.fromEntries(r.error.issues.map((i) => [String(i.path[0]), i.message])));
+  const fetchTracking = async (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed || trimmed.length < 3) {
+      setErrors({ query: "Please enter your WhatsApp/Mobile number, Email, or Order ID." });
       return;
     }
+
     setErrors({});
     setErrorMsg("");
     setLoading(true);
@@ -106,8 +116,8 @@ function TrackOrder() {
           "X-Leva-Storefront": "1",
         },
         body: JSON.stringify({
-          orderId: r.data.order,
-          phone: r.data.phone,
+          query: trimmed,
+          orderId: trimmed,
         }),
       });
 
@@ -116,7 +126,7 @@ function TrackOrder() {
       if (!res.ok || !data) {
         setErrorMsg(
           data?.error ||
-            "We could not find this order. Please verify your order number and mobile number.",
+            "No order found matching these details. Please verify your WhatsApp number, Email, or Order ID.",
         );
         setResult(null);
       } else {
@@ -129,6 +139,22 @@ function TrackOrder() {
       setLoading(false);
     }
   };
+
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const r = schema.safeParse(Object.fromEntries(new FormData(e.currentTarget)));
+    if (!r.success) {
+      setErrors(Object.fromEntries(r.error.issues.map((i) => [String(i.path[0]), i.message])));
+      return;
+    }
+    await fetchTracking(r.data.query);
+  };
+
+  useEffect(() => {
+    if (initialValue && initialValue.length >= 3) {
+      void fetchTracking(initialValue);
+    }
+  }, [initialValue]);
 
   const getStageIcon = (key: string) => {
     switch (key) {
@@ -150,47 +176,43 @@ function TrackOrder() {
       <div className="text-center sm:text-left">
         <h1 className="text-3xl font-light md:text-4xl">Track Your Order</h1>
         <p className="mt-3 text-base text-muted-foreground">
-          Enter your order number or tracking code along with your mobile number to view live order progress.
+          Enter any one detail — your WhatsApp/Mobile number, Email address, or Order ID — to check your live order status.
         </p>
       </div>
 
-      {/* Tracking Form */}
-      <form onSubmit={submit} noValidate className="mt-8 grid gap-5 rounded-2xl border border-primary/10 bg-secondary/20 p-5 sm:p-6">
-        <label className="grid gap-2 text-xs font-medium uppercase tracking-wider">
-          Order Number or Tracking Code
-          <input
-            name="order"
-            defaultValue={search.order}
-            placeholder="e.g. LEV-MVJA1Z2Z-AEAF0F or TCS-12345"
-            className="min-h-12 border border-primary/20 bg-background px-3.5 text-base normal-case tracking-normal rounded-xl outline-none focus:border-primary transition-colors"
-          />
-          {errors["order"] && (
+      {/* Unified Single-Field Tracking Form */}
+      <form onSubmit={submit} noValidate className="mt-8 grid gap-4 rounded-2xl border border-primary/10 bg-secondary/20 p-5 sm:p-6">
+        <label className="grid gap-2 text-xs font-semibold uppercase tracking-wider text-foreground">
+          WhatsApp / Mobile Number, Email, or Order ID
+          <div className="relative">
+            <input
+              name="query"
+              value={queryInput}
+              onChange={(e) => {
+                setQueryInput(e.target.value);
+                if (errors["query"]) setErrors({});
+              }}
+              placeholder="e.g. 03147080907, customer@example.com, or LEV-..."
+              autoComplete="on"
+              className="min-h-12 w-full border border-primary/20 bg-background px-3.5 pr-10 text-base normal-case tracking-normal rounded-xl outline-none focus:border-primary transition-colors"
+            />
+            <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          </div>
+          {errors["query"] && (
             <span role="alert" className="text-xs normal-case tracking-normal text-destructive font-medium">
-              {errors["order"]}
+              {errors["query"]}
             </span>
           )}
+          <span className="text-[11px] normal-case tracking-normal text-muted-foreground font-normal">
+            No need to remember an order ID — you can also track instantly with your WhatsApp number or Email.
+          </span>
         </label>
-        <label className="grid gap-2 text-xs font-medium uppercase tracking-wider">
-          Mobile Number (Optional)
-          <input
-            name="phone"
-            type="tel"
-            inputMode="numeric"
-            autoComplete="tel"
-            placeholder="0300-1234567 (optional)"
-            className="min-h-12 border border-primary/20 bg-background px-3.5 text-base normal-case tracking-normal rounded-xl outline-none focus:border-primary transition-colors"
-          />
-          {errors["phone"] && (
-            <span role="alert" className="text-xs normal-case tracking-normal text-destructive font-medium">
-              {errors["phone"]}
-            </span>
-          )}
-        </label>
+
         <Button type="submit" disabled={loading} className="h-12 font-medium tracking-wide">
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Checking Order Status…
+              Locating Your Order…
             </>
           ) : (
             "Track Order"
@@ -206,18 +228,46 @@ function TrackOrder() {
             <div className="space-y-1">
               <p className="font-semibold text-destructive">{errorMsg}</p>
               <p className="text-muted-foreground text-xs leading-relaxed">
-                Need assistance?{" "}
+                Need quick assistance?{" "}
                 <a
                   className="font-semibold text-primary underline underline-offset-2"
-                  href={whatsappLink("Hi LEVA, I need help tracking my order.")}
+                  href={whatsappLink("Hi LEVA, I need help finding my order details.")}
                   target="_blank"
                   rel="noreferrer"
                 >
                   Message us on WhatsApp
                 </a>{" "}
-                and our customer support team will assist you immediately.
+                and we will check it for you immediately.
               </p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Multiple Orders Selector (if customer placed multiple orders) */}
+      {result?.multipleOrders && result.multipleOrders.length > 1 && (
+        <div className="mt-6 rounded-2xl border border-primary/15 bg-white p-4">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2.5">
+            Multiple orders found for this contact ({result.multipleOrders.length}):
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {result.multipleOrders.map((ord) => (
+              <button
+                key={ord.orderId}
+                type="button"
+                onClick={() => {
+                  setQueryInput(ord.orderId);
+                  void fetchTracking(ord.orderId);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-medium border transition-colors ${
+                  result.orderId === ord.orderId
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-secondary/40 text-foreground border-primary/15 hover:bg-secondary"
+                }`}
+              >
+                {ord.orderNumber} ({ord.status})
+              </button>
+            ))}
           </div>
         </div>
       )}
@@ -237,7 +287,7 @@ function TrackOrder() {
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                   result.status === 'Delivered'
                     ? 'bg-emerald-100 text-emerald-800'
-                    : (result.status === 'Shipped' || result.status === 'Order Confirmed')
+                    : (result.status === 'Shipped' || result.status === 'Order Confirmed' || result.status === 'Processing')
                       ? 'bg-blue-100 text-blue-800'
                       : result.isCancelled
                         ? 'bg-red-100 text-red-800'
@@ -255,7 +305,7 @@ function TrackOrder() {
                   <span className="text-[11px] font-bold uppercase tracking-wider text-blue-900 block">Courier Tracking Number</span>
                   <span className="font-mono text-sm font-bold text-blue-950">{result.trackingNumber}</span>
                 </div>
-                <span className="text-xs text-blue-800/80">Dispatched via TCS / Leopards</span>
+                <span className="text-xs text-blue-800/80">Dispatched via Courier</span>
               </div>
             )}
 

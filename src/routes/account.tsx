@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Package, PackageCheck, Loader2 } from "lucide-react";
 
 const tabs = ["orders", "addresses", "wishlist", "profile"] as const;
 type Tab = (typeof tabs)[number];
@@ -32,40 +33,119 @@ export const Route = createFileRoute("/account")({
   component: Account,
 });
 
-// Placeholder data until the API is connected.
-const orders = [
-  { no: "LEVA-10004", date: "2 Oct 2026", total: 5398, status: "Delivered" },
-  { no: "LEVA-10009", date: "5 Oct 2026", total: 2499, status: "Shipped" },
-  { no: "LEVA-10012", date: "7 Oct 2026", total: 7240, status: "Payment pending" },
-];
 const statusTone: Record<string, string> = {
-  Delivered: "bg-primary text-primary-foreground",
-  Shipped: "bg-accent text-accent-foreground",
+  Delivered: "bg-emerald-600 text-white",
+  Shipped: "bg-blue-600 text-white",
+  "Order Confirmed": "bg-[#673742] text-white",
+  Processing: "bg-[#673742] text-white",
+  Pending: "bg-amber-600 text-white",
+  "Order placed": "bg-amber-600 text-white",
   "Payment pending": "bg-secondary text-foreground",
 };
+
 type Address = { id: number; label: string; line: string; city: string };
+
+interface AccountOrder {
+  no: string;
+  date: string;
+  total: number;
+  status: string;
+}
 
 function Account() {
   const { user, ready, init } = useAuth();
   const { tab = "orders" } = Route.useSearch();
   const navigate = useNavigate();
-  const localOrders = readOrders();
-  const displayOrders = localOrders.length > 0
-    ? localOrders.map((o) => ({
-        no: o.orderNumber,
-        date: new Date(o.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" }),
-        total: o.total,
-        status: o.status,
-      }))
-    : orders;
-  const initialAddress = localOrders.length > 0 && localOrders[0].address
-    ? [{ id: 1, label: "Home", line: localOrders[0].address.street, city: localOrders[0].address.city }]
-    : [{ id: 1, label: "Home", line: "House 12, Street 4, DHA Phase 5", city: "Lahore" }];
+
+  const [customerOrders, setCustomerOrders] = useState<AccountOrder[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+
+  const initialAddress: Address[] = [
+    { id: 1, label: "Home", line: "House 12, Street 4, DHA Phase 5", city: "Lahore" }
+  ];
   const [addresses, setAddresses] = useState<Address[]>(initialAddress);
   const [editing, setEditing] = useState<Address | null>(null);
+
   useEffect(() => {
     void init();
   }, [init]);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadUserOrders() {
+      setLoadingOrders(true);
+      try {
+        // Read local orders placed in this browser
+        const local = readOrders();
+        const localFormatted: AccountOrder[] = local.map((o) => ({
+          no: o.orderNumber,
+          date: new Date(o.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" }),
+          total: o.total,
+          status: o.status === "Payment pending verification" ? "Payment pending" : "Order placed",
+        }));
+
+        if (local.length > 0 && local[0].address) {
+          setAddresses([
+            { id: 1, label: "Delivery Address", line: local[0].address.street, city: local[0].address.city }
+          ]);
+        }
+
+        // Fetch remote authenticated orders from backend
+        const res = await fetch("/api/store/orders", {
+          headers: { Accept: "application/json", "X-Leva-Storefront": "1" },
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const remoteList = Array.isArray(data) ? data : (Array.isArray(data?.orders) ? data.orders : []);
+          const remoteFormatted: AccountOrder[] = remoteList.map((o: any) => ({
+            no: o.orderId || o.orderNumber || o.id,
+            date: o.date
+              ? new Date(o.date).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })
+              : (o.createdAt ? new Date(o.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" }) : "Recent"),
+            total: Number(o.total || 0),
+            status: o.status === "Processing" ? "Order Confirmed" : (o.status || "Pending"),
+          }));
+
+          // Merge without duplicates
+          const seen = new Set<string>();
+          const merged: AccountOrder[] = [];
+          for (const ord of [...remoteFormatted, ...localFormatted]) {
+            if (ord.no && !seen.has(ord.no)) {
+              seen.add(ord.no);
+              merged.push(ord);
+            }
+          }
+          if (mounted) setCustomerOrders(merged);
+        } else {
+          if (mounted) setCustomerOrders(localFormatted);
+        }
+      } catch {
+        const local = readOrders();
+        if (mounted) {
+          setCustomerOrders(local.map((o) => ({
+            no: o.orderNumber,
+            date: new Date(o.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" }),
+            total: o.total,
+            status: o.status,
+          })));
+        }
+      } finally {
+        if (mounted) setLoadingOrders(false);
+      }
+    }
+
+    if (ready && user) {
+      void loadUserOrders();
+    } else {
+      setLoadingOrders(false);
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [ready, user]);
 
   if (!ready) return <main className="min-h-[60vh] pt-40" />;
   if (!user)
@@ -109,19 +189,48 @@ function Account() {
         </TabsList>
 
         <TabsContent value="orders" className="mt-5">
-          <ul className="divide-y divide-primary/10 rounded-2xl border border-primary/10 bg-white">
-            {displayOrders.map((o) => (
-              <li key={o.no} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                <div>
-                  <p className="font-medium">{o.no}</p>
-                  <p className="text-sm text-muted-foreground">{o.date} · {formatPKR(o.total)}</p>
-                </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusTone[o.status] || "bg-primary text-primary-foreground"}`}>{o.status}</span>
-              </li>
-            ))}
-          </ul>
-          {localOrders.length === 0 && (
-            <p className="mt-3 text-xs text-muted-foreground">Sample orders shown until your account is connected.</p>
+          {loadingOrders ? (
+            <div className="flex items-center justify-center p-12 text-muted-foreground">
+              <Loader2 className="size-6 animate-spin mr-2" />
+              <span>Loading your orders…</span>
+            </div>
+          ) : customerOrders.length === 0 ? (
+            <div className="rounded-2xl border border-primary/10 bg-secondary/20 p-8 text-center sm:p-12">
+              <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Package className="size-7" />
+              </div>
+              <h3 className="mt-4 text-lg font-medium text-foreground">No orders placed yet</h3>
+              <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
+                When you place an order with LEVA, you will be able to view its live status, timeline and history right here.
+              </p>
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
+                <Button asChild className="h-11 px-6">
+                  <Link to="/shop">Shop Products</Link>
+                </Button>
+                <Button asChild variant="outline" className="h-11 px-6">
+                  <Link to="/track-order">Track an Order</Link>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <ul className="divide-y divide-primary/10 rounded-2xl border border-primary/10 bg-white">
+              {customerOrders.map((o) => (
+                <li key={o.no} className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5">
+                  <div>
+                    <p className="font-semibold text-foreground tracking-tight">{o.no}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">{o.date} · {formatPKR(o.total)}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone[o.status] || "bg-primary text-primary-foreground"}`}>
+                      {o.status}
+                    </span>
+                    <Button asChild variant="outline" size="sm" className="h-8 text-xs font-medium">
+                      <Link to="/track-order" search={{ order: o.no }}>Track</Link>
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
         </TabsContent>
 
@@ -155,7 +264,6 @@ function Account() {
 
         <TabsContent value="wishlist" className="mt-5">
           <WishlistContents compact/>
-
         </TabsContent>
 
         <TabsContent value="profile" className="mt-5">
